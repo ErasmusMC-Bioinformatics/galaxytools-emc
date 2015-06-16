@@ -1,0 +1,39 @@
+# This is a sample file distributed with Galaxy that enables tools
+# to use gene/exon annotations in the GFF/GTF format. You will need
+# to add all the gene set annotations in this configuration file.
+# Because of this file, galaxy tools are able to access gene annotations
+# provided as GFF / GTF files by selecting on:
+# - Priorty (defined by the order in the file)
+# - Provider
+# - dbkey (reference genome id)
+# 
+# The gene_sets.loc file syntax is:
+# <name/UID> <dbkey> <path> <provider> <URL/reference*>
+#  *optional
+# 
+# Please ensure maximally one TAB (\t) between two columns!
+# ---------------------------------------------------------
+# 
+# In case you have TWO or MORE providers PER dbkey, the one mentioned
+# first in the file, should have the "default" priority.
+#
+
+
+
+# [UCSC - UCSC Genes: knownGene]
+
+#hg19.UCSC knownGene (mm/'yy)	hg19	/depot/data2/galaxy/hg19/gene_sets/Homo_sapiens.GRCh37.74.gtf	ucsc	http://genome.ucsc.edu/
+#hg18.UCSC knownGene (mm/'yy)	hg18	/depot/data2/galaxy/hg18/gene_sets/Homo_sapiens.NCBI36.54.gtf	ucsc	http://genome.ucsc.edu/
+
+
+
+# [RefSeq Genes: RefGene]
+# link: ftp://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/RefSeqGene/
+
+
+
+# [ Ensembl]
+# link: http://www.ensembl.org/info/data/ftp/index.html
+
+#Homo_sapiens.GRCh37.74	hg19	/depot/data2/galaxy/hg19/gene_sets/Homo_sapiens.GRCh37.74.gtf	ensembl	ftp://ftp.ensembl.org/pub/release-74/gtf/homo_sapiens/Homo_sapiens.GRCh37.74.gtf.gz
+#Homo_sapiens.NCBI36.54	hg18	/depot/data2/galaxy/hg18/gene_sets/Homo_sapiens.NCBI36.54.gtf	ensembl	ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz

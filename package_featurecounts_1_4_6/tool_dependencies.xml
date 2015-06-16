@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<tool_dependency>
+	<package name="featurecounts" version="1.4.6.p1">
+		<install version="1.0">
+			<actions>
+				<action type="shell_command">
+					wget http://garr.dl.sourceforge.net/project/subread/subread-1.4.6-p1/subread-1.4.6-p1-source.tar.gz	&amp;&amp;
+					tar -zxvf subread-1.4.6-p1-source.tar.gz															&amp;&amp;
+					cd subread-1.4.6-p1-source/src/																		&amp;&amp;
+					make -f Makefile.Linux																				&amp;&amp;
+					cd ../../
+				</action>
+				<action type="move_file">
+					<source>../subread-1.4.6-p1-source/bin/featureCounts</source>
+					<destination>$INSTALL_DIR/bin/</destination>
+				</action>
+				<action type="set_environment">
+					<environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+					<!--<environment_variable name="PATH" action="prepend_to">$REPOSITORY_INSTALL_DIR</environment_variable>-->
+				</action>
+			</actions>
+		</install>
+		<readme>
+			Downloads and installs featureCounts.
+			
+			Prerequisites:
+			- wget
+			- gnu-autotools (make)
+			- tar
+		</readme>
+	</package>
+</tool_dependency>
