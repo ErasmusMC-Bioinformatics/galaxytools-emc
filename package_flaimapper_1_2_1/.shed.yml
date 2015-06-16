@@ -1,0 +1,11 @@
+categories:
+- Tool Dependency Packages
+description: |
+  FlaiMapper: computational annotation of small ncRNA derived fragments using RNA-seq high throughput data
+long_description: |
+  FlaiMapper: computational annotation of small ncRNA derived fragments using RNA-seq high throughput data
+name: package_flaimapper_1_2_1
+owner: yhoogstrate
+homepage_url: https://github.com/yhoogstrate/flaimapper
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/flaimapper_galaxy_wrapper
+type: tool_dependency_definition

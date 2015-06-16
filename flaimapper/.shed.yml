@@ -1,0 +1,14 @@
+categories:
+- RNA
+- SAM
+- Sequence Analysis
+- Text Manipulation
+description: |
+  FlaiMapper: computational annotation of small ncRNA derived fragments using RNA-seq high throughput data
+long_description: |
+  FlaiMapper: computational annotation of small ncRNA derived fragments using RNA-seq high throughput data
+name: flaimapper
+owner: yhoogstrate
+homepage_url: https://github.com/yhoogstrate/flaimapper
+remote_repository_url: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools/raw/master/flaimapper
+type: unrestricted

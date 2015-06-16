@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="flaimapper" name="FlaiMapper" version="1.2.1.w1">
+	<description>Detect small ncRNA derived fragments using Fragment Location Annotation Identification Mapper.</description>
+	<requirements>
+		<requirement type="package" version="1.2.1">flaimapper</requirement>
+	</requirements>
+	
+	<stdio>
+		<regex match="in parse_gff.*?ValueError: invalid literal for int\(\) with base 10" source="stderr" level="fatal" description="The GTF file is corrupt: double check the columns of your GTF/GFF file.\n" />
+		<regex match="[fai_load] build FASTA index." source="stderr" level="log" />
+	</stdio>
+	
+	<version_command>flaimapper --version</version_command>
+	
+	<command>
+		flaimapper
+			 -v
+			 -f $output_format
+			 -o $output
+			 -m $mask
+			 -r $fasta
+		
+		#for $alignment in $alignments
+			$alignment
+		#end for
+	</command>
+	
+	<inputs>
+		<param name="alignments" type="data" format="bam" label="Alignment file(s)" help="Aligned small RNA-Seq reads which may not be fragmented. In case you add multiple BAM files, FlaiMapper will simply concatenate the data and perform one single analysis on the entire set of alignments." multiple="true" />
+		
+		<param name="mask" type="data" format="gtf,gff,gff3" label="small ncRNA Annotation (gtf)" help="" />
+			
+		<param name="fasta" type="data" format="fasta" label="Fasta sequence corresponding to reference genome" help="" />
+		
+		<param name="output_format" type="select" label="Output format">
+			<option value="1">Tabular (1 fragment per column)</option>
+			<option value="2">Tabular (1 precursor per column)</option>
+			<option value="3">GenBank</option>
+			<!-- option value="gtf">GTF/GFF</option -->
+		</param>
+	</inputs>
+	
+	<outputs>
+		<data format="tabular" name="output" label="${tool.name} on ${', '.join([ str(a.hid)+': '+a.name for a in $alignments ])}" />
+	</outputs>
+	
+	<tests>
+		<test><!-- Testing "ncRNAdb09 alignment"-type analysis -->
+			<param name="alignments"	value="test1/snord81.bam"		ftype="bam" />
+			<param name="mask"			value="test1/ncrnadb09.v2.gtf"	ftype="gtf" />
+			<param name="fasta"			value="test1/ncrnadb09.fa"		ftype="fasta" />
+			<param name="output_format"	value="1" />
+			
+			<output name="output"		file="test1/snord81.flaimapper.txt" />
+		</test>
+		<test><!-- Testing "Full genome alignment"-type analysis -->
+			<param name="alignments"	value="test2/test_genomic_alignment.bam"		ftype="bam" />
+			<param name="mask"			value="test2/test_genomic_genes.gtf"			ftype="gtf" />
+			<param name="fasta"			value="test2/test_genomic_all_chromosomes.fa"	ftype="fasta" />
+			<param name="output_format"	value="1" />
+			
+			<output name="output"		file="test2/test_genomic_flaimapper_output.txt" />
+		</test>
+	</tests>
+	
+	<help>
+FlaiMapper wrapper for Galaxy
+=============================
+
+https://github.com/yhoogstrate/flaimapper
+http://www.ncbi.nlm.nih.gov/pubmed/25338717
+http://dx.doi.org/10.1093/bioinformatics/btu696
+
+Fragment Location Annotation Identification Mapper
+
+FlaiMapper: computational annotation of small ncRNA-derived fragments using RNA-seq high-throughput data.
+
+
+Input
+-----
+
+Alignments
+**********
+
+Aligned reads from small RNA-Seq experiments have to be provided in the BAM format.
+In case you add multiple BAM files, FlaiMapper will simply concatenate the data and perform one single analysis on the entire set of alignments.
+
+Mask File
+*********
+
+There are two strategies to analyze using FlaiMapper:
+
+- Relative to mature ncRNA sequences
+- Relative to chromosomes
+
+Therefore FlaiMapper requires a list of ncRNA annotations relative to the used reference genome for the alignment files. These ncRNA locations within the sequences provided in the FASTA file (MASK) regions should be provided in the GFF/GTF format:
+
+- http://genome.ucsc.edu/FAQ/FAQformat.html#format3
+- http://www.ensembl.org/info/website/upload/gff.html
+
+If you are making use of a ncRNA database that has no GTF file available you can make use of the galaxy tool **flaimapper-gtf-from-fasta** to create one.
+
+
+You can access **ncRNAdb09** GTF file at the following URL:
+https://raw.githubusercontent.com/yhoogstrate/flaimapper/master/share/annotations/ncRNA_annotation/ncrnadb09.gtf *(mask file)*
+
+Fasta sequence
+**************
+
+The reference sequence should be provided in FASTA format.
+
+You can access **ncRNAdb09** FASTA file at the following URL:
+https://raw.githubusercontent.com/yhoogstrate/flaimapper/master/share/annotations/ncRNA_annotation/ncrnadb09.fa *(reference file)*
+
+Example- and reference data
+***************************
+
+To align reads to ncRNA you need aligner specific indexed version of the reference. We have made
+the following available for ncRNAdb09:
+
+ - **Tophat1**: https://github.com/yhoogstrate/flaimapper/blob/master/share/annotations/ncRNA_annotation/ncrnadb09.bt2.tar.gz
+ - **Tophat2**: https://github.com/yhoogstrate/flaimapper/blob/master/share/annotations/ncRNA_annotation/ncrnadb09.bt2.tar.gz
+
+If you want to test FlaiMapper with example data you can obtain several
+alignment files from the following directory tree:
+
+https://github.com/yhoogstrate/flaimapper/tree/master/share/small_RNA-seq_alignments
+
+Installation
+------------
+
+The wrapper makes use of easy_install to install a python egg. Please
+ensure you have easy_install installed.
+
+License
+-------
+
+**flaimapper** and **wrapper**:
+
+GPL (>=3)
+
+**pysam**:
+
+The MIT License
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands).
+
+
+Development
+-----------
+
+* Repository-Maintainer: Youri Hoogstrate
+* Repository-Developers: Youri Hoogstrate
+
+* Repository-Development: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands).
+
+	</help>
+	
+	<citations>
+		<citation type="doi">10.1093/bioinformatics/btu696</citation>
+	</citations>
+</tool>

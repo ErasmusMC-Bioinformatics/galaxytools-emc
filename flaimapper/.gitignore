@@ -1,0 +1,10 @@
+# Auto-indexing should be part of testing as well
+
+test-data/test1/ncrnadb09.fa.fai
+test-data/test1/snord81.bam.bai
+
+test-data/test2/test_genomic_all_chromosomes.fa.fai
+test-data/test2/test_genomic_alignment.bam.bai
+
+test-data/test3/ncrnadb09.fa.fai
+
