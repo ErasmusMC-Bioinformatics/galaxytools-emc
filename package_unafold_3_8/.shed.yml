@@ -1,0 +1,31 @@
+categories:
+- Tool Dependency Packages
+description: |
+  UNAFold: software for nucleic acid folding and hybridization.
+long_description: |
+  The UNAFold software package is an integrated collection of programs
+  that simulate folding, hybridization, and melting pathways for one or
+  two single-stranded nucleic acid sequences. The name is derived from
+  "Unified Nucleic Acid Folding." Folding (secondary structure)
+  prediction for single-stranded RNA or DNA combines free energy
+  minimization, partition function calculations and stochastic sampling.
+  For melting simulations, the package computes entire melting profiles,
+  not just melting temperatures. UV absorbance at 260 nm, heat capacity
+  change (C(p)), and mole fractions of different molecular species are
+  computed as a function of temperature. The package installs and runs
+  on all Unix and Linux platforms that we have looked at, including Mac
+  OS X. Images of secondary structures, hybridizations, and dot plots
+  may be computed using common formats. Similarly, a variety of melting
+  profile plots is created when appropriate. These latter plots include
+  experimental results if they are provided. The package is "command
+  line" driven. Underlying compiled programs may be used individually,
+  or in special combinations through the use of a variety of Perl
+  scripts. Users are encouraged to create their own scripts to
+  supplement what comes with the package. This evolving software is
+  available for download at
+  http://www.bioinfo.rpi.edu/applications/hybrid/download.php .
+name: package_unafold_3_8
+owner: yhoogstrate
+homepage_url: http://www.bioinfo.rpi.edu/applications/hybrid/download.php
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/unafold_galaxy_wrapper
+type: tool_dependency_definition

@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<tool id="unafold" name="UNAFold" version="1.0.0">
+    <description>UNAFold RNA and DNA structure prediction</description>
+    
+    <requirements>
+        <requirement type="package" version="3.8">unafold</requirement>
+    </requirements>
+    
+    <stdio>
+        <regex match="mv: cannot stat ..: No such file or directory" source="stderr" level="fatal" description="Could not find CT output file\n" />
+    </stdio>
+    
+    <version_command>UNAFold.pl --version</version_command>
+    
+    <command>
+        UNAFold.pl
+            -n $n.a
+            -t $temp
+            
+            #if $n.a == "DNA"
+                -N $sodium
+                -M $magnesium
+            #end if
+        
+        $input_file &amp;&amp;
+        output=\$(ls | grep &#92;.ct | sort -r | head -n 1) &amp;&amp;
+        mv "\$output" "$output_ct"
+    </command>
+    
+    <inputs>
+        <param format="fasta" name="input_file" type="data" label="Input sequence (FASTA)"/>
+    
+        <conditional name="n">
+            <param name="a" type="select" label="Nucleic Acid Type">
+                <option value="RNA" selected="true">RNA</option>
+                <option value="DNA">DNA</option>
+            </param>
+            
+            <when value="RNA">
+            </when>
+            <when value="DNA">
+                <param name="sodium" type="float" size="6" value="1.0" min="0" max="100" label="[Na+] in M"/>
+                <param name="magnesium" type="float" size="6" value="0.0" min="0" max="100" label="[Mg++] in M"/>
+            </when>
+        </conditional>
+        
+        <param name="temp" type="integer" size="3" value="37" min="0" max="100" label="Temperature (&#176;C)"/>
+    </inputs>
+    
+    <outputs>
+        <data format="ct" name="output_ct" label="${tool.name} on ${input_file.hid}: ${input_file.name}"/>
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="input_file" value="test1_input.fa" ftype="fasta" />
+            <param name="temp" value="37" />
+            
+            <output name="output_ct" file="test1_output.ct" />
+        </test>
+    </tests>
+
+    <help>
+        Usage: UNAFold.pl [options] file [file]
+
+        Options:
+        -V, --version
+        -h, --help
+        -n, --NA=(RNA | DNA) (defaults to RNA)
+        -t, --temp=&lt;temperature&gt; (defaults to 37)
+        -N, --sodium=&lt;[Na+] in M&gt; (defaults to 1)
+        -M, --magnesium=&lt;[Mg++] in M&gt; (defaults to 0)
+        -p, --polymer
+        -C, --Ct=&lt;total strand concentration&gt;
+        -I, --noisolate
+        -m, --maxbp=&lt;maximum basepair distance&gt;
+        -c, --constraints=&lt;name of constraints file&gt; (defaults to prefix.aux)
+        -P, --percent=&lt;energy increment percent&gt; (defaults to 5)
+        -W, --window=&lt;window size&gt; (default set by sequence length)
+        -X, --max=&lt;maximum number of foldings&gt; (defaults to 100)
+            --ann=(none | p-num | ss-count) (defaults to none)
+            --mode=(auto | bases | lines) (defaults to auto)
+            --label=&lt;base numbering frequency&gt;
+            --rotate=&lt;structure rotation angle&gt;
+            --run-type=(text | html) (defaults to text)
+            --model=(EM | PF) (defaults to EM)
+            --circular
+        Obscure options:
+            --allpairs
+            --maxloop=&lt;maximum bulge/interior loop size&gt; (defaults to 30)
+            --nodangle
+            --simple
+            --prefilter=&lt;filter value&gt;
+
+        Report bugs to markhn@rpi.edu
+    </help>
+    
+    <citations>
+        <citation type="doi">10.1007/978-1-60327-429-6_1</citation>
+    </citations>
+</tool>

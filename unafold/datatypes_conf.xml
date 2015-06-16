@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<datatypes>
+    <datatype_files>
+        <datatype_file name="RNAStructure.py"/>
+    </datatype_files>
+
+    <registration>
+        <datatype
+            extension="ct"
+            type="galaxy.datatypes.RNAStructure:ConnectivityTable"
+            display_in_upload="True"
+            subclass="True"
+            description="ConnectivityTable format is a text-based column wise format for storing both an RNA sequence and its corresponding 2D structure." />
+        <datatype
+            extension="rnaml"
+            type="galaxy.datatypes.RNAStructure:RNAML"
+            display_in_upload="True"
+            subclass="True"
+            description="RNAML: a standard syntax for exchanging RNA information."
+            url="http://www.ncbi.nlm.nih.gov/pubmed/12088144" />
+    </registration>
+    
+    <sniffers>
+    </sniffers>
+</datatypes>
