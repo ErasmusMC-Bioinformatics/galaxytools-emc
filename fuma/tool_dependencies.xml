@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tool_dependency>
+	<package name="fuma" version="2.7.1">
+		<repository name="package_fuma_2_7_1" owner="yhoogstrate" prior_installation_required="False" />
+	</package>
+</tool_dependency>

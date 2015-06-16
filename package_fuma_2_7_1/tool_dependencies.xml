@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<tool_dependency>
+	<package name="htseq" version="0.6.1">
+		<repository name="package_htseq_0_6" owner="iuc" prior_installation_required="True" />
+	</package>
+	
+	<package name="fuma" version="2.7.1">
+		<install version="1.0">
+			<actions>
+				<action type="set_environment_for_install">
+					<repository name="package_htseq_0_6" owner="iuc">
+						<package name="htseq" version="0.6.1" />
+					</repository>
+				</action>
+				
+				<action type="make_directory">$INSTALL_DIR/lib/python</action>
+				<action type="make_directory">$INSTALL_DIR/lib64/python</action>
+				
+				<action type="shell_command">
+					git clone https://github.com/yhoogstrate/fuma.git fuma							&amp;&amp;
+					cd fuma																			&amp;&amp;
+					git reset --hard 3d9a0532209d4ad10283cac324788b4fecfd2675						&amp;&amp;
+					
+					export PYTHONPATH=$PYTHONPATH:$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python	&amp;&amp;
+					python setup.py build															&amp;&amp;
+					python setup.py install --home $INSTALL_DIR --install-scripts $INSTALL_DIR/bin
+				</action>
+				
+				<action type="set_environment">
+					<environment_variable action="append_to" name="PYTHONPATH">$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python</environment_variable>
+					<environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
+				</action>
+			</actions>
+		</install>
+		<readme>
+			Downloads and installs FuMa. Prerequisites:
+				- git
+		</readme>
+	</package>
+</tool_dependency>

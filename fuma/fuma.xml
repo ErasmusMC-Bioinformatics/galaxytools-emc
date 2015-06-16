@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="fuma" name="FuMa" version="2.7.1.b">
+	<description>FuMa (FusionMatcher) matches detected fusion genes based on gene name subset matching (designed in particular for RNA-Seq).</description>
+	
+	<requirements>
+		<requirement type="package" version="2.7.1">fuma</requirement>
+	</requirements>
+	
+	<version_command>fuma --version 2>&amp;1 | head -n 1</version_command><!-- -V also works, but is not GNU standard -->
+	
+	<command>
+		#import pipes
+		
+		#set $gene_annotations = []
+		#set $samples = []
+		#set $links = []
+		
+		#for $i, $d in enumerate( $datasets )
+			
+			#set $sample_name = pipes.quote(str($d['sample'].name))
+			
+			#set $gene_annotations = $gene_annotations + [ "ga_" + str($i) + ":" + str($d['gene_annotation'].file_name) ]
+			
+			#set $samples = $samples + [ $sample_name + ":" + str($d['format']) + ":" + str($d['sample'].file_name) ]
+			#set $links = $links + [ $sample_name + ":" + str("ga_") + str($i) ]
+		#end for
+		
+		#set $gene_annotations_str = " ".join(gene_annotations)
+		#set $samples_str = " ".join(samples)
+		#set $links_str = " ".join(links)
+		
+		fuma 
+		  -a
+		    $gene_annotations_str
+		  -s
+		    $samples_str
+		  -l
+		    $links_str
+		#if $output_format.value == "list_boolean"
+		  -f list
+		#else
+		  -f $output_format.value
+		#end if
+		  -o $fuma_overview ; 
+		
+		
+		
+		#if $output_format.value == "list_boolean"
+			fuma-list-to-boolean-list -o tmp.txt $fuma_overview &amp;&amp;
+			mv tmp.txt $fuma_overview
+		#end if
+	</command>
+	
+	<inputs>
+		<repeat name="datasets" title="FusionGene Datasets" min="2">
+			<param name="sample" type="data" format="txt,tabular" label="Dataset (RNA-Seq fusion gene detection experiment)" />
+			<param name="format" type="select" label="Format of dataset">
+				<option value="chimerascan">ChimeraScan</option>
+				<option value="defuse">DeFuse</option>
+				<option value="complete-genomics">Complete Genomics</option>
+				<option value="fusion-catcher_final">Fusion Catcher (final-list file)</option>
+				<option value="fusionmap">FusionMap</option>
+				<option value="trinity-gmap">GMAP (As step after Trinity)</option>
+				<option value="oncofuse">OncoFuse</option>
+				<option value="rna-star_chimeric">STAR (chimeric file)</option>
+				<option value="tophat-fusion_pre">Tophat Fusion Pre (fusions.out)</option>
+				<option value="tophat-fusion_post_potential_fusion">Tophat Fusion Post (potential_fusion.txt)</option>
+				<option value="tophat-fusion_post_result">Tophat Fusion Post (result.txt)</option>
+			</param>
+			<param name="gene_annotation" type="data" format="bed" label="Corresponding gene-name annotation file (BED format)" help="Make use of persistent gene annotations! Gene annotations should only be different if different reference genome builds were used." />
+		</repeat>
+		
+		<param name="output_format" type="select" label="Output format">
+			<option value="list_boolean" selected="true">List (Boolean)</option>
+			<option value="list">List</option>
+			<option value="summary">Count summary</option>
+		</param>
+	</inputs>
+	
+	<outputs>
+		<data format="tabular" name="fuma_overview" label="${tool.name} on ${', '.join([ str(d['sample'].hid)+': '+d['sample'].name for d in $datasets ])}" />
+	</outputs>
+	
+	<tests>
+		<test>
+			<!-- <repeat name="datasets"> -->
+				<param name="datasets_0|sample" value="chimerascan.txt" ftype="tabular" />
+				<param name="datasets_0|format" value="chimerascan" />
+				<param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+			<!-- </repeat> -->
+			<!-- <repeat name="datasets"> -->
+				<param name="datasets_1|sample" value="defuse.txt" ftype="tabular" />
+				<param name="datasets_1|format" value="defuse" />
+				<param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+			<!-- </repeat> -->
+			<!-- <repeat name="datasets"> -->
+				<param name="datasets_2|sample" value="fusion-map.txt" ftype="tabular" />
+				<param name="datasets_2|format" value="fusionmap" />
+				<param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+			<!-- </repeat> -->
+			<!-- <repeat name="datasets"> -->
+				<param name="datasets_3|sample" value="edgren_tp.txt" ftype="tabular" />
+				<param name="datasets_3|format" value="fusionmap" />
+				<param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+			<!-- </repeat> -->
+			
+			<param name="output_format" value="summary" />
+			
+			<output name="fuma_overview" file="output.txt" />
+		</test>
+	</tests>
+	
+	<help>============
+Introduction
+============
+
+FuMa (Fusion Matcher) matches predicted fusion events (both genomic and transcriptomic) according to chromosomal location or assocatiated gene annotation(s) where the latter should be genome build inspecific.
+
+Because RNA-Sequencing deals with samples that may have undergrond splicing, reads may split up because of biological processes. If a fusion event takes place, the same thing may happen. Therefore we hypothesize that using spanning read distances may be unreliable, because there are known introns of > 100kb. Therefore, FuMa translates the breakpoint to gene names, and only overlaps breakpoints with the same genename(s).
+
+=====
+Usage
+=====
+
+After you have uploaded the results of your Fusion Gene detection experiment, and selected the format to be *tabular*, you can start the FuMa wrapper. For each dataset you simply have to add another repeat. Then you have to select a corresponding format:
+
+*******
+Formats
+*******
+
++-------------------+-----------------------+-------------------------------------+
+|Tools              | File                  | Format string                       |
++===================+=======================+=====================================+
+|ChimeraScan        | chimeras.bedpe        | chimerascan                         |
++-------------------+-----------------------+-------------------------------------+
+|Complete Genomics  | highConfidenceJu*.tsv | complete-genomics                   |
++-------------------+-----------------------+-------------------------------------+
+|Complete Genomics  | allJunctionsBeta*.tsv | complete-genomics                   |
++-------------------+-----------------------+-------------------------------------+
+|DeFuse             | results.txt           | defuse                              |
++-------------------+-----------------------+-------------------------------------+
+|DeFuse             | results.classify.txt  | defuse                              |
++-------------------+-----------------------+-------------------------------------+
+|DeFuse             | results.filtered.txt  | defuse                              |
++-------------------+-----------------------+-------------------------------------+
+|Fusion Catcher     | final-list_cand*.txt  | fusion-catcher_final                |
++-------------------+-----------------------+-------------------------------------+
+|FusionMap          |                       | fusionmap                           |
++-------------------+-----------------------+-------------------------------------+
+|Trinity + GMAP     |                       | trinity-gmap                        |
++-------------------+-----------------------+-------------------------------------+
+|OncoFuse           |                       | oncofuse                            |
++-------------------+-----------------------+-------------------------------------+
+|RNA STAR           | Chimeric.out.junction | rna-star_chimeric                   |
++-------------------+-----------------------+-------------------------------------+
+|TopHat Fusion pre  | fusions.out           | tophat-fusion_pre                   |
++-------------------+-----------------------+-------------------------------------+
+|TopHat Fusion post | potential_fusion.txt  | tophat-fusion_post_potential_fusion |
++-------------------+-----------------------+-------------------------------------+
+|TopHat Fusion post | result.txt            | tophat-fusion_post_result           |
++-------------------+-----------------------+-------------------------------------+
+
+To annotate genes upon the breakpoints you must provide a BED file that contains gene annotations for the user genome build. Make sure **your BED file contains one gene per line**. You should use BED files that contain one exon per line only if you want restrict your analysis to fusion genes detected within exons.
+
+UCSC genome browser provides a very simple way of obtaining BED files with one gene per line by selecting their *RefSeq Genes*-track and *knownGene*-table and putting the export format to BED. Galaxy should have a built-in UCSC table browser.
+
+	</help>
+	
+	<citations>
+	</citations>
+</tool>

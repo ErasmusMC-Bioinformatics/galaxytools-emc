@@ -1,0 +1,23 @@
+	chimerascan.txt (10914)	defuse.txt (258)	fusion-map.txt (58)	edgren_tp.txt (25)
+chimerascan.txt (10914)		32/10914 (0.29%) : 32/258 (12.4%)	17/10914 (0.16%) : 17/58 (29.31%)	18/10914 (0.16%) : 18/25 (72.0%)
+defuse.txt (258)	32/258 (12.4%) : 32/10914 (0.29%)		9/258 (3.49%) : 9/58 (15.52%)	17/258 (6.59%) : 17/25 (68.0%)
+fusion-map.txt (58)	17/58 (29.31%) : 17/10914 (0.16%)	9/58 (15.52%) : 9/258 (3.49%)		6/58 (10.34%) : 6/25 (24.0%)
+edgren_tp.txt (25)	18/25 (72.0%) : 18/10914 (0.16%)	17/25 (68.0%) : 17/258 (6.59%)	6/25 (24.0%) : 6/58 (10.34%)	
+
+
+	chimerascan.txt (10914)	defuse.txt (258)	fusion-map.txt (58)	edgren_tp.txt (25)
+chimerascan.txt & defuse.txt (32)			8/32 (25.0%) : 8/58 (13.79%)	15/32 (46.88%) : 15/25 (60.0%)
+chimerascan.txt & fusion-map.txt (17)		8/17 (47.06%) : 8/258 (3.1%)		5/17 (29.41%) : 5/25 (20.0%)
+chimerascan.txt & edgren_tp.txt (18)		15/18 (83.33%) : 15/258 (5.81%)	5/18 (27.78%) : 5/58 (8.62%)	
+defuse.txt & fusion-map.txt (9)	8/9 (88.89%) : 8/10914 (0.07%)			6/9 (66.67%) : 6/25 (24.0%)
+defuse.txt & edgren_tp.txt (17)	15/17 (88.24%) : 15/10914 (0.14%)		6/17 (35.29%) : 6/58 (10.34%)	
+fusion-map.txt & edgren_tp.txt (6)	5/6 (83.33%) : 5/10914 (0.05%)	6/6 (100.0%) : 6/258 (2.33%)		
+
+
+	chimerascan.txt (10914)	defuse.txt (258)	fusion-map.txt (58)	edgren_tp.txt (25)
+chimerascan.txt & defuse.txt & fusion-map.txt (8)				5/8 (62.5%) : 5/25 (20.0%)
+chimerascan.txt & defuse.txt & edgren_tp.txt (15)			5/15 (33.33%) : 5/58 (8.62%)	
+chimerascan.txt & fusion-map.txt & edgren_tp.txt (5)		5/5 (100.0%) : 5/258 (1.94%)		
+defuse.txt & fusion-map.txt & edgren_tp.txt (6)	5/6 (83.33%) : 5/10914 (0.05%)			
+
+

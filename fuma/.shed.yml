@@ -1,0 +1,15 @@
+categories:
+- Combinatorial Selections
+- RNA
+- Sequence Analysis
+- Transcriptomics
+- Variant Analysis
+description: |
+  FuMa: match RNA-Seq detected fusion genes from several detection tools
+long_description: |
+  FuMa: match RNA-Seq detected fusion genes from several detection tools
+name: fuma
+owner: yhoogstrate
+homepage_url: https://github.com/yhoogstrate/fuma
+remote_repository_url: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools/raw/master/fuma
+type: unrestricted
