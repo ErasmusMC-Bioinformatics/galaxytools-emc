@@ -19,10 +19,6 @@
 # Medical Center (Rotterdam, Netherlands) on behalf of the Translational
 # Research IT (TraIT) project:
 # http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
-# 
-# More tools by the Translational Research IT (TraIT) project can be
-# found in the following repository:
-# http://toolshed.dtls.nl/
 
 
 exon_level="true"
