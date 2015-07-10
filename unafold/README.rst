@@ -1,36 +1,8 @@
-<?xml version="1.0"?>
-<tool_dependency>
-    <package name="unafold" version="3.8">
-        <install version="1.0">
-            <actions>
-                <action type="download_by_url"
-                    sha256sum="f9392621762a74b02eb026caceb69568ea65b0cf0891ba25a805da721a90a275"
-                    >http://homepages.rpi.edu/~zukerm/download/unafold-3.8.tar.gz</action>
-                <action type="shell_command"><![CDATA[
-                    cd unafold-3.8                    &&
-                    ./configure --prefix=$INSTALL_DIR &&
-                    make                              &&
-                    make install
-                ]]></action>
-                <action type="set_environment">
-                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
-                </action>
-            </actions>
-        </install>
-        <readme><![CDATA[
-            Downloads and installs UNAFold.
-            
-            Prerequisites:
-            - perl
-            - wget
-            - tar
-            - gnu-autotools (make)
-            
-            
-            License
-            -------
-            
-            UNAFold 3.x ACADEMIC NON-COMMERCIAL USE LICENSE AGREEMENT
+# UNAFold Galaxy wrapper #
+
+# License #
+
+UNAFold 3.x ACADEMIC NON-COMMERCIAL USE LICENSE AGREEMENT
 
 1. UNAFold 3.x is the work of Drs. Nicholas R. Markham and Michael Zuker.  The
    copyright in UNAFold 3.x is owned by RENSSELAER POLYTECHNIC INSTITUTE.
@@ -104,6 +76,3 @@ a. N. Markham & M. Zuker. (2003) DINAMelt web server for nucleic acid melting
     CLAIMS OR DAMAGES ARISING FROM YOUR RECIPIENT'S OF UNAFold 3.x, ANY CLAIM
     FOR ANY LOSS OR INTERRUPTION OF BUSINESS, OR FOR ANY INDIRECT, SPECIAL, OR
     CONSEQUENTIAL DAMAGES OF ANY KIND.
-        ]]></readme>
-    </package>
-</tool_dependency>
