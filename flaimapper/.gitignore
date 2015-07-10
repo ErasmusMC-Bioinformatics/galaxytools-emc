@@ -8,3 +8,5 @@ test-data/test2/test_genomic_alignment.bam.bai
 
 test-data/test3/ncrnadb09.fa.fai
 
+# Planemo tests
+tool_test_output*

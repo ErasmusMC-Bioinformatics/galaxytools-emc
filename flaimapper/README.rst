@@ -15,7 +15,7 @@ Development
 * Repository-Maintainer: Youri Hoogstrate
 * Repository-Developers: Youri Hoogstrate
 
-* Repository-Development: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools
+* Repository-Development: https://github.com/ErasmusMC-Bioinformatics/galaxy-tools
 
 The tool wrapper has been written by Youri Hoogstrate from the Erasmus
 Medical Center (Rotterdam, Netherlands).
