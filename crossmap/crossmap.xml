@@ -8,42 +8,123 @@
     <stdio></stdio>
 
     <command>
-        CrossMap.py --help > $output
+        CrossMap.py $multiple.intput_format --help > $output
     </command>
 
     <inputs>
-        <param format="interval,gff,gtf,vcf" name="input" type="data" label="Convert coordinates of" />
-        <!--
-        <param format="interval,gff,gtf,vcf" name="input" type="data" label="Convert coordinates of">
-            <validator type="unspecified_build" />
-            <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="Liftover mappings are currently not available for the specified build." />
-        </param>
-        <param name="to_dbkey" type="select" label="To">
-            <options from_file="liftOver.loc">
-                <column name="name" index="1"/>
-                <column name="value" index="2"/>
-                <column name="dbkey" index="0"/>
-                <filter type="data_meta" ref="input" key="dbkey" column="0" />
-            </options>
-        </param>
-        <param name="minMatch" size="10" type="float" value="0.95" label="Minimum ratio of bases that must remap" help="Recommended values: same species = 0.95, different species = 0.10" />
         <conditional name="multiple">
-                <param name="choice" type="select" label="Allow multiple output regions?" help="Recommended values: same species = No, different species = Yes">
-                        <option value="0" selected="true">No</option>
-                        <option value="1">Yes</option>
-                </param>
-                <when value="0">
-                        <param name="minSizeQ" type="hidden" value="0" />
-                        <param name="minChainQ" type="hidden" value="0" />
-                        <param name="minChainT" type="hidden" value="0" />
-                </when>
-                <when value="1">
-                        <param name="minSizeQ" size="10" type="integer" value="0" label="Minimum matching region size in dataset" help="Recommended value: set to >= 300 bases for complete transcripts"/>
-                        <param name="minChainQ" size="10" type="integer" value="500" label="Minimum chain size in dataset"/>
-                        <param name="minChainT" size="10" type="integer" value="500" label="Minimum chain size in target"/>
-                </when>
+            <param name="input_format" type="select" label="The input format of the file to Lift-Over">
+                <option value="bam">convert alignment file in BAM or SAM format</option>
+                <option value="bed">convert genome cooridnate or annotation file in BED or BED-like format</option>
+                <option value="bigwig">convert genome coordinate file in BigWig format</option>
+                <option value="gff">convert genome cooridnate or annotation file in GFF or GTF format</option>
+                <option value="vcf">convert genome coordinate file in VCF format</option>
+                <option value="wig">convert genome coordinate file in Wiggle, or bedGraph format</option>
+            </param>
+            <when value="bam">
+<!-- CrossMap.py bam input_chain_file input_bam_file output_file 
+
+Options:
+      -m INSERT_SIZE        Average insert size of pair-end sequencing (bp).
+                            [default=200.0]
+      -s INSERT_SIZE_STDEV  Stanadard deviation of insert size. [default=30.0]
+      -t INSERT_SIZE_FOLD   A mapped pair is considered as "proper pair" if both
+                            ends mapped to different strand and the distance
+                            between them is less then '-t' * stdev from the mean.
+                            [default=3.0]
+ -->
+            </when>
+            <when value="bed">
+<!--
+    Usage:
+      CrossMap.py bed input_chain_file input_bed_file [output_file]
+
+    Description:
+      "input_chain_file" and "input_bed_file" can be regular or compressed (*.gz, *.Z,
+      *.z, *.bz, *.bz2, *.bzip2) file, local file or URL (http://, https://, ftp://)
+      pointing to remote file. BED format file must have at least 3 columns (chrom,
+      start, end) and no more than 12 columns. If  no "output_file" is specified,
+      output will be directed to the screen (console). BED format:
+      http://genome.ucsc.edu/FAQ/FAQformat.html#format1
+
+    Example:
+      CrossMapy.py bed hg18ToHg19.over.chain.gz test.hg18.bed test.hg19.bed  # write
+      output to "test.hg19.bed"
+
+    Example:
+      CrossMapy.py bed hg18ToHg19.over.chain.gz test.hg18.bed
+      # write output to screen
+-->
+            </when>
+            <when value="bigwig">
+<!--
+Usage:
+  CrossMap.py bigwig input_chain_file input__bigwig_file output_prefix
+
+Description:
+  "input_chain_file" can be regular or compressed (*.gz, *.Z, *.z, *.bz, *.bz2,
+  *.bzip2) file, local file or URL (http://, https://, ftp://) pointing to remote
+  file. Bigwig format: http://genome.ucsc.edu/goldenPath/help/bigWig.html
+
+Example:
+  CrossMapy.py bigwig hg18ToHg19.over.chain.gz test.hg18.bw test.hg19
+
+-->
+            </when>
+            <when value="gff">
+<!--
+Usage:
+  CrossMap.py gff input_chain_file input_gff_file output_file
+
+Description:
+  "input_chain_file" can be regular or compressed (*.gz, *.Z, *.z, *.bz, *.bz2,
+  *.bzip2) file, local file or URL (http://, https://, ftp://) pointing to remote
+  file. Input file must be in GFF or GTF format. GFF format:
+  http://genome.ucsc.edu/FAQ/FAQformat.html#format3 GTF format:
+  http://genome.ucsc.edu/FAQ/FAQformat.html#format4
+
+Example:
+  CrossMap.py gff  hg19ToHg18.over.chain.gz test.hg19.gtf test.hg18.gtf  # write
+  output to "test.hg18.gff"
+
+Example:
+  CrossMap.py gff  hg19ToHg18.over.chain.gz test.hg19.gtf  # write output to
+  screen
+-->
+            </when>
+            <when value="vcf">
+<!--
+usage:
+  CrossMap.py vcf input_chain_file input_VCF_file ref_genome_file output_file
+
+Description:
+  "input_chain_file" and "input_VCF_file" can be regular or compressed (*.gz, *.Z,
+  *.z, *.bz, *.bz2, *.bzip2) file, local file or URL (http://, https://, ftp://)
+  pointing to remote file. "ref_genome_file" is genome sequence file of 'target
+  assembly' in FASTA format.
+
+Example:
+   CrossMap.py vcf hg19ToHg18.over.chain.gz test.hg19.vcf hg18.fa test.hg18.vcf
+-->
+            </when>
+            <when value="wig">
+<!--
+Usage:
+  CrossMap.py wig input_chain_file input_wig_file output_prefix
+
+Description:
+  "input_chain_file" can be regular or compressed (*.gz, *.Z, *.z, *.bz, *.bz2,
+  *.bzip2) file, local file or URL (http://, https://, ftp://) pointing to remote
+  file.  Both "variableStep" and "fixedStep" wiggle lines are supported. Wiggle
+  format: http://genome.ucsc.edu/goldenPath/help/wiggle.html
+
+Example:
+  CrossMapy.py wig hg18ToHg19.over.chain.gz test.hg18.wig test.hg19
+-->
+            </when>
         </conditional>
-        -->
+        
+        <param format="interval,gff,gtf,vcf" name="input" type="data" label="Convert coordinates of" />
     </inputs>
     
     <outputs>
