@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="numpy" version="1.9">
+        <repository name="package_numpy_1_9" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="cython" version="0.20.1">
+        <repository name="package_cython_0_20_1" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="crossmap" version="0.1.8">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url" sha256sum="c4586d8ac2b2cc3910eea07b6f65b5d62d335b741ad91afb63f14cde22b3706f">http://sourceforge.net/projects/crossmap/files/CrossMap-0.1.8.tar.gz</action>
+                
+                <action type="setup_python_environment">
+                    <repository name="package_cython_0_20_1" owner="iuc">
+                        <package name="cython" version="0.20.1" />
+                    </repository>
+                    <repository name="package_numpy_1_9" owner="iuc">
+                        <package name="numpy" version="1.9" />
+                    </repository>
+                </action>
+                
+                <!-- CrossMap doesn't pick up the correct Cython path.
+                Therefore install it with a manual shell_command instead
+                of <package></package> inside the pyton_env. -->
+                <action type="shell_command">
+                    export PYTHONPATH="$CYTHON_PATH/lib/python/Cython-0.20.1-py2.7-linux-x86_64.egg:$PYTHONPATH" &amp;&amp;
+                    
+                    python setup.py install --root $INSTALL_DIR
+                </action>
+                
+                <action type="set_environment">
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/usr/local/lib/python2.7/site-packages</environment_variable>
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/usr/local/lib/python2.7/dist-packages</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/usr/local/bin</environment_variable>
+                    
+                    <environment_variable action="set_to" name="PATH_CROSSMAP">$INSTALL_DIR/usr/local/bin</environment_variable>
+                    <environment_variable action="set_to" name="CROSSMAP_ROOT_DIR">$INSTALL_DIR</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+CrossMap is versatile tool to convert genome coordinates or annotation files between genome
+assemblies. It supports mostly commonly used file types, including BAM, BED,BigWig, GFF,
+GTF, SAM, Wiggle, and VCF formats. For large plain text file types, such as BED, GFF, GTF
+and VCF, reading from remote servers and file compression are supported.
+
+Installation
+
+Prerequisite:
+ * gcc
+ * python2.7 or newer
+ * numpy
+ * cython
+
+Download CrossMap program from here:
+
+$ tar zxf CrossMap-VERSION.tar.gz
+
+$ cd CrossMap-VERSION
+
+# install CrossMap to default location. In Linux/Unix, this location is like:
+# /home/user/lib/python2.7/site-packages/
+$ python setup.py install
+
+# or you can install CrossMap to a specified location:
+$ python setup.py install --root=/home/user/CrossMap
+
+# setup PYTHONPATH. Skip this step if CrossMap was installed to default location.
+$ export PYTHONPATH=/home/user/CrossMap/usr/local/lib/python2.7/site-packages:$PYTHONPATH.
+
+# Skip this step if CrossMap was installed to default location.
+$ export PATH=/home/user/CrossMap/usr/local/bin:$PATH
+
+NOTE:
+
+ * Due to intensive computation, CrossMap is designed to run on Linux/Unix and Mac OS. Some modules may not work properly on Windows.
+ * Mac users need to download and install Xcode command line tools.
+
+Documentation: http://crossmap.sourceforge.net/
+        </readme>
+    </package>
+</tool_dependency>
