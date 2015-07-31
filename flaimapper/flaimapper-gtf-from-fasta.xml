@@ -16,9 +16,7 @@
     <version_command>flaimapper --version</version_command>
     
     <command><![CDATA[
-        gtf-from-fasta
-             -o $output
-                $fasta
+        gtf-from-fasta -o $output $fasta
     ]]></command>
     
     <inputs>
