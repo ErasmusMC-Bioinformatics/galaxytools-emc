@@ -1,4 +1,4 @@
-<tool id="crossmap" name="crossmap" version="0.1.8">
+<tool id="crossmap" name="CrossMap" version="0.1.8">
     <description>Convert genome coordinates or annotation files between genome assemblies</description>
     
     <requirements>
@@ -8,123 +8,234 @@
     <stdio></stdio>
 
     <command>
-        CrossMap.py $multiple.intput_format --help > $output
+        CrossMap.py
+            $multiple.input_format
+            
+            #if $multiple.seq_source.index_source == "history" or $multiple.seq_source.index_source == "history_fasta"
+                $multiple.seq_source.input_chain
+            #else
+                $multiple.seq_source.input_chain
+            #end if
+                        
+            #if $multiple.input_format == "bam"
+                -m $multiple.insert_size
+                -s $multiple.insert_size_stdev
+                -t $multiple.insert_size_fold
+            #else if $multiple.input_format == "vcf"
+                $multiple.seq_source.input_fasta
+            #end if
+            
+            $multiple.seq_source.input
+            $output
     </command>
 
     <inputs>
         <conditional name="multiple">
-            <param name="input_format" type="select" label="The input format of the file to Lift-Over">
-                <option value="bam">convert alignment file in BAM or SAM format</option>
-                <option value="bed">convert genome cooridnate or annotation file in BED or BED-like format</option>
-                <option value="bigwig">convert genome coordinate file in BigWig format</option>
-                <option value="gff">convert genome cooridnate or annotation file in GFF or GTF format</option>
-                <option value="vcf">convert genome coordinate file in VCF format</option>
-                <option value="wig">convert genome coordinate file in Wiggle, or bedGraph format</option>
+            <param name="input_format" type="select" label="Convert a file of the following format">
+                <option value="bam">BAM or SAM format</option>
+                <option value="bed">BED or BED-like</option>
+                <option value="bigwig">BigWig</option>
+                <option value="gff">GFF or GTF</option>
+                <option value="vcf">VCF</option>
+                <option value="wig">Wiggle or bedGraph</option>
             </param>
             <when value="bam">
-<!-- CrossMap.py bam input_chain_file input_bam_file output_file 
-
-Options:
-      -m INSERT_SIZE        Average insert size of pair-end sequencing (bp).
-                            [default=200.0]
-      -s INSERT_SIZE_STDEV  Stanadard deviation of insert size. [default=30.0]
-      -t INSERT_SIZE_FOLD   A mapped pair is considered as "proper pair" if both
-                            ends mapped to different strand and the distance
-                            between them is less then '-t' * stdev from the mean.
-                            [default=3.0]
- -->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data (chain file)">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history">From History</option>
+                    </param>
+                        <when value="cached">
+                            <param type="data" format="bam,sam" name="input" label="BAM/SAM file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            <param name="input_chain" type="select" label="Lift Over To">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                        </when>
+                        <when value="history">
+                            <param type="data" format="bam,sam" name="input" label="BAM/SAM file" />
+                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                        </when>
+                </conditional>
+                
+                <param name="insert_size" type="float" value="200.0" label="Insert size (-m)" help="Average insert size of pair-end sequencing (bp) [default=200.0]" />
+                <param name="insert_size_stdev" type="float" value="30.0" label="Insert size std. dev (-s)" help="Stanadard deviation of insert size. [default=30.0]" />
+                <param name="insert_size_fold" type="float" value="3.0" label="Insert size std. dev foldchange (-t)" help="A mapped pair is considered as 'proper pair' if both ends mapped to different strand and the distance between them is less then '-t' * stdev from the mean. [default=3.0]" />
             </when>
             <when value="bed">
-<!--
-    Usage:
-      CrossMap.py bed input_chain_file input_bed_file [output_file]
-
-    Description:
-      "input_chain_file" and "input_bed_file" can be regular or compressed (*.gz, *.Z,
-      *.z, *.bz, *.bz2, *.bzip2) file, local file or URL (http://, https://, ftp://)
-      pointing to remote file. BED format file must have at least 3 columns (chrom,
-      start, end) and no more than 12 columns. If  no "output_file" is specified,
-      output will be directed to the screen (console). BED format:
-      http://genome.ucsc.edu/FAQ/FAQformat.html#format1
-
-    Example:
-      CrossMapy.py bed hg18ToHg19.over.chain.gz test.hg18.bed test.hg19.bed  # write
-      output to "test.hg19.bed"
-
-    Example:
-      CrossMapy.py bed hg18ToHg19.over.chain.gz test.hg18.bed
-      # write output to screen
--->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data (chain file)">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history">From History</option>
+                    </param>
+                        <when value="cached">
+                            <param format="bed" name="input" type="data" label="BED file" help="BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns.">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            <param name="input_chain" type="select" label="Lift Over To">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                        </when>
+                        <when value="history">
+                            <param format="bed" name="input" type="data" label="BED file" help="BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns." />
+                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                        </when>
+                </conditional>
             </when>
             <when value="bigwig">
-<!--
-Usage:
-  CrossMap.py bigwig input_chain_file input__bigwig_file output_prefix
-
-Description:
-  "input_chain_file" can be regular or compressed (*.gz, *.Z, *.z, *.bz, *.bz2,
-  *.bzip2) file, local file or URL (http://, https://, ftp://) pointing to remote
-  file. Bigwig format: http://genome.ucsc.edu/goldenPath/help/bigWig.html
-
-Example:
-  CrossMapy.py bigwig hg18ToHg19.over.chain.gz test.hg18.bw test.hg19
-
--->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data (chain file)">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history">From History</option>
+                    </param>
+                        <when value="cached">
+                            <param format="bigwig" name="input" type="data" label="BigWig file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            <param name="input_chain" type="select" label="Lift Over To">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                        </when>
+                        <when value="history">
+                            <param format="bigwig" name="input" type="data" label="BigWig file" />
+                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                        </when>
+                </conditional>
             </when>
             <when value="gff">
-<!--
-Usage:
-  CrossMap.py gff input_chain_file input_gff_file output_file
-
-Description:
-  "input_chain_file" can be regular or compressed (*.gz, *.Z, *.z, *.bz, *.bz2,
-  *.bzip2) file, local file or URL (http://, https://, ftp://) pointing to remote
-  file. Input file must be in GFF or GTF format. GFF format:
-  http://genome.ucsc.edu/FAQ/FAQformat.html#format3 GTF format:
-  http://genome.ucsc.edu/FAQ/FAQformat.html#format4
-
-Example:
-  CrossMap.py gff  hg19ToHg18.over.chain.gz test.hg19.gtf test.hg18.gtf  # write
-  output to "test.hg18.gff"
-
-Example:
-  CrossMap.py gff  hg19ToHg18.over.chain.gz test.hg19.gtf  # write output to
-  screen
--->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data (chain file)">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history">From History</option>
+                    </param>
+                        <when value="cached">
+                            <param format="gtf,gff,gff3" name="input" type="data" label="GTF/GFF file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            <param name="input_chain" type="select" label="Lift Over To">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                        </when>
+                        <when value="history">
+                            <param format="gtf,gff,gff3" name="input" type="data" label="GTF/GFF file" />
+                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                        </when>
+                </conditional>
             </when>
             <when value="vcf">
-<!--
-usage:
-  CrossMap.py vcf input_chain_file input_VCF_file ref_genome_file output_file
-
-Description:
-  "input_chain_file" and "input_VCF_file" can be regular or compressed (*.gz, *.Z,
-  *.z, *.bz, *.bz2, *.bzip2) file, local file or URL (http://, https://, ftp://)
-  pointing to remote file. "ref_genome_file" is genome sequence file of 'target
-  assembly' in FASTA format.
-
-Example:
-   CrossMap.py vcf hg19ToHg18.over.chain.gz test.hg19.vcf hg18.fa test.hg18.vcf
--->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history_chain">Chain from History</option>
+                        <option value="history_fasta">FASTA from History</option>
+                        <option value="history_all">Chain &amp; FASTA from History</option>
+                    </param>
+                        <when value="cached">
+                            <param type="data" format="vcf" name="input" label="VCF file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            
+                            <param name="input_chain" type="select" label="Lift Over To (Chain file)">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                            
+                            <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="Must be identical to the Chain file!">
+                                <options from_file="all_fasta.loc">
+                                    <column name="name" index="2"/>
+                                    <column name="value" index="3"/>
+                                    <column name="dbkey" index="1"/>
+                                </options>
+                            </param>
+                        </when>
+                        
+                        <when value="history_chain">
+                            <param type="data" format="vcf" name="input" label="VCF file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="all_fasta.loc" metadata_name="dbkey" metadata_column="1" message="LiftOver mapping (FASTA file) is not available for the specified build." />
+                            </param>
+                            <param type="data"  name="input_chain" multiple="false" label="LiftOver chain file" />
+                            <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="Must be identical to the Chain file!">
+                                <options from_file="all_fasta.loc">
+                                    <column name="name" index="2"/>
+                                    <column name="value" index="3"/>
+                                    <column name="dbkey" index="1"/>
+                                </options>
+                            </param>
+                        </when>
+                        
+                        <when value="history_fasta">
+                            <param type="data" format="vcf" name="input" label="VCF file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="Liftover mappings are currently not available for the specified build." />
+                            </param>
+                            <param type="data" format="fasta" name="input_fasta" multiple="false" label="Full genome FASTA file" />
+                        </when>
+                        
+                        <when value="history_all">
+                            <param type="data" format="vcf"   name="input" label="VCF file" />
+                            <param type="data"                name="input_all_chain" multiple="false" label="LiftOver chain file" />
+                            <param type="data" format="fasta" name="input_all_fasta" multiple="false" label="Full genome FASTA file" />
+                        </when>
+                </conditional>
             </when>
             <when value="wig">
-<!--
-Usage:
-  CrossMap.py wig input_chain_file input_wig_file output_prefix
-
-Description:
-  "input_chain_file" can be regular or compressed (*.gz, *.Z, *.z, *.bz, *.bz2,
-  *.bzip2) file, local file or URL (http://, https://, ftp://) pointing to remote
-  file.  Both "variableStep" and "fixedStep" wiggle lines are supported. Wiggle
-  format: http://genome.ucsc.edu/goldenPath/help/wiggle.html
-
-Example:
-  CrossMapy.py wig hg18ToHg19.over.chain.gz test.hg18.wig test.hg19
--->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data (chain file)">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history">From History</option>
+                    </param>
+                        <when value="cached">
+                            <param format="wig" name="input" type="data" label="Wiggle file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            <param name="input_chain" type="select" label="Lift Over To">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                        </when>
+                        <when value="history">
+                            <param format="wig" name="input" type="data" label="Wiggle file" />
+                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                        </when>
+                </conditional>
             </when>
         </conditional>
-        
-        <param format="interval,gff,gtf,vcf" name="input" type="data" label="Convert coordinates of" />
     </inputs>
     
     <outputs>
