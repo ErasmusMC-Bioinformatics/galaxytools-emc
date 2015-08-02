@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="segmentation-fold" version="1.0.0">
+        <repository name="package_segmentation_fold_1_0_0" owner="yhoogstrate" prior_installation_required="False" />
+    </package>
+</tool_dependency>

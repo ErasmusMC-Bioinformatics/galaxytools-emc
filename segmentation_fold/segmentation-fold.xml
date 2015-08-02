@@ -1,0 +1,210 @@
+<tool id="segmentation_fold" name="segmentation-fold" version="0.2.0">
+    <description>RNA-Folding including predefined segments including K-turns</description>
+    
+    <requirements>
+        <requirement type="package" version="1.0.0">segmentation-fold</requirement>
+    </requirements>
+    
+    <stdio></stdio>
+    
+    <version_command>segmentation-fold -V | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
+    
+    <command><![CDATA[
+        segmentation-fold
+            
+            #if $input.method == "fasta"
+                -f $input.input_fasta
+            #else
+                -s $input.input_sequence
+            #end if
+            
+            -p $predict_segments
+            -h $min_hairpin_size
+            
+            #if $parameters.settings == "default"
+                -x "${SEGMENTATION_FOLD_DEFAULT_XML}"
+            #else
+                -x $parameters.input_xml
+            #end if
+            
+            -t \${GALAXY_SLOTS:-2}
+            > $output_dbn
+    ]]></command>
+    
+    <inputs>
+        
+        <conditional name="input">
+            <param name="method" type="select" label="Energy parameters">
+                <option value="fasta" selected="true">As FASTA-file</option>
+                <option value="text">As text</option>
+            </param>
+            <when value="fasta">
+                <param name="input_fasta" type="data" format="fasta" label="Fasta file with RNA-sequece (-f)" />
+            </when>
+            <when value="text"> 
+                <param name="input_sequence" type="text" label="RNA-sequece (-s)" />
+            </when>
+        </conditional>
+        
+        <param name="predict_segments" type="boolean" truevalue="1" falsevalue="0" checked="true" label="Enable segment prediction functionality (-p)" />
+        <param name="min_hairpin_size" type="integer" min="1" value="3" label="Minimum hairpin size (-h)" />
+        
+        <conditional name="parameters">
+            <param name="settings" type="select" label="Energy parameters">
+                <option value="default" selected="true">Default</option>
+                <option value="custom">Custom</option>
+            </param>
+            <when value="default" />
+            <when value="custom"> 
+                <param name="input_xml" type="data" format="xml" multiple="false" label="Use custom 'segments.xml'-syntaxed file (-x)" />
+            </when>
+        </conditional>
+    </inputs>
+    
+    <outputs>
+        <data format="dot-bracket" name="output_dbn" label="${tool.name} on ${input.input_fasta.hid + ': ' + input.input_fasta.name if $input.method == 'fasta' else $input.input_sequence.upper() }" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param  name="input_fasta" value="test_01.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_01.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_02.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_02.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_03.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_03.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_04.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_04.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_05.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_05.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_06.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_06.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_07.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_07.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_08.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_08.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_09.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_09.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_10.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_10.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_11.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_11.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_12.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_12.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_13.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_13.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_14.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_14.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_15.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_15.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_16.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_16.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_17.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_17.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_18.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_18.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_19.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_19.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_20.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_20.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_21.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_21.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_22.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_22.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_23.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_23.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_24.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_24.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_25.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_25.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_26.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_26.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_27.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_27.dbn" />
+        </test>
+        <test>
+            <param  name="input_fasta" value="test_28.fa" ftype="fasta" />
+            <output name="output_dbn"   file="test_28.dbn" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+Segmentation-fold is a bioinformatics application that predicts RNA
+2D-structure with an extended version of the Zuker algorithm. This
+modification contains a new "structure element" named a segment and is
+capable of folding a pre-defined substructure with multiple canonical
+or non-canonical pairings.
+
+This allows folding of more complex structures like the K-turns, which
+are also part of the implemented free energy tables. These thermodynamic
+parameters (free Gibbs energy levels) have been estimated using a
+computational approach and therefore lack accuracy.
+    ]]></help>
+    
+    <citations>
+        <citation type="bibtex">
+           @mastersthesis{mastersthesis,
+              author       = {Youri Hoogstrate}, 
+              title        = {An algorithm for predicting RNA 2D structures including K-turns},
+              school       = {University of Technology Delft, Leiden University},
+              year         = 2012,
+              address      = {},
+              month        = 11,
+              note         = {Research assignment for Master Computer-science},
+              url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
+            }
+        </citation>
+    </citations>
+</tool>
