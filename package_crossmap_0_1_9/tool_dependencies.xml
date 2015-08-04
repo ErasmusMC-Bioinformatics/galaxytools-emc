@@ -8,10 +8,10 @@
         <repository name="package_cython_0_20_1" owner="iuc" prior_installation_required="True" />
     </package>
     
-    <package name="crossmap" version="0.1.8">
+    <package name="crossmap" version="0.1.9">
         <install version="1.0">
             <actions>
-                <action type="download_by_url" sha256sum="c4586d8ac2b2cc3910eea07b6f65b5d62d335b741ad91afb63f14cde22b3706f">http://sourceforge.net/projects/crossmap/files/CrossMap-0.1.8.tar.gz</action>
+                <action type="download_by_url" sha256sum="2ea0e8d433d3137290a59e24745e52f48602319d354dad798fe27c6579ff908e">http://sourceforge.net/projects/crossmap/files/CrossMap-0.1.9.tar.gz</action>
                 
                 <action type="setup_python_environment">
                     <repository name="package_cython_0_20_1" owner="iuc">
@@ -24,7 +24,7 @@
                 
                 <!-- CrossMap doesn't pick up the correct Cython path.
                 Therefore install it with a manual shell_command instead
-                of <package></package> inside the pyton_env. -->
+                of <package></package> inside a pyton_env. -->
                 <action type="shell_command">
                     export PYTHONPATH="$CYTHON_PATH/lib/python/Cython-0.20.1-py2.7-linux-x86_64.egg:$PYTHONPATH" &amp;&amp;
                     
@@ -48,6 +48,12 @@ GTF, SAM, Wiggle, and VCF formats. For large plain text file types, such as BED,
 and VCF, reading from remote servers and file compression are supported.
 
 NEWS:
+ * 07/27/15: Release version 0.1.9. For VCF file conversion in v0.1.9:
+  - CrossMap uses the indexed reference genome (target assembly) sequences rather than load
+the entire file into memory. Users could index their reference genome file using samtools faidx
+before running CrossMap, otherwise CrossMap will index it automatically the first time you run it.
+  - In the output VCF file, whether the chromosome IDs contain "chr" or not depends on the input
+format.
  * 05/15/15: Release version 0.1.8: Fixed the bug that CrossMap will output invalid VCF file when the
 input VCF file contains a INFO field with whitespace.
  * 05/04/15: Release version 0.1.7: Address the problem that CrossMap does not convert strand in
@@ -60,7 +66,7 @@ GRCh37->hg19. In CrossMap v0.1.4, conversion results of BAM/SAM files can be dir
 STDOUT to support piping.
  * 12/12/13: CrossMap was accepted by Bioinformatics
  * 10/23/13: CrossMap (0.1.3) was released
-
+ 
 Documentation: http://crossmap.sourceforge.net/
         </readme>
     </package>

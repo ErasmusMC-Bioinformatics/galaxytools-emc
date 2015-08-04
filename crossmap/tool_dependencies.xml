@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="crossmap" version="0.1.8">
-        <repository name="package_crossmap_0_1_8" owner="yhoogstrate" prior_installation_required="True" />
+    <package name="crossmap" version="0.1.9">
+        <repository name="package_crossmap_0_1_9" owner="yhoogstrate" prior_installation_required="True" />
     </package>
 </tool_dependency>

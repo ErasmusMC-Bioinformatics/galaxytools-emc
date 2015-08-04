@@ -1,8 +1,8 @@
-<tool id="crossmap" name="CrossMap" version="0.1.8">
+<tool id="crossmap" name="CrossMap" version="0.1.9">
     <description>Convert genome coordinates or annotation files between genome assemblies</description>
     
     <requirements>
-        <requirement type="package" version="0.1.8">crossmap</requirement>
+        <requirement type="package" version="0.1.9">crossmap</requirement>
     </requirements>
     
     <stdio></stdio>
@@ -11,21 +11,25 @@
         CrossMap.py
             $multiple.input_format
             
-            #if $multiple.seq_source.index_source == "history" or $multiple.seq_source.index_source == "history_fasta"
-                $multiple.seq_source.input_chain
+            #if $multiple.input_format == "vcf" and $multiple.seq_source.index_source == "cached"
+                <!-- This is the 2nd dbkey, and the corresponding value has to be looked up -->
+                "${filter(lambda x: str( x[1] ) == str($multiple.seq_source.input_chain ), $__app__.tool_data_tables['liftOver'].get_fields())[0][2] }"
             #else
-                $multiple.seq_source.input_chain
+                "$multiple.seq_source.input_chain"
             #end if
-                        
+            
             #if $multiple.input_format == "bam"
                 -m $multiple.insert_size
                 -s $multiple.insert_size_stdev
                 -t $multiple.insert_size_fold
-            #else if $multiple.input_format == "vcf"
-                $multiple.seq_source.input_fasta
             #end if
             
-            $multiple.seq_source.input
+            "$multiple.seq_source.input"
+            
+            #if $multiple.input_format == "vcf"
+                "$multiple.seq_source.input_fasta"
+            #end if 
+            
             $output
     </command>
 
@@ -151,9 +155,8 @@
                 <conditional name="seq_source">
                     <param name="index_source" type="select" label="Source for LiftOver Data">
                         <option value="cached">Local data (in galaxy)</option>
-                        <option value="history_chain">Chain from History</option>
-                        <option value="history_fasta">FASTA from History</option>
-                        <option value="history_all">Chain &amp; FASTA from History</option>
+                        <option value="history_chain">Chain file from History</option>
+                        <option value="history_all">Chain &amp; FASTA files from History</option>
                     </param>
                         <when value="cached">
                             <param type="data" format="vcf" name="input" label="VCF file">
@@ -161,20 +164,22 @@
                                 <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
                             </param>
                             
+                            <!-- automatically fetch a FASTA file from the same DBKEY as the chain file -->
                             <param name="input_chain" type="select" label="Lift Over To (Chain file)">
                                 <options from_file="liftOver.loc">
-                                    <column name="name" index="1"/>
-                                    <column name="value" index="2"/>
-                                    <column name="dbkey" index="0"/>
+                                    <column name="name" index="1" />
+                                    <column name="value" index="1" /><!-- It is not possible to send the *.chain file as value, and obtain the 2nd dbkey as parameter via a filter -->
+                                    <column name="dbkey" index="0" />
                                     <filter type="data_meta" ref="input" key="dbkey" column="0" />
                                 </options>
                             </param>
                             
-                            <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="Must be identical to the Chain file!">
+                            <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="The FASTA file must be on the same build (dbkey) as the LiftOver chain file">
                                 <options from_file="all_fasta.loc">
                                     <column name="name" index="2"/>
                                     <column name="value" index="3"/>
                                     <column name="dbkey" index="1"/>
+                                    <filter type="param_value" ref="input_chain" column="1" />
                                 </options>
                             </param>
                         </when>
@@ -185,21 +190,13 @@
                                 <validator type="dataset_metadata_in_file" filename="all_fasta.loc" metadata_name="dbkey" metadata_column="1" message="LiftOver mapping (FASTA file) is not available for the specified build." />
                             </param>
                             <param type="data"  name="input_chain" multiple="false" label="LiftOver chain file" />
-                            <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="Must be identical to the Chain file!">
+                            <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="The FASTA file must be on the same build (dbkey) as the LiftOver chain file">
                                 <options from_file="all_fasta.loc">
                                     <column name="name" index="2"/>
                                     <column name="value" index="3"/>
                                     <column name="dbkey" index="1"/>
                                 </options>
                             </param>
-                        </when>
-                        
-                        <when value="history_fasta">
-                            <param type="data" format="vcf" name="input" label="VCF file">
-                                <validator type="unspecified_build" />
-                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="Liftover mappings are currently not available for the specified build." />
-                            </param>
-                            <param type="data" format="fasta" name="input_fasta" multiple="false" label="Full genome FASTA file" />
                         </when>
                         
                         <when value="history_all">
