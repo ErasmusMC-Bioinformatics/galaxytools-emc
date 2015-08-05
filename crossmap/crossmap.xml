@@ -6,8 +6,8 @@
     </requirements>
     
     <stdio>
-        <regex match="Usage: CrossMap.py" source="stdin" level="fatal"/>
-        <regex match=".*" source="both" level="log" description="tool progress"/>
+        <regex match="Usage: CrossMap.py" source="stdout" level="fatal"/>
+        <regex match=".*" source="both" level="log"/>
     </stdio>
 
     <command>
@@ -21,13 +21,11 @@
                 "$multiple.seq_source.input_chain"
             #end if
             
-<!-- these arguments don't work
             #if $multiple.input_format == "bam"
                 -m $multiple.insert_size
                 -s $multiple.insert_size_stdev
                 -t $multiple.insert_size_fold
             #end if
--->
             
             "$multiple.seq_source.input"
             
@@ -35,10 +33,11 @@
                 "$multiple.seq_source.input_fasta"
             #end if 
             
-            <!-- BED format does not write to the output file, but does write fails to stdout -->
-            > "$output"
+            #if str($multiple.include_fails) == "True"
+            >
+            #end if
             
-            2>/dev/null
+            "$output"
     </command>
 
     <inputs>
@@ -73,15 +72,15 @@
                         </when>
                         <when value="history">
                             <param type="data" format="bam,sam" name="input" label="BAM/SAM file" />
-                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                            <param type="data" format="csv" name="input_chain" label="LiftOver chain file" />
                         </when>
                 </conditional>
                 
-<!-- These parameters don't work
                 <param name="insert_size" type="float" value="200.0" label="Insert size (-m)" help="Average insert size of pair-end sequencing (bp) [default=200.0]" />
                 <param name="insert_size_stdev" type="float" value="30.0" label="Insert size std. dev (-s)" help="Stanadard deviation of insert size. [default=30.0]" />
                 <param name="insert_size_fold" type="float" value="3.0" label="Insert size std. dev foldchange (-t)" help="A mapped pair is considered as 'proper pair' if both ends mapped to different strand and the distance between them is less then '-t' * stdev from the mean. [default=3.0]" />
--->
+                
+                <param name="include_fails" type="hidden" tvalue="False" />
             </when>
             <when value="bed">
                 <conditional name="seq_source">
@@ -105,9 +104,10 @@
                         </when>
                         <when value="history">
                             <param type="data" format="bed" name="input"       label="BED file" help="BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns." />
-                            <param type="data"              name="input_chain" label="LiftOver chain file" />
+                            <param type="data" format="csv" name="input_chain" label="LiftOver chain file" />
                         </when>
                 </conditional>
+                <param name="include_fails" type="boolean" truevalue="True" checked="false" falsevalue="False" label="Include failed liftovers" help="If a coordinate can not be lift over, do you want to include it in the output (it is still being marked 'fail')" />
             </when>
             <when value="bigwig">
                 <conditional name="seq_source">
@@ -130,8 +130,8 @@
                             </param>
                         </when>
                         <when value="history">
-                            <param format="bigwig" name="input" type="data" label="BigWig file" />
-                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                            <param type="data" format="bigwig" name="input"       label="BigWig file" />
+                            <param type="data" format="csv"    name="input_chain" label="LiftOver chain file" />
                         </when>
                 </conditional>
             </when>
@@ -156,8 +156,8 @@
                             </param>
                         </when>
                         <when value="history">
-                            <param format="gtf,gff,gff3" name="input" type="data" label="GTF/GFF file" />
-                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                            <param type="data" format="gtf,gff,gff3" name="input"       label="GTF/GFF file" />
+                            <param type="data" format="csv"          name="input_chain" label="LiftOver chain file" />
                         </when>
                 </conditional>
             </when>
@@ -199,7 +199,7 @@
                                 <validator type="unspecified_build" />
                                 <validator type="dataset_metadata_in_file" filename="all_fasta.loc" metadata_name="dbkey" metadata_column="1" message="LiftOver mapping (FASTA file) is not available for the specified build." />
                             </param>
-                            <param type="data"  name="input_chain" multiple="false" label="LiftOver chain file" />
+                            <param type="data" format="csv" name="input_chain" multiple="false" label="LiftOver chain file" />
                             <param name="input_fasta" type="select" label="Lift Over To (FASTA file)" help="The FASTA file must be on the same build (dbkey) as the LiftOver chain file">
                                 <options from_file="all_fasta.loc">
                                     <column name="name" index="2"/>
@@ -211,8 +211,8 @@
                         
                         <when value="history_all">
                             <param type="data" format="vcf"   name="input" label="VCF file" />
-                            <param type="data"                name="input_all_chain" multiple="false" label="LiftOver chain file" />
-                            <param type="data" format="fasta" name="input_all_fasta" multiple="false" label="Full genome FASTA file" />
+                            <param type="data" format="csv"   name="input_chain" multiple="false" label="LiftOver chain file" />
+                            <param type="data" format="fasta" name="input_fasta" multiple="false" label="Full genome FASTA file" />
                         </when>
                 </conditional>
             </when>
@@ -238,7 +238,7 @@
                         </when>
                         <when value="history">
                             <param format="wig" name="input" type="data" label="Wiggle file" />
-                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                            <param type="data" format="csv" name="input_chain" label="LiftOver chain file" />
                         </when>
                 </conditional>
             </when>
@@ -251,10 +251,41 @@
     
     <tests>
         <test>
-            <param name="input" value="test1.hg19.txt"/>
-            <param name="input" value="hg18tohg19.chain"/>
-            <output name="output" file="test1.hg18.txt"/>
+            <param name="input_format" value="bed"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_bed_01_input_a.bed" ftype="bed"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="txt"/>
+            <param name="include_fails" value="false"/>
+            
+            <output name="output" file="test_bed_01_output_a__only-matches.bed"/>
         </test>
+        <!--<test>
+            <param name="input_format" value="bed"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_bed_01_input_a.bed" ftype="bed"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="txt"/>
+            <param name="include_fails" value="true"/>
+            
+            <output name="output" file="test_bed_02_output_a__all.bed"/>
+        </test>
+        <test>
+            <param name="input_format" value="bed"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_bed_02_input_a.bed" ftype="bed"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="txt"/>
+            <param name="include_fails" value="false"/>
+            
+            <output name="output" file="test_bed_02_output_a__only-matches.bed"/>
+        </test>
+        <test>
+            <param name="input_format" value="bed"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_bed_02_input_a.bed" ftype="bed"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="txt"/>
+            <param name="include_fails" value="true"/>
+            
+            <output name="output" file="test_bed_02_output_a__all.bed"/>
+        </test>-->
     </tests>
     
     <help>
@@ -267,7 +298,6 @@ CrossMap bed
 ------------
 BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns.
 BED format: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
-
     </help>
     
     <citations>
