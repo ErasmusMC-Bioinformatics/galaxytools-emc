@@ -5,7 +5,10 @@
         <requirement type="package" version="0.1.9">crossmap</requirement>
     </requirements>
     
-    <stdio></stdio>
+    <stdio>
+        <regex match="Usage: CrossMap.py" source="stdin" level="fatal"/>
+        <regex match=".*" source="both" level="log" description="tool progress"/>
+    </stdio>
 
     <command>
         CrossMap.py
@@ -18,11 +21,13 @@
                 "$multiple.seq_source.input_chain"
             #end if
             
+<!-- these arguments don't work
             #if $multiple.input_format == "bam"
                 -m $multiple.insert_size
                 -s $multiple.insert_size_stdev
                 -t $multiple.insert_size_fold
             #end if
+-->
             
             "$multiple.seq_source.input"
             
@@ -30,7 +35,10 @@
                 "$multiple.seq_source.input_fasta"
             #end if 
             
-            $output
+            <!-- BED format does not write to the output file, but does write fails to stdout -->
+            > "$output"
+            
+            2>/dev/null
     </command>
 
     <inputs>
@@ -69,9 +77,11 @@
                         </when>
                 </conditional>
                 
+<!-- These parameters don't work
                 <param name="insert_size" type="float" value="200.0" label="Insert size (-m)" help="Average insert size of pair-end sequencing (bp) [default=200.0]" />
                 <param name="insert_size_stdev" type="float" value="30.0" label="Insert size std. dev (-s)" help="Stanadard deviation of insert size. [default=30.0]" />
                 <param name="insert_size_fold" type="float" value="3.0" label="Insert size std. dev foldchange (-t)" help="A mapped pair is considered as 'proper pair' if both ends mapped to different strand and the distance between them is less then '-t' * stdev from the mean. [default=3.0]" />
+-->
             </when>
             <when value="bed">
                 <conditional name="seq_source">
@@ -94,8 +104,8 @@
                             </param>
                         </when>
                         <when value="history">
-                            <param format="bed" name="input" type="data" label="BED file" help="BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns." />
-                            <param type="data" name="input_chain" label="LiftOver chain file" />
+                            <param type="data" format="bed" name="input"       label="BED file" help="BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns." />
+                            <param type="data"              name="input_chain" label="LiftOver chain file" />
                         </when>
                 </conditional>
             </when>
@@ -236,13 +246,13 @@
     </inputs>
     
     <outputs>
-        <data format="text" name="output" label="Output file">
-        </data>
+        <data format="text" name="output" label="${tool.name} on " />
     </outputs>
     
     <tests>
         <test>
             <param name="input" value="test1.hg19.txt"/>
+            <param name="input" value="hg18tohg19.chain"/>
             <output name="output" file="test1.hg18.txt"/>
         </test>
     </tests>
@@ -252,6 +262,12 @@ CrossMap is versatile tool to convert genome coordinates or annotation files bet
 assemblies. It supports mostly commonly used file types, including BAM, BED,BigWig, GFF,
 GTF, SAM, Wiggle, and VCF formats. For large plain text file types, such as BED, GFF, GTF
 and VCF, reading from remote servers and file compression are supported.
+
+CrossMap bed
+------------
+BED format file must have at least 3 columns (chrom, start, end) and no more than 12 columns.
+BED format: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
+
     </help>
     
     <citations>
