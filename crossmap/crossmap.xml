@@ -12,7 +12,7 @@
 
     <command>
         CrossMap.py
-            $multiple.input_format
+            ${multiple.input_format.replace("sam","bam")}
             
             #if $multiple.input_format == "vcf" and $multiple.seq_source.index_source == "cached"
                 <!-- This is the 2nd dbkey, and the corresponding value has to be looked up -->
@@ -21,7 +21,7 @@
                 "$multiple.seq_source.input_chain"
             #end if
             
-            #if $multiple.input_format == "bam"
+            #if $multiple.input_format in ["bam", "sam"]
                 -m $multiple.insert_size
                 -s $multiple.insert_size_stdev
                 -t $multiple.insert_size_fold
@@ -38,12 +38,18 @@
             #end if
             
             "$output"
+            
+            #if $multiple.input_format in ["bam", "sam"]
+                ; mv "${output}.sam" "$output"
+                ; mv "${output}.unmap.sam" "$output_unmapped"
+            #end if 
     </command>
 
     <inputs>
         <conditional name="multiple">
             <param name="input_format" type="select" label="Convert a file of the following format">
-                <option value="bam">BAM or SAM format</option>
+                <option value="bam">BAM</option>
+                <option value="sam">SAM</option>
                 <option value="bed">BED or BED-like</option>
                 <option value="bigwig">BigWig</option>
                 <option value="gff">GFF or GTF</option>
@@ -57,7 +63,39 @@
                         <option value="history">From History</option>
                     </param>
                         <when value="cached">
-                            <param type="data" format="bam,sam" name="input" label="BAM/SAM file">
+                            <param type="data" format="bam" name="input" label="BAM/SAM file">
+                                <validator type="unspecified_build" />
+                                <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
+                            </param>
+                            <param name="input_chain" type="select" label="Lift Over To">
+                                <options from_file="liftOver.loc">
+                                    <column name="name" index="1"/>
+                                    <column name="value" index="2"/>
+                                    <column name="dbkey" index="0"/>
+                                    <filter type="data_meta" ref="input" key="dbkey" column="0" />
+                                </options>
+                            </param>
+                        </when>
+                        <when value="history">
+                            <param type="data" format="bam,sam" name="input" label="BAM/SAM file" />
+                            <param type="data" format="csv" name="input_chain" label="LiftOver chain file" />
+                        </when>
+                </conditional>
+                
+                <param name="insert_size" type="float" value="200.0" label="Insert size (-m)" help="Average insert size of pair-end sequencing (bp) [default=200.0]" />
+                <param name="insert_size_stdev" type="float" value="30.0" label="Insert size std. dev (-s)" help="Stanadard deviation of insert size. [default=30.0]" />
+                <param name="insert_size_fold" type="float" value="3.0" label="Insert size std. dev foldchange (-t)" help="A mapped pair is considered as 'proper pair' if both ends mapped to different strand and the distance between them is less then '-t' * stdev from the mean. [default=3.0]" />
+                
+                <param name="include_fails" type="hidden" tvalue="False" />
+            </when>
+            <when value="sam"><!-- BAM and SAM are exactly the same conditions, but they need to be separate to get the proper output format -->
+                <conditional name="seq_source">
+                    <param name="index_source" type="select" label="Source for LiftOver Data (chain file)">
+                        <option value="cached">Local data (in galaxy)</option>
+                        <option value="history">From History</option>
+                    </param>
+                        <when value="cached">
+                            <param type="data" format="sam" name="input" label="BAM/SAM file">
                                 <validator type="unspecified_build" />
                                 <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
                             </param>
@@ -246,7 +284,29 @@
     </inputs>
     
     <outputs>
-        <data format="text" name="output" label="${tool.name} on " />
+        <data format="text" name="output" label="${tool.name} on ">
+            <change_format>
+                <when input="multiple.input_format" value="bam" format="bam" />
+                <when input="multiple.input_format" value="sam" format="sam" />
+                <when input="multiple.input_format" value="bed" format="bed" />
+                <when input="multiple.input_format" value="bigwig" format="bigwig" />
+                <when input="multiple.input_format" value="gff" format="gff" />
+                <when input="multiple.input_format" value="vcf" format="vcf" />
+                <when input="imultiple.nput_format" value="wig" format="wig" />
+            </change_format>
+        </data>
+        
+        <data format="text" name="output_unmapped" label="${tool.name} unmapped on ">
+            <filter>input_format in ["bam"]</filter>
+            <change_format>
+                <when input="multiple.input_format" value="bam" format="bam" />
+                <when input="multiple.input_format" value="sam" format="sam" />
+                <when input="multiple.input_format" value="bigwig" format="bigwig" />
+                <when input="multiple.input_format" value="gff" format="gff" />
+                <when input="multiple.input_format" value="vcf" format="vcf" />
+                <when input="multiple.input_format" value="wig" format="wig" />
+            </change_format>
+        </data>
     </outputs>
     
     <tests>

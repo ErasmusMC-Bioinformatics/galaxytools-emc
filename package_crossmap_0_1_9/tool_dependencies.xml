@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <tool_dependency>
+    <!-- use built-in bx-python
+    <package name="bx-python" version="0.7.1">
+        <repository name="package_bx_python_0_7" owner="iuc" prior_installation_required="True" />
+    </package>-->
+    
     <package name="numpy" version="1.9">
         <repository name="package_numpy_1_9" owner="iuc" prior_installation_required="True" />
     </package>
@@ -20,6 +25,11 @@
                     <repository name="package_numpy_1_9" owner="iuc">
                         <package name="numpy" version="1.9" />
                     </repository>
+                    <!-- use built-in bx-python
+                    <repository name="package_bx_python_0_7" owner="iuc">
+                        <package name="bx-python" version="0.7.1" />
+                    </repository>
+                    -->
                 </action>
                 
                 <!-- CrossMap doesn't pick up the correct Cython path.
