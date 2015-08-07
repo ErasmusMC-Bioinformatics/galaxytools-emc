@@ -322,16 +322,6 @@
             <output name="output" file="test_bed_01_output_a__only-matches.bed"/>
         </test>
         
-        
-        <test>
-            <param name="input_format" value="gff"/>
-            <param name="index_source" value="history"/>
-            <param name="input" value="test_gff_01_input_a.gtf" ftype="gtf"/>
-            <param name="input_chain" value="aToB.over.chain" ftype="csv"/>
-            <param name="include_fails" value="false"/>
-            
-            <output name="output" file="test_gff_01_output_a__only-matches.gtf"/>
-        </test>
         <!--<test>
             <param name="input_format" value="bed"/>
             <param name="index_source" value="history"/>
@@ -360,6 +350,25 @@
             <output name="output" file="test_bed_02_output_a__all.bed"/>
         </test>-->
         
+        
+        <test>
+            <param name="input_format" value="gff"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_gff_01_input_a.gtf" ftype="gtf"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="csv"/>
+            <param name="include_fails" value="false"/>
+            
+            <output name="output" file="test_gff_01_output_a__only-matches.gtf"/>
+        </test>
+        <test>
+            <param name="input_format" value="gff"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_gff_01_input_a.gtf" ftype="gtf"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="csv"/>
+            <param name="include_fails" value="true"/>
+            
+            <output name="output" file="test_gff_01_output_a__all.gtf"/>
+        </test>
     </tests>
     
     <help>
