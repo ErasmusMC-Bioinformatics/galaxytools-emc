@@ -5,7 +5,7 @@
 @SQ	SN:chr3	LN:199501827
 @SQ	SN:chr4	LN:191273063
 @PG	ID:-	VN:1.0.0	CL:cmatrix
-@PG	ID:CrossMap	VN:0.1.10
+@PG	ID:CrossMap	VN:0.2
 @CO	Test data for CrossMap bam
 @CO	Liftover from original BAM/SAM file: 
 @CO	Liftover is based on the chain file: 

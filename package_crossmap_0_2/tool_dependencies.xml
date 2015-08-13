@@ -8,10 +8,10 @@
         <repository name="package_cython_0_20_1" owner="iuc" prior_installation_required="True" />
     </package>
     
-    <package name="crossmap" version="0.1.9">
+    <package name="crossmap" version="0.2">
         <install version="1.0">
             <actions>
-                <action type="download_by_url" sha256sum="2ebcd4d1bdc51f53e2f9630f9d302bd3abcc58affed0f066f0a5c439e72ae7e2">http://sourceforge.net/projects/crossmap/files/CrossMap-0.1.9.tar.gz</action>
+                <action type="download_by_url" sha256sum="eb983c8d0ff0331f069e2378768d8988b6b9d8dd303a0f0f0cef9d882256af85">http://sourceforge.net/projects/crossmap/files/CrossMap-0.2.tar.gz</action>
                 
                 <action type="setup_python_environment">
                     <repository name="package_cython_0_20_1" owner="iuc">
@@ -48,6 +48,7 @@ GTF, SAM, Wiggle, and VCF formats. For large plain text file types, such as BED,
 and VCF, reading from remote servers and file compression are supported.
 
 NEWS:
+ * 08/11/15: Release version 0.2: Fixed the bug that CrossMap will not convert wiggle format files due to name collision with bx python.
  * 07/27/15: Release version 0.1.9. For VCF file conversion in v0.1.9:
   - CrossMap uses the indexed reference genome (target assembly) sequences rather than load
 the entire file into memory. Users could index their reference genome file using samtools faidx
