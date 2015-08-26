@@ -26,6 +26,8 @@
                 Therefore install it with a manual shell_command instead
                 of <package></package> inside a pyton_env. -->
                 <action type="shell_command">
+                    sed -i.bak -r 's/numpy.(sum|nan_to_num)+/np.\1(sig_list)/' bin/CrossMap.py &amp;&amp;<!-- bigwig fix, unpatched in 0.2 -->
+                    
                     export PYTHONPATH="$CYTHON_PATH/lib/python/Cython-0.20.1-py2.7-linux-x86_64.egg:$PYTHONPATH" &amp;&amp;
                     
                     python setup.py install --root $INSTALL_DIR
