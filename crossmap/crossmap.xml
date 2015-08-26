@@ -381,7 +381,7 @@
             <output name="output" file="test_bed_02_output_a__all.bed"/>
         </test>
         
-    <!-- BigWig --><!-- Malfuncioning in CrossMap 0.2
+    <!-- BigWig --><!-- Malfuncioning in CrossMap 0.2, but patched via galaxy toolshed installer -->
         <test>
             <param name="input_format" value="bigwig"/>
             <param name="index_source" value="history"/>
@@ -391,7 +391,7 @@
             
             <output name="output" file="test_bigwig_01_output_a.bw"/>
             <output name="output2" file="test_bigwig_01_output_a.sorted.bgr"/>
-        </test>-->
+        </test>
     <!-- GFF -->
         <test>
             <param name="input_format" value="gff"/>
