@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <tool_dependency>
+    <package name="nose" version="1.3.7">
+        <repository name="package_nose_1_3_7" owner="yhoogstrate" prior_installation_required="True" />
+    </package>
+    
     <package name="numpy" version="1.9">
         <repository name="package_numpy_1_9" owner="iuc" prior_installation_required="True" />
     </package>
     
-    <package name="cython" version="0.20.1">
-        <repository name="package_cython_0_20_1" owner="iuc" prior_installation_required="True" />
+    <package name="cython" version="0.23.1">
+        <repository name="package_cython_0_23_1" owner="iuc" prior_installation_required="True" />
     </package>
     
     <package name="crossmap" version="0.2">
@@ -14,8 +18,11 @@
                 <action type="download_by_url" sha256sum="eb983c8d0ff0331f069e2378768d8988b6b9d8dd303a0f0f0cef9d882256af85">http://sourceforge.net/projects/crossmap/files/CrossMap-0.2.tar.gz</action>
                 
                 <action type="setup_python_environment">
-                    <repository name="package_cython_0_20_1" owner="iuc">
-                        <package name="cython" version="0.20.1" />
+                    <repository name="package_nose_1_3_7" owner="yhoogstrate">
+                        <package name="nose" version="1.3.7" />
+                    </repository>
+                    <repository name="package_cython_0_23_1" owner="iuc">
+                        <package name="cython" version="0.23.1" />
                     </repository>
                     <repository name="package_numpy_1_9" owner="iuc">
                         <package name="numpy" version="1.9" />
@@ -26,9 +33,15 @@
                 Therefore install it with a manual shell_command instead
                 of <package></package> inside a pyton_env. -->
                 <action type="shell_command">
+                    which python ; 
+                    
                     sed -i.bak -r "s/numpy.(sum|nan_to_num)+/np.\1(sig_list)/" "bin/CrossMap.py" ;
                     
+                    export PYTHONPATH="$CYTHON_PATH/lib:$PYTHONPATH" &amp;&amp;
+                    export PYTHONPATH="$CYTHON_PATH/lib/python:$PYTHONPATH" &amp;&amp;
                     export PYTHONPATH="$CYTHON_PATH/lib/python/Cython-0.20.1-py2.7-linux-x86_64.egg:$PYTHONPATH" &amp;&amp;
+                    
+                    echo $PYTHONPATH ; 
                     
                     python setup.py install --root $INSTALL_DIR
                 </action>
