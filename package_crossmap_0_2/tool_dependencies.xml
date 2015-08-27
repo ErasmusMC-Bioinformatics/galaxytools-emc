@@ -33,15 +33,11 @@
                 Therefore install it with a manual shell_command instead
                 of <package></package> inside a pyton_env. -->
                 <action type="shell_command">
-                    which python ; 
-                    
                     sed -i.bak -r "s/numpy.(sum|nan_to_num)+/np.\1(sig_list)/" "bin/CrossMap.py" ;
                     
                     export PYTHONPATH="$CYTHON_PATH/lib:$PYTHONPATH" &amp;&amp;
                     export PYTHONPATH="$CYTHON_PATH/lib/python:$PYTHONPATH" &amp;&amp;
                     export PYTHONPATH="$CYTHON_PATH/lib/python/Cython-0.20.1-py2.7-linux-x86_64.egg:$PYTHONPATH" &amp;&amp;
-                    
-                    echo $PYTHONPATH ; 
                     
                     python setup.py install --root $INSTALL_DIR
                 </action>
