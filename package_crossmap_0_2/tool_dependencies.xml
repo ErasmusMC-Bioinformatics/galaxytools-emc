@@ -29,25 +29,26 @@
                     </repository>
                 </action>
                 
-                <!-- CrossMap doesn't pick up the correct Cython path.
-                Therefore install it with a manual shell_command instead
-                of <package></package> inside a pyton_env. -->
+                <!-- If CrossMap is installed with - - home or - - prefix
+                into, it often crashes with a 'write-test' error
+                
+                Using - - root places the installation in:
+                $INSTALL_DIR / (python path dir) /
+                -->
                 <action type="shell_command">
-                    sed -i.bak -r "s/numpy.(sum|nan_to_num)+/np.\1(sig_list)/" "bin/CrossMap.py" ;
+                    sed -i.bak -r "s/numpy.(sum|nan_to_num)+/np.\1/" "bin/CrossMap.py" ;
                     
-                    export PYTHONPATH="$CYTHON_PATH/lib:$PYTHONPATH" &amp;&amp;
-                    export PYTHONPATH="$CYTHON_PATH/lib/python:$PYTHONPATH" &amp;&amp;
-                    export PYTHONPATH="$CYTHON_PATH/lib/python/Cython-0.20.1-py2.7-linux-x86_64.egg:$PYTHONPATH" &amp;&amp;
-                    
-                    python setup.py install --root $INSTALL_DIR
+                    python setup.py install --root $INSTALL_DIR &amp;&amp;
+                    export SUB_DIR=$(dirname $(which python)) &amp;&amp;
+                    mv $INSTALL_DIR$SUB_DIR/../lib $INSTALL_DIR/lib &amp;&amp;
+                    mv $INSTALL_DIR$SUB_DIR $INSTALL_DIR/bin
                 </action>
                 
                 <action type="set_environment">
-                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/usr/local/lib/python2.7/site-packages</environment_variable>
-                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/usr/local/lib/python2.7/dist-packages</environment_variable>
-                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/usr/local/bin</environment_variable>
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR"/lib/python2.7/site-packages"</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
                     
-                    <environment_variable action="set_to" name="PATH_CROSSMAP">$INSTALL_DIR/usr/local/bin</environment_variable>
+                    <environment_variable action="set_to" name="PATH_CROSSMAP">$INSTALL_DIR/bin</environment_variable>
                     <environment_variable action="set_to" name="CROSSMAP_ROOT_DIR">$INSTALL_DIR</environment_variable>
                 </action>
             </actions>
