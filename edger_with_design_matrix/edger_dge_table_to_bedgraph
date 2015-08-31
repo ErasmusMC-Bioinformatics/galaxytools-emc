@@ -1,0 +1,222 @@
+#!/usr/bin/env python
+
+import re,sys,os,os.path,argparse,textwrap,datetime
+
+class GTF:
+	def __init__(self,filename,features=["exon"],symbol="gene_id"):
+		self.features = features
+		if(re.match("^[a-zA-Z0-9_\-]+$",symbol)):
+			self.symbol = symbol
+		else:
+			raise ValueError('False symbol matching symbol: '+str(symbol))
+		self.index = {}
+		self.parse(filename)
+	
+	def parse(self,filename):
+		with open(filename) as infile:
+			for line in infile:
+				self.parse_line(line)
+	
+	def parse_line(self,line):
+		line = line.strip().split("\t")
+		if(len(line) == 9):
+			if(line[2] in self.features):
+				gene_id = self.parse_column_9(line[8])
+				if(gene_id):
+					if(not self.index.has_key(gene_id)):
+						self.index[gene_id] = []
+					self.index[gene_id].append([line[0],line[3],line[4]])
+	
+	def parse_column_9(self,line):
+		query = self.symbol+'[ =]+([^ ;]+)'
+		m = re.search(query, line)
+		
+		if(m):
+			return m.group(1).strip("'").strip('"')
+		else:
+			return None
+	
+	def get(self,key):
+		try:
+			return self.index[key]
+		except:
+			return False
+
+
+class EdgeR_table:
+	def __init__(self,table,gtf,columns=[3,7]):
+		self.index = {}
+		self.gtf = gtf
+		self.columns = columns
+		self.parse(table)
+	
+	def parse(self,filename):
+		i = 0
+		with open(filename) as infile:
+			for line in infile:
+				if(i == 0):
+					self.parse_header(line)
+				else:
+					self.parse_line(line)
+				i += 1
+	
+	def parse_header(self,line):
+		params = line.strip().split("\t")
+		if(params[1].lower().find("genes") == -1):
+			raise ValueError('False header in file - no "genes" in 2nd colum: '+line)
+		if(params[2].lower().find("logfc") == -1):
+			raise ValueError('False header in file - no "logfc" in 3rd colum: '+line)
+		if(params[3].lower().find("logcpm") == -1):
+			raise ValueError('False header in file - no "logcpm" in 4th colum: '+line)
+		if(params[4].lower().find("lr") == -1):
+			raise ValueError('False header in file - no "lr" in 5th colum: '+line)
+		if(params[5].lower().find("pvalue") == -1):
+			raise ValueError('False header in file - no "pvalue" in 6th colum: '+line)
+		if(params[6].lower().find("fdr") == -1):
+			raise ValueError('False header in file - no "fdr" in 7th colum: '+line)
+
+	def parse_line(self,line):
+		line = line.strip().split("\t")
+		
+		if(len(line) == 7):
+			gene_id = line[1].strip('"').strip("'")
+			column_data = {}
+			for column in self.columns:
+				if(column in [6,7]):
+					column_data[column] = str(1.0 - float(line[column-1]))
+				else:
+					column_data[column] = line[column-1]
+			
+			locations = self.gtf.get(gene_id)
+			if(not locations):
+				print "Warning: no location found for gene "+gene_id
+			else:
+				for location in locations:
+					self.insert(location,column_data)
+	
+	def insert(self,location,data):
+		chrom = location[0]
+		start = location[1]
+		end = location[2]
+		
+		if(not self.index.has_key(chrom)):
+			self.index[chrom] = {}
+		
+		if(not self.index[chrom].has_key(start)):
+			self.index[chrom][start] = {}
+		
+		if(not self.index[chrom][start].has_key(end)):
+			self.index[chrom][start][end] = []
+		
+		self.index[chrom][start][end].append(data)
+	
+	def export(self,filenames={3:"log_cpm.txt",7:"fdr.txt"}):
+		for column in self.columns:
+			fh = open(filenames[column],"w")
+			
+			buf = False
+			
+			for chrom in sorted(self.index.keys()):
+				for start in sorted(self.index[chrom].keys()):
+					for end in sorted(self.index[chrom][start].keys()):
+						fh.write(chrom+"\t"+start+"\t"+end+"\t"+self.index[chrom][start][end][0][column]+"\n")
+			
+			fh.close()
+			
+			os.system("sort -k1,1V -k2,2g -k3,3g '"+filenames[column]+"' > '"+filenames[column]+".sorted'")
+
+
+def remove_overlap_in_bedgraph(bedgraph_file_dirty,bedgraph_file_clean):
+	fh = open(bedgraph_file_clean,"w")
+	buf = False
+	
+	with open(bedgraph_file_dirty,"r") as f:
+		for line in f:
+			cur = line.strip().split("\t")
+			cur[1] = int(cur[1])
+			cur[2] = int(cur[2])
+			
+			if(not buf):
+				buf = cur
+			else:
+				if(cur[0] == buf[0] and cur[1] <= buf[2] ):
+					if(buf[1] == cur[1]):									#is subset
+						newscore = (float(buf[3])+float(cur[3]))/2
+						buf[2] = cur[2]
+						buf[3] = newscore
+					else:
+						c1 = buf[1]
+						c2 = cur[1]
+						c3 = min(buf[2],cur[2])
+						c4 = max(buf[2],cur[2])
+						
+						fh.write(buf[0]+"\t"+str(c1)+"\t"+str(c2-1)+"\t"+str(buf[3])+"\n")
+						
+						newscore = (float(buf[3])+float(cur[3]))/2
+						#fh.write(buf[0]+"\t"+str(c2+1)+"\t"+str(c3)+"\t"+str(newscore)+"\tp2\n")
+						#buf = [buf[0], c3+1 , c4 , cur[3]]
+						
+						buf = [buf[0], c2 , c4 , cur[3]]
+						
+						# find if buf is a subset -> if so, merge and send to buffer
+						# or find the overlapping region
+						
+						# if current is overlapping with buffer; merge:
+						##  [       ]                 < buf
+						##       [        ]           < cur
+						##
+						##  [             ]           < buf
+						##       [    ]               < cur
+						##  111112222333333  << write 1 and 2 and keep 3 in buf
+				else:
+					fh.write(buf[0]+"\t"+str(buf[1])+"\t"+str(buf[2])+"\t"+str(buf[3])+"\n")
+					buf=cur
+		
+		fh.write(buf[0]+"\t"+str(buf[1])+"\t"+str(buf[2])+"\t"+str(buf[3])+"\n")
+	fh.close()
+
+
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	
+	parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,epilog="For more info please visit:\n<https://github.com/yhoogstrate/fuma>")
+	
+	parser.add_argument("-t",help="CPM table to extract columns from",nargs=1,required=True)
+	parser.add_argument("-g",help="GTF file used to extract genomic location",nargs=1,required=True)
+	
+	parser.add_argument("-c3",help="Output (bedgraph) for column 3 (logFC)",nargs="?",required=False)
+	parser.add_argument("-c4",help="Output (bedgraph) for column 4 (logCPM)",nargs="?",required=False)
+	parser.add_argument("-c5",help="Output (bedgraph) for column 5 (LR)",nargs="?",required=False)
+	parser.add_argument("-c6",help="Output (bedgraph) for column 6 (PValue)",nargs="?",required=False)
+	parser.add_argument("-c7",help="Output (bedgraph) for column 7 (FDR)",nargs="?",required=False)
+	
+	args = parser.parse_args()
+	
+	#files = {3:"VCAP_logFC.hg19.bedgraph",7:"VCAP_fdr.hg19.bedgraph"}
+	files = {}
+	
+	if(args.c3):
+		files[3] = args.c3
+	if(args.c4):
+		files[4] = args.c4
+	if(args.c5):
+		files[5] = args.c5
+	if(args.c6):
+		files[6] = args.c6
+	if(args.c7):
+		files[7] = args.c7
+	
+	print "Parsing GTF file"
+	g = GTF(args.g[0])
+	
+	print "Parsing EdgeR table"
+	e = EdgeR_table(args.t[0],g,files.keys())
+	
+	print "Exporting raw bedgraph(s)"
+	e.export(files)
+	
+	print "Removing overlapping entries in bedgraph(s)"
+	for key in files.keys():
+		remove_overlap_in_bedgraph(files[key]+".sorted",files[key])
+		os.system("rm '"+files[key]+".sorted'")

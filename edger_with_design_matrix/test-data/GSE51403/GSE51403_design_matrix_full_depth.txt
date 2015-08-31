@@ -1,0 +1,15 @@
+sample-name	Treatment
+GSM1244816: Control_Rep1	Control
+GSM1244817: Control_Rep2	Control
+GSM1244818: Control_Rep3	Control
+GSM1244819: Control_Rep4	Control
+GSM1244820: Control_Rep5	Control
+GSM1244821: Control_Rep6	Control
+GSM1244822: Control_Rep7	Control
+GSM1244809: E2_Rep1	E2
+GSM1244810: E2_Rep2	E2
+GSM1244811: E2_Rep3	E2
+GSM1244812: E2_Rep4	E2
+GSM1244813: E2_Rep5	E2
+GSM1244814: E2_Rep6	E2
+GSM1244815: E2_Rep7	E2

@@ -1,0 +1,12 @@
+categories:
+- Tool Dependency Packages
+description: Contains a tool dependency definition that downloads version
+  3.9.9 of edgeR, the Bioconductor R package.
+long_description: |
+  Differential expression analysis of RNA-seq expression profiles with biological replication.
+  http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
+name: package_r_edger_3_9_9
+owner: iuc
+homepage_url: http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
+remote_repository_url: https://github.com/galaxyproject/tools-iuc/tree/master/packages/package_r_edger_3_9_9
+type: tool_dependency_definition

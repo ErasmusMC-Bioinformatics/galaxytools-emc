@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="R" version="3.1.2">
+        <repository name="package_r_3_1_2" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="edger" version="3.9.9">
+        <install version="1.0">
+            <actions>
+                <action type="setup_r_environment">
+                    <repository name="package_r_3_1_2" owner="iuc">
+                        <package name="R" version="3.1.2" />
+                    </repository>
+                    
+                    <!-- bioarchive.github.io -->
+                    <package>http://bioarchive.s3-website-us-east-1.amazonaws.com/limma_3.9.9.tar.gz</package>
+                    <!-- If limma is loaded as dependency it fails:
+                    
+						Rscript -e "install.packages(c('edgeR_3.9.9.tar.gz'),lib='/usr/local/src/galaxy/tool_dependencies/edger/3.9.9/yhoogstrate/package_r_edger_3_9_9/671f1f9cb0b1', repos=NULL, dependencies=FALSE)"
+						STDERR
+						ERROR: dependency ‘limma’ is not available for package ‘edgeR’
+						* removing ‘/usr/local/src/galaxy/tool_dependencies/edger/3.9.9/yhoogstrate/package_r_edger_3_9_9/671f1f9cb0b1/edgeR’
+						Warning message:
+						In install.packages(c("edgeR_3.9.9.tar.gz"), lib = "/usr/local/src/galaxy/tool_dependencies/edger/3.9.9/yhoogstrate/package_r_edger_3_9_9/671f1f9cb0b1",  :
+						installation of package ‘edgeR_3.9.9.tar.gz’ had non-zero exit status
+                    -->
+                    <package>http://bioarchive.s3-website-us-east-1.amazonaws.com/edgeR_3.9.9.tar.gz</package>
+                </action>
+            </actions>
+        </install>
+        <readme>
+Differential expression analysis of RNA-seq expression profiles with biological replication.
+        </readme>
+    </package>
+</tool_dependency>

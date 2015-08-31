@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="concatenate_expression_matrices" name="edgeR: Concatenate Expression Matrices" version="1.0.0">
+	<description>Create a full expression matrix by selecting the desired columns from specific count tables</description>
+	
+	<command>
+		#set $j = 0
+		#set $paste = []
+		
+		#if $add_geneids.choice == "true":
+			#set $filename = str($j)+".txt"
+			#set paste = paste + [$filename]
+			
+			cut -f $add_geneids.column_geneids.value "$add_geneids.sample_geneids" > $filename ;
+			#set $j += 1
+		#end if
+		
+		#for $sample in $samples:
+			##echo "$sample.column_index"
+			##echo "$sample.column_index.value"
+			
+			#set $column_str = ",".join([str(x).strip() for x in $sample.column_index.value])
+			#set $filename = str($j)+".txt"
+			#set paste = paste + [$filename]
+			
+			cut -f "$column_str" "$sample.sample" > $filename ;
+			#set $j += 1
+		#end for
+		
+		#if $add_lengths.choice == "true":
+			#set $filename = str($j)+".txt"
+			#set paste = paste + [$filename]
+			
+			cut -f $add_lengths.column_lengths.value "$add_lengths.sample_lengths" > $filename ;
+			#set $j += 1
+		#end if
+		
+		#set $paste_str = " ".join([str(x).strip() for x in $paste])
+		
+		paste $paste_str > $expression_matrix
+	</command>
+	
+	<inputs>
+		<conditional name="add_geneids">
+			<param name="choice" type="select" label="Add a gene-IDs column at the end of the file" help="Highly recommended to select!" >
+				<option value="false">No</option>
+				<option value="true" selected="true">Yes</option>
+			</param>
+			<when value="false" />
+			<when value="true">
+				<param name="sample_geneids" type="data" format="tabular" label="Select Read-count dataset that contains a column for GeneIDs" help="from featureCounts/DEXSeq-count/HTSeq-count, etc." />
+				<param name="column_geneids" numerical="false" use_header_names="true" label="Select GeneID column" type="data_column" data_ref="sample_geneids" multiple="false">
+					<validator type="no_options" message="Please select at least one column." />
+				</param>
+			</when>
+		</conditional>
+		
+		<repeat name="samples" title="Expression Table" help="E.g. a earlier concatenated table, or a HT-seq, featureCounts or DESeq-count result.">
+			<param name="sample" type="data" format="tabular" label="Read-count dataset that belongs to a pair" help="from featureCounts/DEXSeq-count/HTSeq-count, etc." />
+			<!-- select columns  -->
+			<param name="column_index" numerical="false" use_header_names="true" label="Select columns that are associated with this factor level" type="data_column" data_ref="sample" multiple="true" size="120" display="checkboxes">
+				<validator type="no_options" message="Please select at least one column." />
+			</param>
+		</repeat>
+		
+		<conditional name="add_lengths">
+			<param name="choice" type="select" label="Add a gene-lengths column at the end of the file" help="Optional, only usefull if RPKM/FPKM calculation is desired." >
+				<option value="false">No</option>
+				<option value="true">Yes</option>
+			</param>
+			<when value="false" />
+			<when value="true">
+				<param name="sample_lengths" type="data" format="tabular" label="Read-count dataset that belongs to a pair" help="from featureCounts/DEXSeq-count/HTSeq-count, etc." />
+				<param name="column_lengths" numerical="false" use_header_names="true" label="Select columns that are associated with this factor level" type="data_column" data_ref="sample_lengths" multiple="false" size="120">
+					<validator type="no_options" message="Please select at least one column." />
+				</param>
+			</when>
+		</conditional>
+		
+		<param name="remove_comment_lines" type="boolean" label="Automatically remove 'comment' lines starting with a '#'" truevale="true" falsevalue="false" selected="true" help="Some tools (incl. featureCounts) include comment lines that are not neccesairy for downstream analyis. By enabling this function, these lines will be removed." />
+		
+	</inputs>
+	
+	<outputs>
+		<data format="tabular" name="expression_matrix" label="Expression matrix" />
+	</outputs>
+	
+	<tests>
+		<test>
+			<conditional name="add_geneids">
+				<param name="choice" value="true" />
+				<param name="sample_geneids" value="GSE51403/GSE51403_expression_matrix_GeneLengths.txt" />
+				<param name="column_geneids" value="1" />
+			</conditional>
+			
+			<param name="samples_0|sample" value="GSE51403/GSE51403_expression_matrix_Control_1.txt" />
+			<param name="samples_0|column_index" value="2" />
+			
+			<conditional name="add_lengths">
+				<param name="choice" value="false" />
+			</conditional>
+			
+			<param name="remove_comment_lines" value="false" />
+			
+			<output name="expression_matrix" file="GSE51403/GSE51403_expression_matrix_Control_1.txt" />
+		</test>
+		<test>
+			<conditional name="add_geneids">
+				<param name="choice" value="true" />
+				<param name="sample_geneids" value="GSE51403/GSE51403_expression_matrix_GeneLengths.txt" />
+				<param name="column_geneids" value="1" />
+			</conditional>
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_0|sample" value="GSE51403/GSE51403_expression_matrix_Control_1.txt" />
+				<param name="samples_0|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_1|sample" value="GSE51403/GSE51403_expression_matrix_Control_2.txt" />
+				<param name="samples_1|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_2|sample" value="GSE51403/GSE51403_expression_matrix_Control_3.txt" />
+				<param name="samples_2|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_3|sample" value="GSE51403/GSE51403_expression_matrix_Control_4.txt" />
+				<param name="samples_3|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_4|sample" value="GSE51403/GSE51403_expression_matrix_Control_5.txt" />
+				<param name="samples_4|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_5|sample" value="GSE51403/GSE51403_expression_matrix_Control_6.txt" />
+				<param name="samples_5|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_6|sample" value="GSE51403/GSE51403_expression_matrix_Control_7.txt" />
+				<param name="samples_6|column_index" value="2" />
+			<!-- </repeat> -->
+			
+			<!-- <repeat name="samples"> -->
+				<param name="samples_7|sample" value="GSE51403/GSE51403_expression_matrix_E2.txt" />
+				<param name="samples_7|column_index" value="2,3,4,5,6,7,8" />
+			<!-- </repeat> -->
+			
+			<conditional name="add_lengths">
+				<param name="choice" value="true" />
+				<param name="sample_lengths" value="GSE51403/GSE51403_expression_matrix_GeneLengths.txt" />
+				<param name="column_lengths" value="2" />
+			</conditional>
+			
+			<param name="remove_comment_lines" value="false" />
+			
+			<output name="expression_matrix" file="GSE51403/GSE51403_expression_matrix_full.txt" />
+		</test>
+	</tests>
+	
+	<help>
+edgeR: Concatenate Expression Matrices
+#######################################
+
+Overview
+--------
+
+Create subsets from or combined expression matrices.
+
+**Notes**
+
+Make sure the tables have an identical number of columns compared to the number of headers.
+If you export tables using R, make sure you set: col.names=NA. Otherwise column may be swapped during concatenation.
+
+Input
+-----
+
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands) on behalf of the Translational
+Research IT (TraIT) project:
+
+http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
+
+More tools by the Translational Research IT (TraIT) project can be found
+in the following toolsheds:
+
+http://toolshed.dtls.nl/
+
+http://toolshed.g2.bx.psu.edu
+
+http://testtoolshed.g2.bx.psu.edu/
+	</help>
+	
+	<citations>
+		<citation type="doi">10.1093/bioinformatics/btp616</citation>
+		<citation type="doi">10.1093/bioinformatics/btt688</citation>
+	</citations>
+</tool>

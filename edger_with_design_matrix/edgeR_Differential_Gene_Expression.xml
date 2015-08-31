@@ -1,0 +1,663 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.0.3-latest.d">
+	<description>RNA-Seq gene expression analysis using edgeR (R package)</description>
+	
+	<requirements>
+		<requirement type="package" version="3.0.3">R</requirement>
+		<requirement type="package" version="latest">biocLite_edgeR_limma</requirement>
+	</requirements>
+	
+	<stdio>
+		<regex match="Error in[^a-z]+contrasts"
+				source="both"
+				level="fatal"
+				description="Have the design- and expression-matrix been swapped?" />
+		<regex match="Execution halted"
+				source="both"
+				level="fatal" />
+		<regex match="Calculating library sizes from column" 
+				source="stderr" 
+				level="log" />
+		<regex match="During startup - Warning messages"
+				source="stderr"
+				level="log" />
+		<regex match="Setting LC_[^ ]+ failed"
+				source="stderr"
+				level="warning"
+				description="LOCALE has not been set correctly" />
+	</stdio>
+	
+	<version_command>echo $(R --version | grep version | grep -v GNU) " , EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
+	
+	<command>
+		<!--
+			The following script is written in the "Cheetah" language:
+			http://www.cheetahtemplate.org/docs/users_guide_html_multipage/contents.html
+		-->
+		
+		R --vanilla --slave -f $R_script '--args
+			$expression_matrix
+			$design_matrix
+			$contrast
+			
+			$fdr
+			
+			$output_count_edgeR 
+			$output_cpm
+			
+			/dev/null													<!-- Calculation of FPKM/RPKM should come here -->
+			
+			#if $output_raw_counts:
+				$output_raw_counts
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_MDSplot_logFC:
+				$output_MDSplot_logFC
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_MDSplot_bcv:
+				$output_MDSplot_bcv
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_BCVplot:
+				$output_BCVplot
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_MAplot:
+				$output_MAplot
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_PValue_distribution_plot:
+				$output_PValue_distribution_plot
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_hierarchical_clustering_plot:
+				$output_hierarchical_clustering_plot
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_heatmap_plot:
+				$output_heatmap_plot
+			#else:
+				/dev/null
+			#end if
+			
+			#if $output_RData_obj:
+				$output_RData_obj
+			#else:
+				/dev/null
+			#end if
+			
+			$output_format_images
+			'
+			#if $output_R:
+				> $output_R 
+			#else:
+				> /dev/null
+			#end if
+	</command>
+	
+	<configfiles>
+		<configfile name="R_script">
+library(limma,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
+library(edgeR,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
+library(splines,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
+ 
+## Fetch commandline arguments
+args &lt;- commandArgs(trailingOnly = TRUE)
+
+expression_matrix_file              = args[1]
+design_matrix_file                  = args[2]
+contrast                            = args[3]
+
+fdr                                 = args[4]
+
+output_count_edgeR                  = args[5]
+output_cpm                          = args[6]
+
+output_xpkm                         = args[7]							##FPKM file - yet to be implemented
+
+output_raw_counts                   = args[8]
+output_MDSplot_logFC                = args[9]
+output_MDSplot_bcv                  = args[10]
+output_BCVplot                      = args[11]
+output_MAplot                       = args[12]
+output_PValue_distribution_plot     = args[13]
+output_hierarchical_clustering_plot = args[14]
+output_heatmap_plot                 = args[15]
+output_RData_obj                    = args[16]
+output_format_images                = args[17]
+
+
+library(edgeR)
+##raw_data &lt;- read.delim(designmatrix,header=T,stringsAsFactors=T)
+## Obtain read-counts
+
+expression_matrix &lt;- read.delim(expression_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
+design_matrix &lt;- read.delim(design_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
+
+colnames(design_matrix) &lt;- make.names(colnames(design_matrix))
+
+for(i in 1:ncol(design_matrix)) {
+  old &lt;- design_matrix[,i]
+  design_matrix[,i] &lt;- make.names(design_matrix[,i])
+  if(paste(design_matrix[,i],collapse="\t") != paste(old,collapse="\t")) {
+    print("Renaming of factors:")
+    print(old)
+    print("To:")
+    print(design_matrix[,i])
+  }
+  ## The following line seems to malfunction the script:
+  ##design_matrix[,i] &lt;- as.factor(design_matrix[,i])
+}
+
+## 1) In the expression matrix, you only want to have the samples described in the design matrix
+columns &lt;- match(rownames(design_matrix),colnames(expression_matrix))
+columns &lt;- columns[!is.na(columns)]
+read_counts &lt;- expression_matrix[,columns]
+
+## 2) In the design matrix, you only want to have samples of which you really have the counts
+columns &lt;- match(colnames(read_counts),rownames(design_matrix))
+columns &lt;- columns[!is.na(columns)]
+design_matrix &lt;- design_matrix[columns,,drop=FALSE]
+
+## Filter for HTSeq predifined counts:
+exclude_HTSeq &lt;- c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
+exclude_DEXSeq &lt;- c("_ambiguous","_empty","_lowaqual","_notaligned")
+
+exclude &lt;- match(c(exclude_HTSeq, exclude_DEXSeq),rownames(read_counts))
+exclude &lt;- exclude[is.na(exclude)==0]
+if(length(exclude) != 0)  {
+  read_counts &lt;- read_counts[-exclude,]
+}
+
+
+## sorting expression matrix with the order of the read_counts
+##order &lt;- match(colnames(read_counts) , rownames(design_matrix))
+##read_counts_ordered  &lt;- read_counts[,order2]
+
+empty_samples &lt;- apply(read_counts,2,function(x) sum(x) == 0)
+if(sum(empty_samples) > 0) {
+  write(paste("There are ",sum(empty_samples)," empty samples found:",sep=""),stderr())
+  write(colnames(read_counts)[empty_samples],stderr())
+} else {
+  
+  dge &lt;- DGEList(counts=read_counts,genes=rownames(read_counts))
+  
+  formula &lt;- paste(c("~0",make.names(colnames(design_matrix))),collapse = " + ")
+  design_matrix_tmp &lt;- design_matrix
+  colnames(design_matrix_tmp) &lt;- make.names(colnames(design_matrix_tmp))
+  design &lt;- model.matrix(as.formula(formula),design_matrix_tmp)
+  rm(design_matrix_tmp)
+  
+  # Filter prefixes
+  prefixes = colnames(design_matrix)[attr(design,"assign")]
+  avoid = nchar(prefixes) == nchar(colnames(design))
+  replacements = substr(colnames(design),nchar(prefixes)+1,nchar(colnames(design)))
+  replacements[avoid] = colnames(design)[avoid]
+  colnames(design) = replacements
+  
+  # Do normalization
+  write("Calculating normalization factors...",stdout())
+  dge &lt;- calcNormFactors(dge)
+  write("Estimating common dispersion...",stdout())
+  dge &lt;- estimateGLMCommonDisp(dge,design)
+  write("Estimating trended dispersion...",stdout())
+  dge &lt;- estimateGLMTrendedDisp(dge,design)
+  write("Estimating tagwise dispersion...",stdout())
+  dge &lt;- estimateGLMTagwiseDisp(dge,design)
+  
+  
+  if(output_MDSplot_logFC != "/dev/null") {
+    write("Creating MDS plot (logFC method)",stdout())
+    points &lt;- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)))# Get coordinates of unflexible plot
+    dev.off()# Kill it
+    
+    if(output_format_images == "pdf") {
+      pdf(output_MDSplot_logFC,height=14,width=14)
+    } else if(output_format_images == "svg") {
+      svg(output_MDSplot_logFC,height=14,width=14)
+    } else {
+      ## png(output_MDSplot_logFC)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_MDSplot_logFC,type="png16m",height=14,width=14)
+    }
+    
+    
+    diff_x &lt;- abs(max(points\$x)-min(points\$x))
+    diff_y &lt;-(max(points\$y)-min(points\$y))
+    plot(c(min(points\$x),max(points\$x) + 0.45 * diff_x), c(min(points\$y) - 0.05 * diff_y,max(points\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
+    points(points\$x,points\$y,pch=20)
+    text(points\$x, points\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+    rm(diff_x,diff_y)
+    
+    dev.off()
+  }
+  
+  if(output_MDSplot_bcv != "/dev/null") {
+    write("Creating MDS plot (bcv method)",stdout())
+    
+    ## 1. First create a virtual plot to obtain the desired coordinates
+    pdf("bcvmds.pdf")
+    points &lt;- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)))
+    dev.off()# Kill it
+    
+    ## 2. Re-plot the coordinates in a new figure with the size and settings.
+    if(output_format_images == "pdf") {
+      pdf(output_MDSplot_bcv,height=14,width=14)
+    } else if(output_format_images == "svg") {
+      svg(output_MDSplot_bcv,height=14,width=14)
+    } else {
+      ## png(output_MDSplot_bcv)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_MDSplot_bcv,type="png16m",height=14,width=14)
+    }
+    
+    diff_x &lt;- abs(max(points\$x)-min(points\$x))
+    diff_y &lt;-(max(points\$y)-min(points\$y))
+    plot(c(min(points\$x),max(points\$x) + 0.45 * diff_x), c(min(points\$y) - 0.05 * diff_y,max(points\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
+    points(points\$x,points\$y,pch=20)
+    text(points\$x, points\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+    rm(diff_x,diff_y)
+    
+    dev.off()
+  }
+  
+  
+  if(output_BCVplot != "/dev/null") {
+    write("Creating Biological coefficient of variation plot",stdout())
+    
+    if(output_format_images == "pdf") {
+      pdf(output_BCVplot)
+    } else if(output_format_images == "svg") {
+      svg(output_BCVplot)
+    } else {
+      ## png(output_BCVplot)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_BCVplot,type="png16m")
+    }
+    
+    plotBCV(dge, cex=0.4, main="edgeR: Biological coefficient of variation (BCV) vs abundance")
+    dev.off()
+  }
+  
+  
+  write("Fitting GLM...",stdout())
+  fit &lt;- glmFit(dge,design)
+
+  write(paste("Performing likelihood ratio test: ",contrast,sep=""),stdout())
+  cont &lt;- c(contrast)
+  cont &lt;- makeContrasts(contrasts=cont, levels=design)
+
+  lrt &lt;- glmLRT(fit, contrast=cont[,1])
+  write(paste("Exporting to file: ",output_count_edgeR,sep=""),stdout())
+  write.table(file=output_count_edgeR,topTags(lrt,n=nrow(read_counts))\$table,sep="\t",row.names=TRUE,col.names=NA)
+  write.table(file=output_cpm,cpm(dge,normalized.lib.sizes=TRUE),sep="\t",row.names=TRUE,col.names=NA)
+
+  ## todo EXPORT FPKM
+  write.table(file=output_raw_counts,dge\$counts,sep="\t",row.names=TRUE,col.names=NA)
+  
+  if(output_MAplot != "/dev/null" || output_PValue_distribution_plot != "/dev/null") {
+    etable &lt;- topTags(lrt, n=nrow(dge))\$table
+    etable &lt;- etable[order(etable\$FDR), ]
+    
+    if(output_MAplot != "/dev/null") {
+      write("Creating MA plot...",stdout())
+      
+      if(output_format_images == "pdf") {
+        pdf(output_MAplot)
+      } else if(output_format_images == "svg") {
+        svg(output_MAplot)
+      } else {
+        ## png(output_MAplot)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_MAplot,type="png16m")
+      }
+      
+      with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
+      with(subset(etable, FDR &lt; fdr), points(logCPM, logFC, pch=20, col="red"))
+      abline(h=c(-1,1), col="blue")
+      dev.off()
+    }
+  
+    if(output_PValue_distribution_plot != "/dev/null") {
+      write("Creating P-value distribution plot...",stdout())
+      
+      if(output_format_images == "pdf") {
+        pdf(output_PValue_distribution_plot,width=14,height=14)
+      } else if(output_format_images == "svg") {
+        svg(output_PValue_distribution_plot,width=14,height=14)
+      } else {
+        ## png(output_PValue_distribution_plot)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_PValue_distribution_plot,type="png16m",width=14,height=14)
+      }
+      
+      expressed_genes &lt;- subset(etable, PValue &lt; 0.99)
+      h &lt;- hist(expressed_genes\$PValue,breaks=nrow(expressed_genes)/15,main="Binned P-Values (&lt; 0.99)")
+      center &lt;- sum(h\$counts) / length(h\$counts)
+      lines(c(0,1),c(center,center),lty=2,col="red",lwd=2)
+      k &lt;- ksmooth(h\$mid, h\$counts)
+      lines(k\$x,k\$y,col="red",lwd=2)
+      rmsd &lt;- (h\$counts) - center
+      rmsd &lt;- rmsd^2
+      rmsd &lt;- sum(rmsd)
+      rmsd &lt;- sqrt(rmsd)
+      text(0,max(h\$counts),paste("e=",round(rmsd,2),sep=""),pos=4,col="blue")
+      ## change e into epsilon somehow
+      dev.off()
+    }
+  }
+  
+  if(output_heatmap_plot != "/dev/null") {
+    
+    if(output_format_images == "pdf") {
+      pdf(output_heatmap_plot,width=10.5)
+    } else if(output_format_images == "svg") {
+      svg(output_heatmap_plot,width=10.5)
+    } else {
+      ## png(output_heatmap_plot)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_heatmap_plot,type="png16m",width=10.5)
+    }
+    
+    etable2 &lt;- topTags(lrt, n=100)\$table
+    order &lt;- rownames(etable2)
+    cpm_sub &lt;- cpm(dge,normalized.lib.sizes=TRUE,log=TRUE)[as.numeric(order),]
+    heatmap(t(cpm_sub))
+    dev.off()
+  }
+  
+  ##output_hierarchical_clustering_plot = args[13]
+  
+  if(output_RData_obj != "/dev/null") {
+    save.image(output_RData_obj)
+  }
+  
+  write("Done!",stdout())
+}
+		</configfile>
+	</configfiles>
+	
+	<inputs>
+		<param name="expression_matrix" type="data" format="tabular" label="Expression (read count) matrix" />
+		<param name="design_matrix" type="data" format="tabular" label="Design matrix" help="Ensure your samplenames are identical to those in the expression matrix. Preferentially, create the contrast matrix using 'edgeR: Design- from Expression matrix'." />
+		
+		<param name="contrast" type="text" label="Contrast (biological question)" help="e.g. 'tumor-normal' or '(G1+G2)/2-G3' using the factors chosen in the design matrix. Read the 'makeContrasts' manual from Limma package for more info: http://www.bioconductor.org/packages/release/bioc/html/limma.html and http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf." />
+		
+		<param name="fdr" type="float" min="0" max="1" value="0.05" label="False Discovery Rate (FDR)" />
+		
+		<param name="outputs" type="select" label="Optional desired outputs" multiple="true" display="checkboxes">
+			<option value="make_output_raw_counts">Raw counts table</option>
+			<option value="make_output_MDSplot_logFC">MDS-plot (logFC-method)</option>
+			<option value="make_output_MDSplot_bcv">MDS-plot (BCV-method; much slower)</option>
+			<option value="make_output_BCVplot">BCV-plot</option>
+			<option value="make_output_MAplot">MA-plot</option>
+			<option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
+			<option value="make_output_hierarchical_clustering_plot">Hierarchical custering (under contstruction)</option>
+			<option value="make_output_heatmap_plot">Heatmap</option>
+			
+			<option value="make_output_R_stdout">R stdout</option>
+			<option value="make_output_RData_obj">R Data object</option>
+		</param>
+		
+		<param name="output_format_images" type="select" label="Output format of images" display="radio">
+			<option value="png">Portable network graphics (.png)</option>
+			<option value="pdf">Portable document format (.pdf)</option>
+			<option value="svg">Scalable vector graphics (.svg)</option>
+		</param>
+	</inputs>
+	
+	<outputs>
+		<data format="tabular" name="output_count_edgeR" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - differentially expressed genes" />
+		<data format="tabular" name="output_cpm" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - CPM" />
+		
+		<data format="tabular" name="output_raw_counts" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - raw counts">
+			<filter>outputs and ("make_output_raw_counts" in outputs)</filter>
+		</data>
+		
+		<data format="png" name="output_MDSplot_logFC" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (logFC method)">
+			<filter>outputs and ("make_output_MDSplot_logFC" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (bcv method)">
+			<filter>outputs and ("make_output_MDSplot_bcv" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="png" name="output_BCVplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - BCV-plot">
+			<filter>outputs and ("make_output_BCVplot" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="png" name="output_MAplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MA-plot">
+			<filter>outputs and ("make_output_MAplot" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="png" name="output_PValue_distribution_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - P-Value distribution">
+			<filter>outputs and ("make_output_PValue_distribution_plot" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="png" name="output_hierarchical_clustering_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Hierarchical custering">
+			<filter>outputs and ("make_output_hierarchical_clustering_plot" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="png" name="output_heatmap_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Heatmap">
+			<filter>outputs and ("make_output_heatmap_plot" in outputs)</filter>
+			
+			<change_format>
+				<when input="output_format_images" value="png" format="png" />
+				<when input="output_format_images" value="pdf" format="pdf" />
+				<when input="output_format_images" value="svg" format="svg" />
+			</change_format>
+		</data>
+		
+		<data format="RData" name="output_RData_obj" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R data object">
+			<filter>outputs and ("make_output_RData_obj" in outputs)</filter>
+		</data>
+		
+		<data format="txt" name="output_R" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R output (debug)" >
+			<filter>outputs and ("make_output_R_stdout" in outputs)</filter>
+		</data>
+	</outputs>
+	
+	<tests>
+		<test>
+			<param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+			<param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
+			
+			<param name="contrast" value="E-C"/>
+		
+			<param name="fdr" value="0.05" />
+			
+			<param name="output_format_images" value="png" />
+			
+			<output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+		</test>
+	</tests>
+	
+	<help>
+edgeR: Differential Gene(Expression) Analysis
+#############################################
+
+Overview
+--------
+Differential expression analysis of RNA-seq and digital gene expression profiles with biological replication. Uses empirical Bayes estimation and exact tests based on the negative binomial distribution. Also useful for differential signal analysis with other types of genome-scale count data [1].
+
+For every experiment, the algorithm requires a design matrix. This matrix describes which samples belong to which groups.
+More details on this are given in the edgeR manual: http://www.bioconductor.org/packages/2.12/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf
+and the limma manual.
+
+Because the creation of a design matrix can be complex and time consuming, especially if no GUI is used, this package comes with an alternative tool which can help you with it.
+This tool is called *edgeR Design Matrix Creator*.
+If the appropriate design matrix (with corresponding links to the files) is given,
+the correct contrast ( http://en.wikipedia.org/wiki/Contrast_(statistics) ) has to be given.
+
+If you have for example two groups, with an equal weight, you would like to compare either
+"g1-g2" or "normal-cancer".
+
+The test function makes use of a MCF7 dataset used in a study that indicates that a higher sequencing depth is not neccesairily more important than a higher amount of replaciates[2].
+
+Input
+-----
+Expression matrix
+^^^^^^^^^^^^^^^^^
+::
+
+  Geneid  "\t" Sample-1 "\t" Sample-2 "\t" Sample-3 "\t" Sample-4 [...] "\n"
+  SMURF   "\t"      123 "\t"       21 "\t"    34545 "\t"       98  ...  "\n"
+  BRCA1   "\t"      435 "\t"     6655 "\t"       45 "\t"       55  ...  "\n"
+  LINK33  "\t"        4 "\t"      645 "\t"      345 "\t"        1  ...  "\n"
+  SNORD78 "\t"      498 "\t"       65 "\t"       98 "\t"       27  ...  "\n"
+  [...]
+
+*Note: Make sure the number of columns in the header is identical to the number of columns in the body.*
+
+Design matrix
+^^^^^^^^^^^^^
+::
+
+  Sample    "\t" Condition "\t" Ethnicity "\t" Patient "\t" Batch "\n"
+  Sample-1  "\t"     Tumor "\t"  European "\t"       1 "\t"     1 "\n"
+  Sample-2  "\t"    Normal "\t"  European "\t"       1 "\t"     1 "\n"
+  Sample-3  "\t"     Tumor "\t"  European "\t"       2 "\t"     1 "\n"
+  Sample-4  "\t"    Normal "\t"  European "\t"       2 "\t"     1 "\n"
+  Sample-5  "\t"     Tumor "\t"   African "\t"       3 "\t"     1 "\n"
+  Sample-6  "\t"    Normal "\t"   African "\t"       3 "\t"     1 "\n"
+  Sample-7  "\t"     Tumor "\t"   African "\t"       4 "\t"     2 "\n"
+  Sample-8  "\t"    Normal "\t"   African "\t"       4 "\t"     2 "\n"
+  Sample-9  "\t"     Tumor "\t"     Asian "\t"       5 "\t"     2 "\n"
+  Sample-10 "\t"    Normal "\t"     Asian "\t"       5 "\t"     2 "\n"
+  Sample-11 "\t"     Tumor "\t"     Asian "\t"       6 "\t"     2 "\n"
+  Sample-12 "\t"    Normal "\t"     Asian "\t"       6 "\t"     2 "\n"
+
+*Note: Avoid factor names that are (1) numerical, (2) contain mathematical symbols and preferebly only use letters.*
+
+Contrast
+^^^^^^^^
+The contrast represents the biological question. There can be many questions asked, e.g.:
+
+- Tumor-Normal
+- African-European
+- 0.5*(Control+Placebo) / Treated
+
+Installation
+------------
+
+This tool requires no specific configurations. The following dependencies are installed automatically:
+
+- R
+- Bioconductor
+    - limma
+    - edgeR
+
+License
+-------
+- R
+    - GPL 2 &amp; GPL 3
+- limma
+    - GPL (&gt;=2)
+- edgeR
+    - GPL (&gt;=2)
+
+References
+----------
+
+EdgeR
+^^^^^
+**[1] edgeR: a Bioconductor package for differential expression analysis of digital gene expression data.**
+
+*Mark D. Robinson, Davis J. McCarthy and Gordon K. Smyth* - Bioinformatics (2010) 26 (1): 139-140.
+
+- http://www.bioconductor.org/packages/2.12/bioc/html/edgeR.html
+- http://dx.doi.org/10.1093/bioinformatics/btp616
+- http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
+
+Test-data (MCF7)
+^^^^^^^^^^^^^^^^
+**[2] RNA-seq differential expression studies: more sequence or more replication?**
+
+*Yuwen Liu, Jie Zhou and Kevin P. White* - Bioinformatics (2014) 30 (3): 301-304.
+
+- http://www.ncbi.nlm.nih.gov/pubmed/24319002
+- http://dx.doi.org/10.1093/bioinformatics/btt688
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands) on behalf of the Translational
+Research IT (TraIT) project:
+
+http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
+
+More tools by the Translational Research IT (TraIT) project can be found
+in the following toolsheds:
+
+http://toolshed.dtls.nl/
+
+http://toolshed.g2.bx.psu.edu
+
+http://testtoolshed.g2.bx.psu.edu/
+
+I would like to thank Hina Riaz - Naz Khan for her helpful contribution.
+	</help>
+	
+	<citations>
+		<citation type="doi">10.1093/bioinformatics/btp616</citation>
+		<citation type="doi">10.1093/bioinformatics/btt688</citation>
+	</citations>
+</tool>
