@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="ucsc_tools" version="0.1"><!-- For conversion of Wig and BigWig -->
+    <package name="ucsc_tools" version="0.1">
         <repository name="package_ucsc_tools_0_1" owner="iuc" prior_installation_required="True" />
     </package>
-    <package name="python" version="2.7"><!-- This python build is compiled with the correct settings for Cython -->
+    <package name="python" version="2.7">
         <repository name="package_python_2_7" owner="iuc" prior_installation_required="True" />
     </package>
     <package name="crossmap" version="0.2">
