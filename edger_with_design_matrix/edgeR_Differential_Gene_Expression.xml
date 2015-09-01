@@ -1,117 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.0.3-latest.d">
-	<description>RNA-Seq gene expression analysis using edgeR (R package)</description>
-	
-	<requirements>
-		<requirement type="package" version="3.0.3">R</requirement>
-		<requirement type="package" version="latest">biocLite_edgeR_limma</requirement>
-	</requirements>
-	
-	<stdio>
-		<regex match="Error in[^a-z]+contrasts"
-				source="both"
-				level="fatal"
-				description="Have the design- and expression-matrix been swapped?" />
-		<regex match="Execution halted"
-				source="both"
-				level="fatal" />
-		<regex match="Calculating library sizes from column" 
-				source="stderr" 
-				level="log" />
-		<regex match="During startup - Warning messages"
-				source="stderr"
-				level="log" />
-		<regex match="Setting LC_[^ ]+ failed"
-				source="stderr"
-				level="warning"
-				description="LOCALE has not been set correctly" />
-	</stdio>
-	
-	<version_command>echo $(R --version | grep version | grep -v GNU) " , EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
-	
-	<command>
-		<!--
-			The following script is written in the "Cheetah" language:
-			http://www.cheetahtemplate.org/docs/users_guide_html_multipage/contents.html
-		-->
-		
-		R --vanilla --slave -f $R_script '--args
-			$expression_matrix
-			$design_matrix
-			$contrast
-			
-			$fdr
-			
-			$output_count_edgeR 
-			$output_cpm
-			
-			/dev/null													<!-- Calculation of FPKM/RPKM should come here -->
-			
-			#if $output_raw_counts:
-				$output_raw_counts
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_MDSplot_logFC:
-				$output_MDSplot_logFC
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_MDSplot_bcv:
-				$output_MDSplot_bcv
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_BCVplot:
-				$output_BCVplot
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_MAplot:
-				$output_MAplot
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_PValue_distribution_plot:
-				$output_PValue_distribution_plot
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_hierarchical_clustering_plot:
-				$output_hierarchical_clustering_plot
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_heatmap_plot:
-				$output_heatmap_plot
-			#else:
-				/dev/null
-			#end if
-			
-			#if $output_RData_obj:
-				$output_RData_obj
-			#else:
-				/dev/null
-			#end if
-			
-			$output_format_images
-			'
-			#if $output_R:
-				> $output_R 
-			#else:
-				> /dev/null
-			#end if
-	</command>
-	
-	<configfiles>
-		<configfile name="R_script">
+<tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.11.0.a">
+    <description>RNA-Seq gene expression analysis using edgeR (R package)</description>
+    
+    <requirements>
+        <requirement type="package" version="3.11.0">edger</requirement>
+    </requirements>
+    
+    <stdio>
+        <regex match="Error in[^a-z]+contrasts"
+                source="both"
+                level="fatal"
+                description="Have the design- and expression-matrix been swapped?" />
+        <regex match="Execution halted"
+                source="both"
+                level="fatal" />
+        <regex match="Calculating library sizes from column" 
+                source="stderr" 
+                level="log" />
+        <regex match="During startup - Warning messages"
+                source="stderr"
+                level="log" />
+        <regex match="Setting LC_[^ ]+ failed"
+                source="stderr"
+                level="warning"
+                description="LOCALE has not been set correctly" />
+    </stdio>
+    
+    <version_command>echo $(R --version | grep version | grep -v GNU) " , EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
+    
+    <command>
+        <!--
+            The following script is written in the "Cheetah" language:
+            http://www.cheetahtemplate.org/docs/users_guide_html_multipage/contents.html
+        -->
+        
+        R --vanilla --slave -f $R_script '--args
+            $expression_matrix
+            $design_matrix
+            $contrast
+            
+            $fdr
+            
+            $output_count_edgeR 
+            $output_cpm
+            
+            /dev/null                                                    <!-- Calculation of FPKM/RPKM should come here -->
+            
+            #if $output_raw_counts:
+                $output_raw_counts
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_logFC:
+                $output_MDSplot_logFC
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_bcv:
+                $output_MDSplot_bcv
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_BCVplot:
+                $output_BCVplot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MAplot:
+                $output_MAplot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_PValue_distribution_plot:
+                $output_PValue_distribution_plot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_hierarchical_clustering_plot:
+                $output_hierarchical_clustering_plot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_heatmap_plot:
+                $output_heatmap_plot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_RData_obj:
+                $output_RData_obj
+            #else:
+                /dev/null
+            #end if
+            
+            $output_format_images
+            '
+            #if $output_R:
+                > $output_R 
+            #else:
+                > /dev/null
+            #end if
+    </command>
+    
+    <configfiles>
+        <configfile name="R_script">
 library(limma,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
 library(edgeR,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
 library(splines,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
@@ -128,7 +127,7 @@ fdr                                 = args[4]
 output_count_edgeR                  = args[5]
 output_cpm                          = args[6]
 
-output_xpkm                         = args[7]							##FPKM file - yet to be implemented
+output_xpkm                         = args[7]                            ##FPKM file - yet to be implemented
 
 output_raw_counts                   = args[8]
 output_MDSplot_logFC                = args[9]
@@ -395,141 +394,141 @@ if(sum(empty_samples) > 0) {
   
   write("Done!",stdout())
 }
-		</configfile>
-	</configfiles>
-	
-	<inputs>
-		<param name="expression_matrix" type="data" format="tabular" label="Expression (read count) matrix" />
-		<param name="design_matrix" type="data" format="tabular" label="Design matrix" help="Ensure your samplenames are identical to those in the expression matrix. Preferentially, create the contrast matrix using 'edgeR: Design- from Expression matrix'." />
-		
-		<param name="contrast" type="text" label="Contrast (biological question)" help="e.g. 'tumor-normal' or '(G1+G2)/2-G3' using the factors chosen in the design matrix. Read the 'makeContrasts' manual from Limma package for more info: http://www.bioconductor.org/packages/release/bioc/html/limma.html and http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf." />
-		
-		<param name="fdr" type="float" min="0" max="1" value="0.05" label="False Discovery Rate (FDR)" />
-		
-		<param name="outputs" type="select" label="Optional desired outputs" multiple="true" display="checkboxes">
-			<option value="make_output_raw_counts">Raw counts table</option>
-			<option value="make_output_MDSplot_logFC">MDS-plot (logFC-method)</option>
-			<option value="make_output_MDSplot_bcv">MDS-plot (BCV-method; much slower)</option>
-			<option value="make_output_BCVplot">BCV-plot</option>
-			<option value="make_output_MAplot">MA-plot</option>
-			<option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
-			<option value="make_output_hierarchical_clustering_plot">Hierarchical custering (under contstruction)</option>
-			<option value="make_output_heatmap_plot">Heatmap</option>
-			
-			<option value="make_output_R_stdout">R stdout</option>
-			<option value="make_output_RData_obj">R Data object</option>
-		</param>
-		
-		<param name="output_format_images" type="select" label="Output format of images" display="radio">
-			<option value="png">Portable network graphics (.png)</option>
-			<option value="pdf">Portable document format (.pdf)</option>
-			<option value="svg">Scalable vector graphics (.svg)</option>
-		</param>
-	</inputs>
-	
-	<outputs>
-		<data format="tabular" name="output_count_edgeR" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - differentially expressed genes" />
-		<data format="tabular" name="output_cpm" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - CPM" />
-		
-		<data format="tabular" name="output_raw_counts" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - raw counts">
-			<filter>outputs and ("make_output_raw_counts" in outputs)</filter>
-		</data>
-		
-		<data format="png" name="output_MDSplot_logFC" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (logFC method)">
-			<filter>outputs and ("make_output_MDSplot_logFC" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (bcv method)">
-			<filter>outputs and ("make_output_MDSplot_bcv" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="png" name="output_BCVplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - BCV-plot">
-			<filter>outputs and ("make_output_BCVplot" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="png" name="output_MAplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MA-plot">
-			<filter>outputs and ("make_output_MAplot" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="png" name="output_PValue_distribution_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - P-Value distribution">
-			<filter>outputs and ("make_output_PValue_distribution_plot" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="png" name="output_hierarchical_clustering_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Hierarchical custering">
-			<filter>outputs and ("make_output_hierarchical_clustering_plot" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="png" name="output_heatmap_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Heatmap">
-			<filter>outputs and ("make_output_heatmap_plot" in outputs)</filter>
-			
-			<change_format>
-				<when input="output_format_images" value="png" format="png" />
-				<when input="output_format_images" value="pdf" format="pdf" />
-				<when input="output_format_images" value="svg" format="svg" />
-			</change_format>
-		</data>
-		
-		<data format="RData" name="output_RData_obj" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R data object">
-			<filter>outputs and ("make_output_RData_obj" in outputs)</filter>
-		</data>
-		
-		<data format="txt" name="output_R" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R output (debug)" >
-			<filter>outputs and ("make_output_R_stdout" in outputs)</filter>
-		</data>
-	</outputs>
-	
-	<tests>
-		<test>
-			<param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
-			<param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
-			
-			<param name="contrast" value="E-C"/>
-		
-			<param name="fdr" value="0.05" />
-			
-			<param name="output_format_images" value="png" />
-			
-			<output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
-		</test>
-	</tests>
-	
-	<help>
+        </configfile>
+    </configfiles>
+    
+    <inputs>
+        <param name="expression_matrix" type="data" format="tabular" label="Expression (read count) matrix" />
+        <param name="design_matrix" type="data" format="tabular" label="Design matrix" help="Ensure your samplenames are identical to those in the expression matrix. Preferentially, create the contrast matrix using 'edgeR: Design- from Expression matrix'." />
+        
+        <param name="contrast" type="text" label="Contrast (biological question)" help="e.g. 'tumor-normal' or '(G1+G2)/2-G3' using the factors chosen in the design matrix. Read the 'makeContrasts' manual from Limma package for more info: http://www.bioconductor.org/packages/release/bioc/html/limma.html and http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf." />
+        
+        <param name="fdr" type="float" min="0" max="1" value="0.05" label="False Discovery Rate (FDR)" />
+        
+        <param name="outputs" type="select" label="Optional desired outputs" multiple="true" display="checkboxes">
+            <option value="make_output_raw_counts">Raw counts table</option>
+            <option value="make_output_MDSplot_logFC">MDS-plot (logFC-method)</option>
+            <option value="make_output_MDSplot_bcv">MDS-plot (BCV-method; much slower)</option>
+            <option value="make_output_BCVplot">BCV-plot</option>
+            <option value="make_output_MAplot">MA-plot</option>
+            <option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
+            <option value="make_output_hierarchical_clustering_plot">Hierarchical custering (under contstruction)</option>
+            <option value="make_output_heatmap_plot">Heatmap</option>
+            
+            <option value="make_output_R_stdout">R stdout</option>
+            <option value="make_output_RData_obj">R Data object</option>
+        </param>
+        
+        <param name="output_format_images" type="select" label="Output format of images" display="radio">
+            <option value="png">Portable network graphics (.png)</option>
+            <option value="pdf">Portable document format (.pdf)</option>
+            <option value="svg">Scalable vector graphics (.svg)</option>
+        </param>
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="output_count_edgeR" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - differentially expressed genes" />
+        <data format="tabular" name="output_cpm" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - CPM" />
+        
+        <data format="tabular" name="output_raw_counts" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - raw counts">
+            <filter>outputs and ("make_output_raw_counts" in outputs)</filter>
+        </data>
+        
+        <data format="png" name="output_MDSplot_logFC" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (logFC method)">
+            <filter>outputs and ("make_output_MDSplot_logFC" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (bcv method)">
+            <filter>outputs and ("make_output_MDSplot_bcv" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_BCVplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - BCV-plot">
+            <filter>outputs and ("make_output_BCVplot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_MAplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MA-plot">
+            <filter>outputs and ("make_output_MAplot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_PValue_distribution_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - P-Value distribution">
+            <filter>outputs and ("make_output_PValue_distribution_plot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_hierarchical_clustering_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Hierarchical custering">
+            <filter>outputs and ("make_output_hierarchical_clustering_plot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_heatmap_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Heatmap">
+            <filter>outputs and ("make_output_heatmap_plot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="RData" name="output_RData_obj" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R data object">
+            <filter>outputs and ("make_output_RData_obj" in outputs)</filter>
+        </data>
+        
+        <data format="txt" name="output_R" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R output (debug)" >
+            <filter>outputs and ("make_output_R_stdout" in outputs)</filter>
+        </data>
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+            <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
+            
+            <param name="contrast" value="E-C"/>
+        
+            <param name="fdr" value="0.05" />
+            
+            <param name="output_format_images" value="png" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+        </test>
+    </tests>
+    
+    <help>
 edgeR: Differential Gene(Expression) Analysis
 #############################################
 
@@ -654,10 +653,10 @@ http://toolshed.g2.bx.psu.edu
 http://testtoolshed.g2.bx.psu.edu/
 
 I would like to thank Hina Riaz - Naz Khan for her helpful contribution.
-	</help>
-	
-	<citations>
-		<citation type="doi">10.1093/bioinformatics/btp616</citation>
-		<citation type="doi">10.1093/bioinformatics/btt688</citation>
-	</citations>
+    </help>
+    
+    <citations>
+        <citation type="doi">10.1093/bioinformatics/btp616</citation>
+        <citation type="doi">10.1093/bioinformatics/btt688</citation>
+    </citations>
 </tool>
