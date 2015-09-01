@@ -14,4 +14,4 @@ name: edger_with_design_matrix
 owner: yhoogstrate
 homepage_url: http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
 remote_repository_url: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools/raw/master/edger_with_design_matrix
-type: tool_dependency_definition
+type: unrestricted

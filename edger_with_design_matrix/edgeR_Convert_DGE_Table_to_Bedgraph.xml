@@ -1,90 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<tool id="edger_dge_table_to_bedgraph" name="edgeR: Convert 'differentially expressed genes'-table to bedgraph(s)" version="1.0.0">
-	<description>EdgeR's "differentially expressed genes" table to bedgraph(s)</description>
-	
-	<requirements>
-		<requirement type="package" version="1.0.0">edger_dge_table_to_bedgraph</requirement>
-	</requirements>
-	
-	<command interpreter="python">
-		edger_dge_table_to_bedgraph
-			-t $cpm_table
-			-g $geneset
-			
-			#if $logfc:
-				-c3 $logfc
-			#end if
-			
-			#if $logcpm:
-				-c4 $logcpm
-			#end if
-			
-			#if $lr:
-				-c5 $lr
-			#end if
-			
-			#if $pvalue:
-				-c6 $pvalue
-			#end if
-			
-			#if $fdr:
-				-c7 $fdr
-			#end if
-	</command>
-	
-	<inputs>
-		<param format="tabular" name="cpm_table" type="data" label="'differentially expressed genes'-table as result from EdgeR" help="must have 7 columns of which the 2nd are gene names matching the GTF file" />
-		<param format="gtf,gff,gff3" name="geneset" type="data" label="Geneset used for estimating expression levels prior to expression analysis" />
-	
-		<param name="columns" type="select" label="Desired columns" multiple="true" display="checkboxes">
-			<option value="c3" selected="true">logFC</option>
-			<option value="c4">logCPM</option>
-			<option value="c5">LR</option>
-			<option value="c6">PValue</option>
-			<option value="c7" selected="true">FDR</option>
-		</param>
-	</inputs>
-	
-	<outputs>
-		<data format="bedgraph" name="logfc" label="logFC from ${cpm_table.name}">
-			<filter>"c3" in columns</filter>
-		</data>
-		
-		<data format="bedgraph" name="logcpm" label="logCPM from ${cpm_table.name}">
-			<filter>"c4" in columns</filter>
-		</data>
-		
-		<data format="bedgraph" name="lr" label="LR from ${cpm_table.name}">
-			<filter>"c5" in columns</filter>
-		</data>
-		
-		<data format="bedgraph" name="pvalue" label="PValue from ${cpm_table.name}">
-			<filter>"c6" in columns</filter>
-		</data>
-		
-		<data format="bedgraph" name="fdr" label="FDR from ${cpm_table.name}">
-			<filter>"c7" in columns</filter>
-		</data>
-	</outputs>
-	
-	<tests>
-		<test>
-			<param name="cpm_table" value="Convert_DGE_Table_to_Bedgraph/table_01.tabular.txt" />
-			<param name="geneset" value="Convert_DGE_Table_to_Bedgraph/genes_01.gtf" />
-			
-			<param name="columns" value="c3,c7" />
-			
-			<output name="logfc" file="Convert_DGE_Table_to_Bedgraph/logFC.output.bedgraph" />
-			<output name="fdr" file="Convert_DGE_Table_to_Bedgraph/FDR.output.bedgraph" />
-		</test>
-	</tests>
-	
-	<help>
-		P-values and FDRs are swapped from 1 to 0, and 0 to 1, because this way the most siginificant genes will obtain the highest values which is convenient for visualisation.
-	</help>
-	
-	<citations>
-		<citation type="doi">10.1093/bioinformatics/btp616</citation>
-		<citation type="doi">10.1093/bioinformatics/btt688</citation>
-	</citations>
+    <tool id="edger_dge_table_to_bedgraph" name="edgeR: Convert 'differentially expressed genes'-table to bedgraph(s)" version="1.0.0">
+    <description>EdgeR's "differentially expressed genes" table to bedgraph(s)</description>
+    
+    <macros>
+        <import>edgeR_macros.xml</import>
+    </macros>
+    
+    <requirements>
+        <requirement type="package" version="1.0.0">edger_dge_table_to_bedgraph</requirement>
+    </requirements>
+    
+    <command interpreter="python">
+        edger_dge_table_to_bedgraph
+            -t $cpm_table
+            -g $geneset
+            
+            #if $logfc:
+                -c3 $logfc
+            #end if
+            
+            #if $logcpm:
+                -c4 $logcpm
+            #end if
+            
+            #if $lr:
+                -c5 $lr
+            #end if
+            
+            #if $pvalue:
+                -c6 $pvalue
+            #end if
+            
+            #if $fdr:
+                -c7 $fdr
+            #end if
+    </command>
+    
+    <inputs>
+        <param format="tabular" name="cpm_table" type="data" label="'differentially expressed genes'-table as result from EdgeR" help="must have 7 columns of which the 2nd are gene names matching the GTF file" />
+        <param format="gtf,gff,gff3" name="geneset" type="data" label="Geneset used for estimating expression levels prior to expression analysis" />
+    
+        <param name="columns" type="select" label="Desired columns" multiple="true" display="checkboxes">
+            <option value="c3" selected="true">logFC</option>
+            <option value="c4">logCPM</option>
+            <option value="c5">LR</option>
+            <option value="c6">PValue</option>
+            <option value="c7" selected="true">FDR</option>
+        </param>
+    </inputs>
+    
+    <outputs>
+        <data format="bedgraph" name="logfc" label="logFC from ${cpm_table.name}">
+            <filter>"c3" in columns</filter>
+        </data>
+        
+        <data format="bedgraph" name="logcpm" label="logCPM from ${cpm_table.name}">
+            <filter>"c4" in columns</filter>
+        </data>
+        
+        <data format="bedgraph" name="lr" label="LR from ${cpm_table.name}">
+            <filter>"c5" in columns</filter>
+        </data>
+        
+        <data format="bedgraph" name="pvalue" label="PValue from ${cpm_table.name}">
+            <filter>"c6" in columns</filter>
+        </data>
+        
+        <data format="bedgraph" name="fdr" label="FDR from ${cpm_table.name}">
+            <filter>"c7" in columns</filter>
+        </data>
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="cpm_table" value="Convert_DGE_Table_to_Bedgraph/table_01.tabular.txt" />
+            <param name="geneset" value="Convert_DGE_Table_to_Bedgraph/genes_01.gtf" />
+            
+            <param name="columns" value="c3,c7" />
+            
+            <output name="logfc" file="Convert_DGE_Table_to_Bedgraph/logFC.output.bedgraph" />
+            <output name="fdr" file="Convert_DGE_Table_to_Bedgraph/FDR.output.bedgraph" />
+        </test>
+    </tests>
+    
+    <help>
+        P-values and FDRs are swapped from 1 to 0, and 0 to 1, because this way the most siginificant genes will obtain the highest values which is convenient for visualisation.
+        
+        @CONTACT@
+    </help>
+    
+    <expand macro="citations" />
 </tool>

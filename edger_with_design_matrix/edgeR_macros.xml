@@ -1,0 +1,26 @@
+<macros>
+    <token name="@CONTACT@">Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands) on behalf of the Translational
+Research IT (TraIT) project:
+
+http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
+
+More tools by the Translational Research IT (TraIT) project can be found
+in the following toolsheds:
+
+http://toolshed.g2.bx.psu.edu
+
+http://testtoolshed.g2.bx.psu.edu/
+
+I would like to thank Hina Riaz - Naz Khan for her helpful contribution.</token>
+    
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1093/bioinformatics/btp616</citation>
+            <citation type="doi">10.1093/bioinformatics/btt688</citation>
+        </citations>
+    </xml>
+</macros>

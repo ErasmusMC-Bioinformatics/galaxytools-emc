@@ -11,7 +11,7 @@ Development
 
 * Repository-Maintainer: Youri Hoogstrate
 
-* Repository-Development: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools
+* Repository-Development: https://github.com/ErasmusMC-Bioinformatics/edger_galaxy_wrapper
 
 The tool wrapper has been written by Youri Hoogstrate from the Erasmus
 Medical Center (Rotterdam, Netherlands) on behalf of the Translational
@@ -19,9 +19,11 @@ Research IT (TraIT) project:
 
 http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
 
-More tools by the Translational Research IT (TraIT) project can be found in the following repository:
+More tools by the Translational Research IT (TraIT) project can be found in the following toolsheds:
 
-http://toolshed.dtls.nl/
+http://toolshed.g2.bx.psu.edu
+
+http://testtoolshed.g2.bx.psu.edu/
 
 License
 -------
@@ -40,7 +42,7 @@ GPL (>=2)
 
 **This wrapper**:
 
-    Copyright (C) 2013-2014  Youri Hoogstrate
+    Copyright (C) 2013-2015  Youri Hoogstrate
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

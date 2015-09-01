@@ -2,38 +2,37 @@
 <tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.11.0.a">
     <description>RNA-Seq gene expression analysis using edgeR (R package)</description>
     
+    <macros>
+        <import>edgeR_macros.xml</import>
+    </macros>
+    
     <requirements>
         <requirement type="package" version="3.11.0">edger</requirement>
     </requirements>
     
     <stdio>
         <regex match="Error in[^a-z]+contrasts"
-                source="both"
-                level="fatal"
-                description="Have the design- and expression-matrix been swapped?" />
+               source="both"
+               level="fatal"
+               description="Have the design- and expression-matrix been swapped?" />
         <regex match="Execution halted"
-                source="both"
-                level="fatal" />
+               source="both"
+               level="fatal" />
         <regex match="Calculating library sizes from column" 
-                source="stderr" 
-                level="log" />
+               source="stderr" 
+               level="log" />
         <regex match="During startup - Warning messages"
-                source="stderr"
-                level="log" />
+               source="stderr"
+               level="log" />
         <regex match="Setting LC_[^ ]+ failed"
-                source="stderr"
-                level="warning"
-                description="LOCALE has not been set correctly" />
+               source="stderr"
+               level="warning"
+               description="LOCALE has not been set correctly" />
     </stdio>
     
-    <version_command>echo $(R --version | grep version | grep -v GNU) " , EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
+    <version_command>echo $(R --version | grep version | grep -v GNU) ", EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
     
     <command>
-        <!--
-            The following script is written in the "Cheetah" language:
-            http://www.cheetahtemplate.org/docs/users_guide_html_multipage/contents.html
-        -->
-        
         R --vanilla --slave -f $R_script '--args
             $expression_matrix
             $design_matrix
@@ -111,48 +110,47 @@
     
     <configfiles>
         <configfile name="R_script">
-library(limma,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
-library(edgeR,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
-library(splines,quietly=TRUE) ## enable quietly to avoid unnecessaity stderr dumping
+<![CDATA[
+
+library(limma,quietly=TRUE)  ## quietly to avoid unnecessaity stderr messages
+library(edgeR,quietly=TRUE)  ## quietly to avoid unnecessaity stderr messages
+library(splines,quietly=TRUE)## quietly to avoid unnecessaity stderr messages
  
 ## Fetch commandline arguments
-args &lt;- commandArgs(trailingOnly = TRUE)
+args <- commandArgs(trailingOnly = TRUE)
 
-expression_matrix_file              = args[1]
-design_matrix_file                  = args[2]
-contrast                            = args[3]
+expression_matrix_file              <- args[1]
+design_matrix_file                  <- args[2]
+contrast                            <- args[3]
 
-fdr                                 = args[4]
+fdr                                 <- args[4]
 
-output_count_edgeR                  = args[5]
-output_cpm                          = args[6]
+output_count_edgeR                  <- args[5]
+output_cpm                          <- args[6]
 
-output_xpkm                         = args[7]                            ##FPKM file - yet to be implemented
+output_xpkm                         <- args[7]        ##FPKM file - to be implemented
 
-output_raw_counts                   = args[8]
-output_MDSplot_logFC                = args[9]
-output_MDSplot_bcv                  = args[10]
-output_BCVplot                      = args[11]
-output_MAplot                       = args[12]
-output_PValue_distribution_plot     = args[13]
-output_hierarchical_clustering_plot = args[14]
-output_heatmap_plot                 = args[15]
-output_RData_obj                    = args[16]
-output_format_images                = args[17]
+output_raw_counts                   <- args[8]
+output_MDSplot_logFC                <- args[9]
+output_MDSplot_bcv                  <- args[10]
+output_BCVplot                      <- args[11]
+output_MAplot                       <- args[12]
+output_PValue_distribution_plot     <- args[13]
+output_hierarchical_clustering_plot <- args[14]
+output_heatmap_plot                 <- args[15]
+output_RData_obj                    <- args[16]
+output_format_images                <- args[17]
 
 
-library(edgeR)
-##raw_data &lt;- read.delim(designmatrix,header=T,stringsAsFactors=T)
 ## Obtain read-counts
+expression_matrix <- read.delim(expression_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
+design_matrix <- read.delim(design_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
 
-expression_matrix &lt;- read.delim(expression_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
-design_matrix &lt;- read.delim(design_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
-
-colnames(design_matrix) &lt;- make.names(colnames(design_matrix))
+colnames(design_matrix) <- make.names(colnames(design_matrix))
 
 for(i in 1:ncol(design_matrix)) {
-  old &lt;- design_matrix[,i]
-  design_matrix[,i] &lt;- make.names(design_matrix[,i])
+  old <- design_matrix[,i]
+  design_matrix[,i] <- make.names(design_matrix[,i])
   if(paste(design_matrix[,i],collapse="\t") != paste(old,collapse="\t")) {
     print("Renaming of factors:")
     print(old)
@@ -160,46 +158,46 @@ for(i in 1:ncol(design_matrix)) {
     print(design_matrix[,i])
   }
   ## The following line seems to malfunction the script:
-  ##design_matrix[,i] &lt;- as.factor(design_matrix[,i])
+  ##design_matrix[,i] <- as.factor(design_matrix[,i])
 }
 
 ## 1) In the expression matrix, you only want to have the samples described in the design matrix
-columns &lt;- match(rownames(design_matrix),colnames(expression_matrix))
-columns &lt;- columns[!is.na(columns)]
-read_counts &lt;- expression_matrix[,columns]
+columns <- match(rownames(design_matrix),colnames(expression_matrix))
+columns <- columns[!is.na(columns)]
+read_counts <- expression_matrix[,columns]
 
 ## 2) In the design matrix, you only want to have samples of which you really have the counts
-columns &lt;- match(colnames(read_counts),rownames(design_matrix))
-columns &lt;- columns[!is.na(columns)]
-design_matrix &lt;- design_matrix[columns,,drop=FALSE]
+columns <- match(colnames(read_counts),rownames(design_matrix))
+columns <- columns[!is.na(columns)]
+design_matrix <- design_matrix[columns,,drop=FALSE]
 
 ## Filter for HTSeq predifined counts:
-exclude_HTSeq &lt;- c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
-exclude_DEXSeq &lt;- c("_ambiguous","_empty","_lowaqual","_notaligned")
+exclude_HTSeq <- c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
+exclude_DEXSeq <- c("_ambiguous","_empty","_lowaqual","_notaligned")
 
-exclude &lt;- match(c(exclude_HTSeq, exclude_DEXSeq),rownames(read_counts))
-exclude &lt;- exclude[is.na(exclude)==0]
+exclude <- match(c(exclude_HTSeq, exclude_DEXSeq),rownames(read_counts))
+exclude <- exclude[is.na(exclude)==0]
 if(length(exclude) != 0)  {
-  read_counts &lt;- read_counts[-exclude,]
+  read_counts <- read_counts[-exclude,]
 }
 
 
 ## sorting expression matrix with the order of the read_counts
-##order &lt;- match(colnames(read_counts) , rownames(design_matrix))
-##read_counts_ordered  &lt;- read_counts[,order2]
+##order <- match(colnames(read_counts) , rownames(design_matrix))
+##read_counts_ordered  <- read_counts[,order2]
 
-empty_samples &lt;- apply(read_counts,2,function(x) sum(x) == 0)
+empty_samples <- apply(read_counts,2,function(x) sum(x) == 0)
 if(sum(empty_samples) > 0) {
   write(paste("There are ",sum(empty_samples)," empty samples found:",sep=""),stderr())
   write(colnames(read_counts)[empty_samples],stderr())
 } else {
   
-  dge &lt;- DGEList(counts=read_counts,genes=rownames(read_counts))
+  dge <- DGEList(counts=read_counts,genes=rownames(read_counts))
   
-  formula &lt;- paste(c("~0",make.names(colnames(design_matrix))),collapse = " + ")
-  design_matrix_tmp &lt;- design_matrix
-  colnames(design_matrix_tmp) &lt;- make.names(colnames(design_matrix_tmp))
-  design &lt;- model.matrix(as.formula(formula),design_matrix_tmp)
+  formula <- paste(c("~0",make.names(colnames(design_matrix))),collapse = " + ")
+  design_matrix_tmp <- design_matrix
+  colnames(design_matrix_tmp) <- make.names(colnames(design_matrix_tmp))
+  design <- model.matrix(as.formula(formula),design_matrix_tmp)
   rm(design_matrix_tmp)
   
   # Filter prefixes
@@ -211,18 +209,18 @@ if(sum(empty_samples) > 0) {
   
   # Do normalization
   write("Calculating normalization factors...",stdout())
-  dge &lt;- calcNormFactors(dge)
+  dge <- calcNormFactors(dge)
   write("Estimating common dispersion...",stdout())
-  dge &lt;- estimateGLMCommonDisp(dge,design)
+  dge <- estimateGLMCommonDisp(dge,design)
   write("Estimating trended dispersion...",stdout())
-  dge &lt;- estimateGLMTrendedDisp(dge,design)
+  dge <- estimateGLMTrendedDisp(dge,design)
   write("Estimating tagwise dispersion...",stdout())
-  dge &lt;- estimateGLMTagwiseDisp(dge,design)
+  dge <- estimateGLMTagwiseDisp(dge,design)
   
   
   if(output_MDSplot_logFC != "/dev/null") {
     write("Creating MDS plot (logFC method)",stdout())
-    points &lt;- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)))# Get coordinates of unflexible plot
+    points <- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)))# Get coordinates of unflexible plot
     dev.off()# Kill it
     
     if(output_format_images == "pdf") {
@@ -237,8 +235,8 @@ if(sum(empty_samples) > 0) {
     }
     
     
-    diff_x &lt;- abs(max(points\$x)-min(points\$x))
-    diff_y &lt;-(max(points\$y)-min(points\$y))
+    diff_x <- abs(max(points\$x)-min(points\$x))
+    diff_y <-(max(points\$y)-min(points\$y))
     plot(c(min(points\$x),max(points\$x) + 0.45 * diff_x), c(min(points\$y) - 0.05 * diff_y,max(points\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
     points(points\$x,points\$y,pch=20)
     text(points\$x, points\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
@@ -252,7 +250,7 @@ if(sum(empty_samples) > 0) {
     
     ## 1. First create a virtual plot to obtain the desired coordinates
     pdf("bcvmds.pdf")
-    points &lt;- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)))
+    points <- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)))
     dev.off()# Kill it
     
     ## 2. Re-plot the coordinates in a new figure with the size and settings.
@@ -267,8 +265,8 @@ if(sum(empty_samples) > 0) {
       bitmap(output_MDSplot_bcv,type="png16m",height=14,width=14)
     }
     
-    diff_x &lt;- abs(max(points\$x)-min(points\$x))
-    diff_y &lt;-(max(points\$y)-min(points\$y))
+    diff_x <- abs(max(points\$x)-min(points\$x))
+    diff_y <- (max(points\$y)-min(points\$y))
     plot(c(min(points\$x),max(points\$x) + 0.45 * diff_x), c(min(points\$y) - 0.05 * diff_y,max(points\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
     points(points\$x,points\$y,pch=20)
     text(points\$x, points\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
@@ -298,13 +296,13 @@ if(sum(empty_samples) > 0) {
   
   
   write("Fitting GLM...",stdout())
-  fit &lt;- glmFit(dge,design)
+  fit <- glmFit(dge,design)
 
   write(paste("Performing likelihood ratio test: ",contrast,sep=""),stdout())
-  cont &lt;- c(contrast)
-  cont &lt;- makeContrasts(contrasts=cont, levels=design)
+  cont <- c(contrast)
+  cont <- makeContrasts(contrasts=cont, levels=design)
 
-  lrt &lt;- glmLRT(fit, contrast=cont[,1])
+  lrt <- glmLRT(fit, contrast=cont[,1])
   write(paste("Exporting to file: ",output_count_edgeR,sep=""),stdout())
   write.table(file=output_count_edgeR,topTags(lrt,n=nrow(read_counts))\$table,sep="\t",row.names=TRUE,col.names=NA)
   write.table(file=output_cpm,cpm(dge,normalized.lib.sizes=TRUE),sep="\t",row.names=TRUE,col.names=NA)
@@ -313,8 +311,8 @@ if(sum(empty_samples) > 0) {
   write.table(file=output_raw_counts,dge\$counts,sep="\t",row.names=TRUE,col.names=NA)
   
   if(output_MAplot != "/dev/null" || output_PValue_distribution_plot != "/dev/null") {
-    etable &lt;- topTags(lrt, n=nrow(dge))\$table
-    etable &lt;- etable[order(etable\$FDR), ]
+    etable <- topTags(lrt, n=nrow(dge))\$table
+    etable <- etable[order(etable\$FDR), ]
     
     if(output_MAplot != "/dev/null") {
       write("Creating MA plot...",stdout())
@@ -331,7 +329,7 @@ if(sum(empty_samples) > 0) {
       }
       
       with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
-      with(subset(etable, FDR &lt; fdr), points(logCPM, logFC, pch=20, col="red"))
+      with(subset(etable, FDR < fdr), points(logCPM, logFC, pch=20, col="red"))
       abline(h=c(-1,1), col="blue")
       dev.off()
     }
@@ -350,16 +348,16 @@ if(sum(empty_samples) > 0) {
         bitmap(output_PValue_distribution_plot,type="png16m",width=14,height=14)
       }
       
-      expressed_genes &lt;- subset(etable, PValue &lt; 0.99)
-      h &lt;- hist(expressed_genes\$PValue,breaks=nrow(expressed_genes)/15,main="Binned P-Values (&lt; 0.99)")
-      center &lt;- sum(h\$counts) / length(h\$counts)
+      expressed_genes <- subset(etable, PValue < 0.99)
+      h <- hist(expressed_genes\$PValue,breaks=nrow(expressed_genes)/15,main="Binned P-Values (< 0.99)")
+      center <- sum(h\$counts) / length(h\$counts)
       lines(c(0,1),c(center,center),lty=2,col="red",lwd=2)
-      k &lt;- ksmooth(h\$mid, h\$counts)
+      k <- ksmooth(h\$mid, h\$counts)
       lines(k\$x,k\$y,col="red",lwd=2)
-      rmsd &lt;- (h\$counts) - center
-      rmsd &lt;- rmsd^2
-      rmsd &lt;- sum(rmsd)
-      rmsd &lt;- sqrt(rmsd)
+      rmsd <- (h\$counts) - center
+      rmsd <- rmsd^2
+      rmsd <- sum(rmsd)
+      rmsd <- sqrt(rmsd)
       text(0,max(h\$counts),paste("e=",round(rmsd,2),sep=""),pos=4,col="blue")
       ## change e into epsilon somehow
       dev.off()
@@ -379,9 +377,9 @@ if(sum(empty_samples) > 0) {
       bitmap(output_heatmap_plot,type="png16m",width=10.5)
     }
     
-    etable2 &lt;- topTags(lrt, n=100)\$table
-    order &lt;- rownames(etable2)
-    cpm_sub &lt;- cpm(dge,normalized.lib.sizes=TRUE,log=TRUE)[as.numeric(order),]
+    etable2 <- topTags(lrt, n=100)\$table
+    order <- rownames(etable2)
+    cpm_sub <- cpm(dge,normalized.lib.sizes=TRUE,log=TRUE)[as.numeric(order),]
     heatmap(t(cpm_sub))
     dev.off()
   }
@@ -394,6 +392,7 @@ if(sum(empty_samples) > 0) {
   
   write("Done!",stdout())
 }
+]]>
         </configfile>
     </configfiles>
     
@@ -599,9 +598,8 @@ Installation
 This tool requires no specific configurations. The following dependencies are installed automatically:
 
 - R
-- Bioconductor
-    - limma
-    - edgeR
+- limma
+- edgeR
 
 License
 -------
@@ -634,29 +632,8 @@ Test-data (MCF7)
 - http://www.ncbi.nlm.nih.gov/pubmed/24319002
 - http://dx.doi.org/10.1093/bioinformatics/btt688
 
-Contact
--------
-
-The tool wrapper has been written by Youri Hoogstrate from the Erasmus
-Medical Center (Rotterdam, Netherlands) on behalf of the Translational
-Research IT (TraIT) project:
-
-http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
-
-More tools by the Translational Research IT (TraIT) project can be found
-in the following toolsheds:
-
-http://toolshed.dtls.nl/
-
-http://toolshed.g2.bx.psu.edu
-
-http://testtoolshed.g2.bx.psu.edu/
-
-I would like to thank Hina Riaz - Naz Khan for her helpful contribution.
+@CONTACT@
     </help>
     
-    <citations>
-        <citation type="doi">10.1093/bioinformatics/btp616</citation>
-        <citation type="doi">10.1093/bioinformatics/btt688</citation>
-    </citations>
+    <expand macro="citations" />
 </tool>
