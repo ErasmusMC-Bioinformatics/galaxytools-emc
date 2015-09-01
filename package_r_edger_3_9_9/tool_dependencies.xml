@@ -16,13 +16,15 @@
                     <package>http://bioarchive.s3-website-us-east-1.amazonaws.com/limma_3.9.9.tar.gz</package>
                     <!-- If limma is loaded as dependency it fails:
                     
-						Rscript -e "install.packages(c('edgeR_3.9.9.tar.gz'),lib='/usr/local/src/galaxy/tool_dependencies/edger/3.9.9/yhoogstrate/package_r_edger_3_9_9/671f1f9cb0b1', repos=NULL, dependencies=FALSE)"
-						STDERR
-						ERROR: dependency ‘limma’ is not available for package ‘edgeR’
-						* removing ‘/usr/local/src/galaxy/tool_dependencies/edger/3.9.9/yhoogstrate/package_r_edger_3_9_9/671f1f9cb0b1/edgeR’
-						Warning message:
-						In install.packages(c("edgeR_3.9.9.tar.gz"), lib = "/usr/local/src/galaxy/tool_dependencies/edger/3.9.9/yhoogstrate/package_r_edger_3_9_9/671f1f9cb0b1",  :
-						installation of package ‘edgeR_3.9.9.tar.gz’ had non-zero exit status
+                        $ Rscript -e "install.packages(c('edgeR_3.9.9.tar.gz'),lib='...', repos=NULL, dependencies=FALSE)"
+                        STDERR
+                        ERROR: dependency ‘limma’ is not available for package ‘edgeR’
+                        * removing ‘.../edgeR’
+                        Warning message:
+                        In install.packages(c("edgeR_3.9.9.tar.gz"), lib = "...",  :
+                        installation of package ‘edgeR_3.9.9.tar.gz’ had non-zero exit status
+                        
+                        Therefore it is more convenient to install edgeR and limma together
                     -->
                     <package>http://bioarchive.s3-website-us-east-1.amazonaws.com/edgeR_3.9.9.tar.gz</package>
                 </action>
