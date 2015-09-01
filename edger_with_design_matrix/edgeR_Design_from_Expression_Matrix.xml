@@ -10,7 +10,7 @@
         <requirement type="package" version="1.0.0">design_matrix_creator</requirement>
     </requirements>
     
-    <command interpreter="python">
+    <command>
         design_matrix_creator
             -c $expression_matrix
             
@@ -123,16 +123,10 @@ edgeR: Design- from Expression matrix
 Overview
 --------
 
-Create a design matrix by selecting the desired patients from an
-expression matrix.
+Create a design matrix by selecting the desired patients from an expression matrix.
 
 Input
 -----
-
-**References**
-
-The test data is coming from:  doi: 10.1093/bioinformatics/btt688.
-http://www.ncbi.nlm.nih.gov/pubmed/24319002
 
 @CONTACT@
     </help>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.11.0.a">
+<tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.11.0.b">
     <description>RNA-Seq gene expression analysis using edgeR (R package)</description>
     
     <macros>
@@ -30,7 +30,7 @@
                description="LOCALE has not been set correctly" />
     </stdio>
     
-    <version_command>echo $(R --version | grep version | grep -v GNU) ", EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
+    <version_command>echo $(R --version | grep version | grep -v GNU)", EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
     
     <command>
         R --vanilla --slave -f $R_script '--args
@@ -101,11 +101,6 @@
             
             $output_format_images
             '
-            #if $output_R:
-                > $output_R 
-            #else:
-                > /dev/null
-            #end if
     </command>
     
     <configfiles>
@@ -240,7 +235,7 @@ if(sum(empty_samples) > 0) {
       diff_x <- abs(max(mds_distance_logFC\$x)-min(mds_distance_logFC\$x))
       diff_y <-(max(mds_distance_logFC\$y)-min(mds_distance_logFC\$y))
       plot(c(min(mds_distance_logFC\$x),max(mds_distance_logFC\$x) + 0.45 * diff_x), c(min(mds_distance_logFC\$y) - 0.05 * diff_y,max(mds_distance_logFC\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
-      mds_distance_logFC(mds_distance_logFC\$x,mds_distance_logFC\$y,pch=20)
+      points(mds_distance_logFC\$x,mds_distance_logFC\$y,pch=20)
       text(mds_distance_logFC\$x, mds_distance_logFC\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
       rm(diff_x,diff_y)
       
@@ -272,7 +267,7 @@ if(sum(empty_samples) > 0) {
     diff_x <- abs(max(mds_distance_BCV\$x)-min(mds_distance_BCV\$x))
     diff_y <- (max(mds_distance_BCV\$y)-min(mds_distance_BCV\$y))
     plot(c(min(mds_distance_BCV\$x),max(mds_distance_BCV\$x) + 0.45 * diff_x), c(min(mds_distance_BCV\$y) - 0.05 * diff_y,max(mds_distance_BCV\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
-    mds_distance_BCV(mds_distance_BCV\$x,mds_distance_BCV\$y,pch=20)
+    points(mds_distance_BCV\$x,mds_distance_BCV\$y,pch=20)
     text(mds_distance_BCV\$x, mds_distance_BCV\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
     rm(diff_x,diff_y)
     
@@ -434,8 +429,6 @@ if(sum(empty_samples) > 0) {
             <option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
             <option value="make_output_hierarchical_clustering_plot">Hierarchical custering</option>
             <option value="make_output_heatmap_plot">Heatmap</option>
-            
-            <option value="make_output_R_stdout">R stdout</option>
             <option value="make_output_RData_obj">R Data object</option>
         </param>
         
@@ -616,7 +609,7 @@ The contrast represents the biological question. There can be many questions ask
 Installation
 ------------
 
-This tool requires no specific configurations. The following dependencies are installed automatically:
+This tool requires no specific configuration. The following dependencies will installed automatically:
 
 - R
 - limma
@@ -630,28 +623,6 @@ License
     - GPL (&gt;=2)
 - edgeR
     - GPL (&gt;=2)
-
-References
-----------
-
-EdgeR
-^^^^^
-**[1] edgeR: a Bioconductor package for differential expression analysis of digital gene expression data.**
-
-*Mark D. Robinson, Davis J. McCarthy and Gordon K. Smyth* - Bioinformatics (2010) 26 (1): 139-140.
-
-- http://www.bioconductor.org/packages/2.12/bioc/html/edgeR.html
-- http://dx.doi.org/10.1093/bioinformatics/btp616
-- http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
-
-Test-data (MCF7)
-^^^^^^^^^^^^^^^^
-**[2] RNA-seq differential expression studies: more sequence or more replication?**
-
-*Yuwen Liu, Jie Zhou and Kevin P. White* - Bioinformatics (2014) 30 (3): 301-304.
-
-- http://www.ncbi.nlm.nih.gov/pubmed/24319002
-- http://dx.doi.org/10.1093/bioinformatics/btt688
 
 @CONTACT@
     </help>
