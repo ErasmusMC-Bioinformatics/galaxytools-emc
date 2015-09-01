@@ -157,7 +157,7 @@
             <conditional name="add_lengths">
                 <param name="choice" value="true" />
                 <param name="sample_lengths" value="GSE51403/GSE51403_expression_matrix_GeneLengths.txt" />
-                <param name="column_lengths" value="c2" />
+                <param name="column_lengths" value="2" />
             </conditional>
             
             <param name="remove_comment_lines" value="false" />
