@@ -218,39 +218,43 @@ if(sum(empty_samples) > 0) {
   dge <- estimateGLMTagwiseDisp(dge,design)
   
   
-  if(output_MDSplot_logFC != "/dev/null") {
-    write("Creating MDS plot (logFC method)",stdout())
-    points <- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)))# Get coordinates of unflexible plot
+  # hierarchical clustering makes use of the distance of the MDS
+  if(output_MDSplot_logFC != "/dev/null" || output_hierarchical_clustering_plot != "/dev/null") {
+    write("Calculating MDS plot (logFC method)",stdout())
+    mds_distance_logFC <- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)))# Get coordinates of unflexible plot
     dev.off()# Kill it
     
-    if(output_format_images == "pdf") {
-      pdf(output_MDSplot_logFC,height=14,width=14)
-    } else if(output_format_images == "svg") {
-      svg(output_MDSplot_logFC,height=14,width=14)
-    } else {
-      ## png(output_MDSplot_logFC)
-      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+    if(output_MDSplot_logFC != "/dev/null") {  
+      write("Creating MDS plot (logFC method)",stdout())
+      if(output_format_images == "pdf") {
+        pdf(output_MDSplot_logFC,height=14,width=14)
+      } else if(output_format_images == "svg") {
+        svg(output_MDSplot_logFC,height=14,width=14)
+      } else {
+        ## png(output_MDSplot_logFC)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_MDSplot_logFC,type="png16m",height=7*3,width=7*3)
+      }
       
-      bitmap(output_MDSplot_logFC,type="png16m",height=14,width=14)
-    }
-    
-    
-    diff_x <- abs(max(points\$x)-min(points\$x))
-    diff_y <-(max(points\$y)-min(points\$y))
-    plot(c(min(points\$x),max(points\$x) + 0.45 * diff_x), c(min(points\$y) - 0.05 * diff_y,max(points\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
-    points(points\$x,points\$y,pch=20)
-    text(points\$x, points\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
-    rm(diff_x,diff_y)
-    
-    dev.off()
+      diff_x <- abs(max(mds_distance_logFC\$x)-min(mds_distance_logFC\$x))
+      diff_y <-(max(mds_distance_logFC\$y)-min(mds_distance_logFC\$y))
+      plot(c(min(mds_distance_logFC\$x),max(mds_distance_logFC\$x) + 0.45 * diff_x), c(min(mds_distance_logFC\$y) - 0.05 * diff_y,max(mds_distance_logFC\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
+      mds_distance_logFC(mds_distance_logFC\$x,mds_distance_logFC\$y,pch=20)
+      text(mds_distance_logFC\$x, mds_distance_logFC\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+      rm(diff_x,diff_y)
+      
+      dev.off()
+      }
   }
+  
   
   if(output_MDSplot_bcv != "/dev/null") {
     write("Creating MDS plot (bcv method)",stdout())
     
     ## 1. First create a virtual plot to obtain the desired coordinates
     pdf("bcvmds.pdf")
-    points <- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)))
+    mds_distance_BCV <- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)))
     dev.off()# Kill it
     
     ## 2. Re-plot the coordinates in a new figure with the size and settings.
@@ -262,14 +266,14 @@ if(sum(empty_samples) > 0) {
       ## png(output_MDSplot_bcv)
       ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
       
-      bitmap(output_MDSplot_bcv,type="png16m",height=14,width=14)
+      bitmap(output_MDSplot_bcv,type="png16m",height=7*3,width=7*3)
     }
     
-    diff_x <- abs(max(points\$x)-min(points\$x))
-    diff_y <- (max(points\$y)-min(points\$y))
-    plot(c(min(points\$x),max(points\$x) + 0.45 * diff_x), c(min(points\$y) - 0.05 * diff_y,max(points\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
-    points(points\$x,points\$y,pch=20)
-    text(points\$x, points\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+    diff_x <- abs(max(mds_distance_BCV\$x)-min(mds_distance_BCV\$x))
+    diff_y <- (max(mds_distance_BCV\$y)-min(mds_distance_BCV\$y))
+    plot(c(min(mds_distance_BCV\$x),max(mds_distance_BCV\$x) + 0.45 * diff_x), c(min(mds_distance_BCV\$y) - 0.05 * diff_y,max(mds_distance_BCV\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
+    mds_distance_BCV(mds_distance_BCV\$x,mds_distance_BCV\$y,pch=20)
+    text(mds_distance_BCV\$x, mds_distance_BCV\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
     rm(diff_x,diff_y)
     
     dev.off()
@@ -287,7 +291,7 @@ if(sum(empty_samples) > 0) {
       ## png(output_BCVplot)
       ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
       
-      bitmap(output_BCVplot,type="png16m")
+      bitmap(output_BCVplot,type="png16m",width=10.5*3,height=7*3)
     }
     
     plotBCV(dge, cex=0.4, main="edgeR: Biological coefficient of variation (BCV) vs abundance")
@@ -303,7 +307,7 @@ if(sum(empty_samples) > 0) {
   cont <- makeContrasts(contrasts=cont, levels=design)
 
   lrt <- glmLRT(fit, contrast=cont[,1])
-  write(paste("Exporting to file: ",output_count_edgeR,sep=""),stdout())
+  write(paste("Exporting DGE results to file...",output_count_edgeR,sep=""),stdout())
   write.table(file=output_count_edgeR,topTags(lrt,n=nrow(read_counts))\$table,sep="\t",row.names=TRUE,col.names=NA)
   write.table(file=output_cpm,cpm(dge,normalized.lib.sizes=TRUE),sep="\t",row.names=TRUE,col.names=NA)
 
@@ -325,7 +329,7 @@ if(sum(empty_samples) > 0) {
         ## png(output_MAplot)
         ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
         
-        bitmap(output_MAplot,type="png16m")
+        bitmap(output_MAplot,type="png16m",width=10.5*3,height=7*3)
       }
       
       with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
@@ -345,7 +349,7 @@ if(sum(empty_samples) > 0) {
         ## png(output_PValue_distribution_plot)
         ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
         
-        bitmap(output_PValue_distribution_plot,type="png16m",width=14,height=14)
+        bitmap(output_PValue_distribution_plot,type="png16m",width=7*3,height=7*3)
       }
       
       expressed_genes <- subset(etable, PValue < 0.99)
@@ -374,7 +378,7 @@ if(sum(empty_samples) > 0) {
       ## png(output_heatmap_plot)
       ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
       
-      bitmap(output_heatmap_plot,type="png16m",width=10.5)
+      bitmap(output_heatmap_plot,type="png16m",width=10.5*3,height=7*3)
     }
     
     etable2 <- topTags(lrt, n=100)\$table
@@ -384,7 +388,24 @@ if(sum(empty_samples) > 0) {
     dev.off()
   }
   
-  ##output_hierarchical_clustering_plot = args[13]
+  if(output_hierarchical_clustering_plot != "/dev/null") {
+    if(output_hierarchical_clustering_plot == "pdf") {
+      pdf(output_hierarchical_clustering_plot,width=10.5)
+    } else if(output_hierarchical_clustering_plot == "svg") {
+      svg(output_hierarchical_clustering_plot,width=10.5)
+    } else {
+      ## png(output_hierarchical_clustering_plot)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_hierarchical_clustering_plot,type="png16m",width=10.5*3,height=7*3)
+    }
+    
+    mds_distance = as.dist(mds_distance_logFC\$distance.matrix)
+    clustering = hclust(mds_distance)
+    plot(clustering,main=paste("Cluster Dendogram on the ",mds_distance_logFC\$top," TopTags",sep="",sub="\ncomplete linkage on logFC MDS distance"))
+    
+    dev.off()
+  }
   
   if(output_RData_obj != "/dev/null") {
     save.image(output_RData_obj)
@@ -411,7 +432,7 @@ if(sum(empty_samples) > 0) {
             <option value="make_output_BCVplot">BCV-plot</option>
             <option value="make_output_MAplot">MA-plot</option>
             <option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
-            <option value="make_output_hierarchical_clustering_plot">Hierarchical custering (under contstruction)</option>
+            <option value="make_output_hierarchical_clustering_plot">Hierarchical custering</option>
             <option value="make_output_heatmap_plot">Heatmap</option>
             
             <option value="make_output_R_stdout">R stdout</option>
