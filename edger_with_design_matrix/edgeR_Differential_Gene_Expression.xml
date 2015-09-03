@@ -15,6 +15,10 @@
                source="both"
                level="fatal"
                description="Have the design- and expression-matrix been swapped?" />
+        <regex match="Error in eval\(expr, envir, enclos\)"
+               source="both"
+               level="fatal"
+               description="You have most likely used a condition in the contrast, that is not present in the Design matrix" />
         <regex match="Execution halted"
                source="both"
                level="fatal" />
@@ -57,8 +61,20 @@
                 /dev/null
             #end if
             
+            #if $output_MDSplot_logFC_coordinates:
+                $output_MDSplot_logFC_coordinates
+            #else:
+                /dev/null
+            #end if
+            
             #if $output_MDSplot_bcv:
                 $output_MDSplot_bcv
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_bcv_coordinates:
+                $output_MDSplot_bcv_coordinates
             #else:
                 /dev/null
             #end if
@@ -126,15 +142,20 @@ output_cpm                          <- args[6]
 output_xpkm                         <- args[7]        ##FPKM file - to be implemented
 
 output_raw_counts                   <- args[8]
+
 output_MDSplot_logFC                <- args[9]
-output_MDSplot_bcv                  <- args[10]
-output_BCVplot                      <- args[11]
-output_MAplot                       <- args[12]
-output_PValue_distribution_plot     <- args[13]
-output_hierarchical_clustering_plot <- args[14]
-output_heatmap_plot                 <- args[15]
-output_RData_obj                    <- args[16]
-output_format_images                <- args[17]
+output_MDSplot_logFC_coordinates    <- args[10]
+
+output_MDSplot_bcv                  <- args[11]
+output_MDSplot_bcv_coordinates      <- args[12]
+
+output_BCVplot                      <- args[13]
+output_MAplot                       <- args[14]
+output_PValue_distribution_plot     <- args[15]
+output_hierarchical_clustering_plot <- args[16]
+output_heatmap_plot                 <- args[17]
+output_RData_obj                    <- args[18]
+output_format_images                <- args[19]
 
 
 ## Obtain read-counts
@@ -214,10 +235,15 @@ if(sum(empty_samples) > 0) {
   
   
   # hierarchical clustering makes use of the distance of the MDS
-  if(output_MDSplot_logFC != "/dev/null" || output_hierarchical_clustering_plot != "/dev/null") {
+  if(output_MDSplot_logFC != "/dev/null" || output_MDSplot_logFC_coordinates != "/dev/null" || output_hierarchical_clustering_plot != "/dev/null") {
     write("Calculating MDS plot (logFC method)",stdout())
-    mds_distance_logFC <- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)))# Get coordinates of unflexible plot
+    n_dim <- nrow(dge\$samples)
+    mds_distance_logFC <- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)),dim.plot=c(n_dim-2,n_dim-1))
     dev.off()# Kill it
+    
+    # Reset to primary dimensions
+    mds_distance_logFC\$x = mds_distance_logFC\$cmdscale.out[,1]
+    mds_distance_logFC\$y = mds_distance_logFC\$cmdscale.out[,2]
     
     if(output_MDSplot_logFC != "/dev/null") {  
       write("Creating MDS plot (logFC method)",stdout())
@@ -236,42 +262,60 @@ if(sum(empty_samples) > 0) {
       diff_y <-(max(mds_distance_logFC\$y)-min(mds_distance_logFC\$y))
       plot(c(min(mds_distance_logFC\$x),max(mds_distance_logFC\$x) + 0.45 * diff_x), c(min(mds_distance_logFC\$y) - 0.05 * diff_y,max(mds_distance_logFC\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
       points(mds_distance_logFC\$x,mds_distance_logFC\$y,pch=20)
-      text(mds_distance_logFC\$x, mds_distance_logFC\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+      text(mds_distance_logFC\$x,mds_distance_logFC\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
       rm(diff_x,diff_y)
       
       dev.off()
-      }
+    }
+    
+    if(output_MDSplot_logFC_coordinates != "/dev/null") {
+      n_dim <- ncol(mds_distance_logFC\$cmdscale.out)
+      colnames(mds_distance_logFC\$cmdscale.out) <- paste(rep("Dim",n_dim),(1:n_dim),sep="_")
+      export <- data.frame(samples=rownames(mds_distance_logFC\$cmdscale.out),mds_distance_logFC\$cmdscale.out)
+      row.names(export) <- NULL
+      write.table(file=output_MDSplot_logFC_coordinates,export,sep="\t",row.names=FALSE,col.names=TRUE)
+    }
   }
   
   
-  if(output_MDSplot_bcv != "/dev/null") {
+  if(output_MDSplot_bcv != "/dev/null" || output_MDSplot_bcv_coordinates != "/dev/null" ) {
     write("Creating MDS plot (bcv method)",stdout())
     
     ## 1. First create a virtual plot to obtain the desired coordinates
-    pdf("bcvmds.pdf")
-    mds_distance_BCV <- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)))
-    dev.off()# Kill it
+    n_dim <- nrow(dge\$samples)
+    mds_distance_BCV <- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)),dim.plot=c(n_dim-2,n_dim-1))
+    dev.off()
     
-    ## 2. Re-plot the coordinates in a new figure with the size and settings.
-    if(output_format_images == "pdf") {
-      pdf(output_MDSplot_bcv,height=14,width=14)
-    } else if(output_format_images == "svg") {
-      svg(output_MDSplot_bcv,height=14,width=14)
-    } else {
-      ## png(output_MDSplot_bcv)
-      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+    if(output_MDSplot_logFC != "/dev/null") {  
+      ## 2. Re-plot the coordinates in a new figure with the size and settings.
+      if(output_format_images == "pdf") {
+        pdf(output_MDSplot_bcv,height=14,width=14)
+      } else if(output_format_images == "svg") {
+        svg(output_MDSplot_bcv,height=14,width=14)
+      } else {
+        ## png(output_MDSplot_bcv)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_MDSplot_bcv,type="png16m",height=7*3,width=7*3)
+      }
       
-      bitmap(output_MDSplot_bcv,type="png16m",height=7*3,width=7*3)
+      diff_x <- abs(max(mds_distance_BCV\$x)-min(mds_distance_BCV\$x))
+      diff_y <- (max(mds_distance_BCV\$y)-min(mds_distance_BCV\$y))
+      plot(c(min(mds_distance_BCV\$x),max(mds_distance_BCV\$x) + 0.45 * diff_x), c(min(mds_distance_BCV\$y) - 0.05 * diff_y,max(mds_distance_BCV\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
+      points(mds_distance_BCV\$x,mds_distance_BCV\$y,pch=20)
+      text(mds_distance_BCV\$x, mds_distance_BCV\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+      rm(diff_x,diff_y)
+      
+      dev.off()
     }
     
-    diff_x <- abs(max(mds_distance_BCV\$x)-min(mds_distance_BCV\$x))
-    diff_y <- (max(mds_distance_BCV\$y)-min(mds_distance_BCV\$y))
-    plot(c(min(mds_distance_BCV\$x),max(mds_distance_BCV\$x) + 0.45 * diff_x), c(min(mds_distance_BCV\$y) - 0.05 * diff_y,max(mds_distance_BCV\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
-    points(mds_distance_BCV\$x,mds_distance_BCV\$y,pch=20)
-    text(mds_distance_BCV\$x, mds_distance_BCV\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
-    rm(diff_x,diff_y)
-    
-    dev.off()
+    if(output_MDSplot_bcv_coordinates != "/dev/null") { 
+      n_dim <- ncol(mds_distance_BCV\$cmdscale.out)
+      colnames(mds_distance_BCV\$cmdscale.out) <- paste(rep("Dim",n_dim),(1:n_dim),sep="_")
+      export <- data.frame(samples=rownames(mds_distance_BCV\$cmdscale.out),mds_distance_BCV\$cmdscale.out)
+      row.names(export) <- NULL
+      write.table(file=output_MDSplot_bcv_coordinates,export,sep="\t",row.names=FALSE,col.names=TRUE)
+    }
   }
   
   
@@ -423,7 +467,9 @@ if(sum(empty_samples) > 0) {
         <param name="outputs" type="select" label="Optional desired outputs" multiple="true" display="checkboxes">
             <option value="make_output_raw_counts">Raw counts table</option>
             <option value="make_output_MDSplot_logFC">MDS-plot (logFC-method)</option>
-            <option value="make_output_MDSplot_bcv">MDS-plot (BCV-method; much slower)</option>
+            <option value="make_output_MDSplot_logFC_coordinates">MDS-plot coordinates table (logFC-method)</option>
+            <option value="make_output_MDSplot_bcv">MDS-plot (BCV-method; slow)</option>
+            <option value="make_output_MDSplot_bcv_coordinates">MDS-plot coordinates table (BCV-method; slow)</option>
             <option value="make_output_BCVplot">BCV-plot</option>
             <option value="make_output_MAplot">MA-plot</option>
             <option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
@@ -457,6 +503,10 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
+        <data format="tabular" name="output_MDSplot_logFC_coordinates" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot coordinates table (logFC method)">
+            <filter>outputs and ("make_output_MDSplot_logFC_coordinates" in outputs)</filter>
+        </data>
+        
         <data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (bcv method)">
             <filter>outputs and ("make_output_MDSplot_bcv" in outputs)</filter>
             
@@ -465,6 +515,10 @@ if(sum(empty_samples) > 0) {
                 <when input="output_format_images" value="pdf" format="pdf" />
                 <when input="output_format_images" value="svg" format="svg" />
             </change_format>
+        </data>
+        
+        <data format="tabular" name="output_MDSplot_bcv_coordinates" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot coordinates table (BCV method)">
+            <filter>outputs and ("make_output_MDSplot_bcv_coordinates" in outputs)</filter>
         </data>
         
         <data format="png" name="output_BCVplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - BCV-plot">
