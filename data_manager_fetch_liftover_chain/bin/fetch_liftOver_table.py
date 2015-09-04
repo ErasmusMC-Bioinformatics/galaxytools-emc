@@ -23,6 +23,25 @@ def fetch_dbkeys():
 	
 	return dbkeys
 
+def fetch_liftovers(dbkey_uid, dbkey):
+	url_dbkey = "http://hgdownload.cse.ucsc.edu/goldenPath/"+dbkey[0]+"/"
+	url_liftover = "http://hgdownload.cse.ucsc.edu/goldenPath/"+dbkey[0]+"/liftOver/md5sum.txt"
+	print "Fetching list of liftOver files for dbkey: "+dbkey[0]
+	try:
+		response = urllib2.urlopen(url_dbkey)
+		try:
+			response = urllib2.urlopen(url_liftover)
+			liftOvers = response.read().strip().split("\n")
+			print "   Listed liftOver files for dbkey: "+dbkey[0]
+		except:
+			print " - Couldn't find liftOver files for dbkey: "+dbkey[0]
+			liftOvers = None
+	except:
+		print " - Couldn't find info at UCSC for dbkey: "+dbkey[0]
+		liftOvers = None
+	
+	return liftOvers
+
 def capitalize_dbkey(dbkey):
 	dbkey = list(dbkey)
 	for i in range(len(dbkey)):
@@ -38,21 +57,7 @@ def __main__():
 	fh.write("#<FromSpecies>	<ToSpecies>	<PathToChainFile>	<optional: FromSpeciesDescription>	<optional: ToSpeciesDescription>	<optional: ChainFile md5sum>\n\n")
 	
 	for dbkey_uid, dbkey in dbkeys.items():
-		url_dbkey = "http://hgdownload.cse.ucsc.edu/goldenPath/"+dbkey[0]+"/"
-		url_liftover = "http://hgdownload.cse.ucsc.edu/goldenPath/"+dbkey[0]+"/liftOver/md5sum.txt"
-		print "Fetching list of liftOver files for dbkey: "+dbkey[0]
-		try:
-			response = urllib2.urlopen(url_dbkey)
-			try:
-				response = urllib2.urlopen(url_liftover)
-				liftOvers = response.read().strip().split("\n")
-				print "   Listed liftOver files for dbkey: "+dbkey[0]
-			except:
-				print " - Couldn't find liftOver files for dbkey: "+dbkey[0]
-				liftOvers = None
-		except:
-			print " - Couldn't find info at UCSC for dbkey: "+dbkey[0]
-			liftOvers = None
+		liftOvers = fetch_liftovers(dbkey_uid, dbkey)
 		
 		# If the dbkey has corresponding liftOver files, parse them and write them to file
 		if(liftOvers):
