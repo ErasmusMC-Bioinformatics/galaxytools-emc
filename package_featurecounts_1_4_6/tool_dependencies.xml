@@ -6,12 +6,11 @@
                 <action type="download_by_url"
                     sha256sum="48e0c516684c4771f965a0a3010fbc0ad55fb54cfd8f7090be3f55e7b5c09f36">http://sourceforge.net/projects/subread/files/subread-1.4.6-p1/subread-1.4.6-p1-source.tar.gz/download</action>
                 <action type="shell_command"><![CDATA[
-                    cd subread-1.4.6-p1-source/src/ &&
-                    make -f Makefile.Linux          &&
-                    cd ../../
+                    cd src/ &&
+                    make -f Makefile.Linux
                 ]]></action>
                 <action type="move_file">
-                    <source>../subread-1.4.6-p1-source/bin/featureCounts</source>
+                    <source>bin/featureCounts</source>
                     <destination>$INSTALL_DIR/bin/</destination>
                 </action>
                 <action type="set_environment">
