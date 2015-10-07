@@ -1,7 +1,7 @@
-<tool id="featurecounts" name="featureCounts" version="1.4.6.p1">
+<tool id="featurecounts" name="featureCounts" version="1.4.6.p5">
     <description>Measure gene expression in RNA-Seq experiments from SAM or BAM files.</description>
     <requirements>
-        <requirement type="package" version="1.4.6.p1">featurecounts</requirement>
+        <requirement type="package" version="1.4.6.p5">featurecounts</requirement>
     </requirements>
     <version_command>featureCounts -v</version_command>
     <command><![CDATA[
