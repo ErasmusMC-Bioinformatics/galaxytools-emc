@@ -52,4 +52,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.``
 Acknowledgements
 ----------------
 
-I would like to thank Marius van den Beek for his contributions to this project.
+I would like to thank Marius van den Beek and Björn Grüning for their contributions to this project.
