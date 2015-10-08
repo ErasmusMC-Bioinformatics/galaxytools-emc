@@ -1,8 +1,8 @@
-<tool id="crossmap" name="CrossMap" version="0.2.b">
+<tool id="crossmap" name="CrossMap" version="0.2.c">
     <description>Convert genome coordinates or annotation files between genome assemblies</description>
     
     <requirements>
-        <requirement type="package" version="0.1">ucsc_tools</requirement>
+        <requirement type="package" version="312">ucsc_tools</requirement>
         <requirement type="package" version="2.7">python</requirement>
         <requirement type="package" version="0.2">crossmap</requirement>
     </requirements>
