@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="python" version="2.7">
+        <repository name="package_python_2_7" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="htseq" version="0.6.1">
+        <repository name="package_htseq_0_6" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="fuma" version="2.10.0">
+        <install version="1.0">
+            <actions>
+                <action type="set_environment_for_install">
+                     <repository name="package_python_2_7" owner="iuc">
+                        <package name="python" version="2.7" />
+                    </repository>
+                    
+                   <repository name="package_htseq_0_6" owner="iuc">
+                        <package name="htseq" version="0.6.1" />
+                    </repository>
+                </action>
+                
+                <action type="make_directory">$INSTALL_DIR/lib/python</action>
+                <action type="make_directory">$INSTALL_DIR/lib64/python</action>
+                
+                <action type="shell_command"><![CDATA[
+                    git clone https://github.com/yhoogstrate/fuma.git fuma                           &&
+                    cd fuma                                                                          &&
+                    git reset --hard 8bead7a4d4ce8bdf4b6fd64df0c474b003768697                        &&
+                    
+                    export PYTHONPATH=$PYTHONPATH:$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python  &&
+                    python setup.py build                                                            &&
+                    python setup.py install --home $INSTALL_DIR --install-scripts $INSTALL_DIR/bin   &&
+                    python setup.py test
+                ]]></action>
+                
+                <action type="set_environment">
+                    <environment_variable action="append_to" name="PYTHONPATH">$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
+                    
+                    <environment_variable action="set_to" name="FUMA_PATH">$INSTALL_DIR/bin</environment_variable>
+                    <environment_variable action="set_to" name="FUMA_ROOT_PATH">$INSTALL_DIR</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+            Downloads and installs FuMa.
+            
+            Prerequisites:
+                - git
+        </readme>
+    </package>
+</tool_dependency>

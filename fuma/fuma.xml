@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="fuma" name="FuMa" version="2.7.1.b">
-    <description>FuMa (FusionMatcher) matches detected fusion genes based on gene name subset matching (designed in particular for RNA-Seq).</description>
+<tool id="fuma" name="FuMa" version="2.10.0.a">
+    <description>match detected fusion genes based on gene names (in particular for RNA-Seq).</description>
     
     <requirements>
-        <requirement type="package" version="2.7.1">fuma</requirement>
+        <requirement type="package" version="2.7">python</requirement>
+        <requirement type="package" version="2.10.0">fuma</requirement>
     </requirements>
     
     <version_command>fuma --version 2>&amp;1 | head -n 1</version_command><!-- -V also works, but is not GNU standard -->
@@ -16,7 +17,6 @@
         #set $links = []
         
         #for $i, $d in enumerate( $datasets )
-            
             #set $sample_name = pipes.quote(str($d['sample'].name))
             
             #set $gene_annotations = $gene_annotations + [ "ga_" + str($i) + ":" + str($d['gene_annotation'].file_name) ]
@@ -30,23 +30,28 @@
         #set $links_str = " ".join(links)
         
         fuma 
+          -m
+            $params.matching_method
+          
+          $params.strand_specific_matching
+          $params.acceptor_donor_order_specific_matchig
+          
           -a
             $gene_annotations_str
           -s
             $samples_str
           -l
             $links_str
-        #if $output_format.value == "list_boolean"
+        #if $params.output_format.value == "list_boolean"
           -f list
         #else
-          -f $output_format.value
+          -f $params.output_format.value
         #end if
           -o $fuma_overview ; 
         
         
-        
-        #if $output_format.value == "list_boolean"
-            fuma-list-to-boolean-list -o tmp.txt $fuma_overview &amp;&amp;
+        #if $params.output_format.value == "list_boolean"
+            fuma-list-to-boolean-list -o tmp.txt $fuma_overview ;
             mv tmp.txt $fuma_overview
         #end if
     ]]></command>
@@ -55,26 +60,50 @@
         <repeat name="datasets" title="FusionGene Datasets" min="2">
             <param name="sample" type="data" format="txt,tabular" label="Dataset (RNA-Seq fusion gene detection experiment)" />
             <param name="format" type="select" label="Format of dataset">
+                <option value="chimera">Chimera prettyPrint()</option>
                 <option value="chimerascan">ChimeraScan</option>
                 <option value="defuse">DeFuse</option>
-                <option value="complete-genomics">Complete Genomics</option>
+                <option value="complete-genomics">Complete Genomics var/mastervar</option>
                 <option value="fusion-catcher_final">Fusion Catcher (final-list file)</option>
                 <option value="fusionmap">FusionMap</option>
                 <option value="trinity-gmap">GMAP (As step after Trinity)</option>
                 <option value="oncofuse">OncoFuse</option>
                 <option value="rna-star_chimeric">STAR (chimeric file)</option>
+                <option value="star-fusion_final">STAR-Fusion (candidates.final)</option>
                 <option value="tophat-fusion_pre">Tophat Fusion Pre (fusions.out)</option>
                 <option value="tophat-fusion_post_potential_fusion">Tophat Fusion Post (potential_fusion.txt)</option>
                 <option value="tophat-fusion_post_result">Tophat Fusion Post (result.txt)</option>
+                <option value="tophat-fusion_post_result_html">Tophat Fusion Post (result.html)</option>
             </param>
             <param name="gene_annotation" type="data" format="bed" label="Corresponding gene-name annotation file (BED format)" help="Make use of persistent gene annotations! Gene annotations should only be different if different reference genome builds were used." />
         </repeat>
         
-        <param name="output_format" type="select" label="Output format">
-            <option value="list_boolean" selected="true">List (Boolean)</option>
-            <option value="list">List</option>
-            <option value="summary">Count summary</option>
-        </param>
+        <conditional name="params">
+            <param name="settingsType" type="select" label="Settings to use" help="You can use the default settings or set custom values for any FuMa parameter.">
+                <option value="preSet" selected="true">Use Defaults</option>
+                <option value="full">Full parameter list</option>
+            </param>
+            <when value="preSet">
+                <param name="strand_specific_matching" type="hidden" value="--strand-specific-matching" />
+                <param name="acceptor_donor_order_specific_matchig" type="hidden" value="--acceptor-donor-order-specific-matching" />
+            </when>
+            <when value="full">
+                <param name="matching_method" type="select" label="Matching method: technique used to match fusion genes based on annotated gene sets" help="Overlap is the most sensitive but also more sensitive for long gene artefacts; subset is the recommended technique and EGM is conservative.">
+                    <option value="overlap">Overlap</option>
+                    <option value="subset" selected="True">Subset</option>
+                    <option value="egm">Exact Geneset Matching (EGM)</option>
+                </param>
+                
+                <param name="strand_specific_matching" type="boolean" checked="True" truevalue="--strand-specific-matching" falsevalue="" label="Consider fusion genes distinct when the breakpoints have different strands" help="Only a limited number of file formats support this feature." />
+                <param name="acceptor_donor_order_specific_matchig" type="boolean" checked="True" truevalue="--acceptor-donor-order-specific-matching" falsevalue="" label="Consider fusion genes distinct when the donor and acceptor sites are swapped (A,B) != (B,A)" help="This settings is not recommended when fusion genes detected in DNA-Seq are used" />
+                
+                <param name="output_format" type="select" label="Output format">
+                    <option value="list_boolean" selected="true">List (Boolean)</option>
+                    <option value="list">List</option>
+                    <option value="summary">Count summary</option>
+                </param>
+            </when>
+        </conditional>
     </inputs>
     
     <outputs>
@@ -104,9 +133,45 @@
                 <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             
-            <param name="output_format" value="summary" />
+            <param name="settingsType" value="full" />
             
-            <output name="fuma_overview" file="output.txt" />
+            <param name="matching_method" value="subset" />
+            <param name="strand_specific_matching" value="--strand-specific-matching" />
+            <param name="acceptor_donor_order_specific_matchig" value="--acceptor-donor-order-specific-matching" />
+            <param name="output_format" value="list_boolean" />
+            
+            <output name="fuma_overview" file="output_test_1.txt" />
+        </test>
+        <test>
+            <!-- <repeat name="datasets"> -->
+                <param name="datasets_0|sample" value="chimerascan.txt" ftype="tabular" />
+                <param name="datasets_0|format" value="chimerascan" />
+                <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            <!-- </repeat> -->
+            <!-- <repeat name="datasets"> -->
+                <param name="datasets_1|sample" value="defuse.txt" ftype="tabular" />
+                <param name="datasets_1|format" value="defuse" />
+                <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            <!-- </repeat> -->
+            <!-- <repeat name="datasets"> -->
+                <param name="datasets_2|sample" value="fusion-map.txt" ftype="tabular" />
+                <param name="datasets_2|format" value="fusionmap" />
+                <param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            <!-- </repeat> -->
+            <!-- <repeat name="datasets"> -->
+                <param name="datasets_3|sample" value="edgren_tp.txt" ftype="tabular" />
+                <param name="datasets_3|format" value="fusionmap" />
+                <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            <!-- </repeat> -->
+            
+            <param name="settingsType" value="full" />
+            
+            <param name="matching_method" value="subset" />
+            <param name="strand_specific_matching" value="" />
+            <param name="acceptor_donor_order_specific_matchig" value="" />
+            <param name="output_format" value="list_boolean" />
+            
+            <output name="fuma_overview" file="output_test_2.txt" />
         </test>
     </tests>
     
@@ -132,6 +197,8 @@ Formats
 +-------------------+-----------------------+-------------------------------------+
 |Tools              | File                  | Format string                       |
 +===================+=======================+=====================================+
+|Chimera            | prettyPrint() output  | chimera                             |
++-------------------+-----------------------+-------------------------------------+
 |ChimeraScan        | chimeras.bedpe        | chimerascan                         |
 +-------------------+-----------------------+-------------------------------------+
 |Complete Genomics  | highConfidenceJu*.tsv | complete-genomics                   |
@@ -154,11 +221,15 @@ Formats
 +-------------------+-----------------------+-------------------------------------+
 |RNA STAR           | Chimeric.out.junction | rna-star_chimeric                   |
 +-------------------+-----------------------+-------------------------------------+
+|STAR Fusion        | _candidates.final     | star-fusion_final                   |
++-------------------+-----------------------+-------------------------------------+
 |TopHat Fusion pre  | fusions.out           | tophat-fusion_pre                   |
 +-------------------+-----------------------+-------------------------------------+
 |TopHat Fusion post | potential_fusion.txt  | tophat-fusion_post_potential_fusion |
 +-------------------+-----------------------+-------------------------------------+
 |TopHat Fusion post | result.txt            | tophat-fusion_post_result           |
++-------------------+-----------------------+-------------------------------------+
+|TopHat Fusion post | result.html           | tophat-fusion_post_result_html      |
 +-------------------+-----------------------+-------------------------------------+
 
 To annotate genes upon the breakpoints you must provide a BED file that contains gene annotations for the user genome build. Make sure **your BED file contains one gene per line**. You should use BED files that contain one exon per line only if you want restrict your analysis to fusion genes detected within exons.
@@ -168,5 +239,12 @@ UCSC genome browser provides a very simple way of obtaining BED files with one g
     ]]></help>
     
     <citations>
+        <citation type="bibtex">
+           @unpublished{fuma,
+              author       = {Youri Hoogstrate}, 
+              title        = {FuMa: reporting overlap in RNA-seq detected fusion genes},
+              url          = { https://github.com/yhoogstrate/fuma }
+            }
+        </citation>
     </citations>
 </tool>
