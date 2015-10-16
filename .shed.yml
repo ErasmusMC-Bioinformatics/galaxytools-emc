@@ -1,6 +1,6 @@
 categories:
 - Text Manipulation
-description: Debug utility: shows all metadata of a history item
+description: Debug utility, shows all metadata of a history item
 long_description: |
   Debug utility: shows all metadata of a history item
 name: show_metadata
