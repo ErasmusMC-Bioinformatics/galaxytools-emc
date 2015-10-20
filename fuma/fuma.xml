@@ -113,22 +113,22 @@
     <tests>
         <test>
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_0|sample" value="chimerascan.txt" ftype="tabular" />
+                <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
                 <param name="datasets_0|format" value="chimerascan" />
                 <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_1|sample" value="defuse.txt" ftype="tabular" />
+                <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
                 <param name="datasets_1|format" value="defuse" />
                 <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_2|sample" value="fusion-map.txt" ftype="tabular" />
+                <param name="datasets_2|sample" value="edgren_fusion-map.txt" ftype="tabular" />
                 <param name="datasets_2|format" value="fusionmap" />
                 <param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_3|sample" value="edgren_tp.txt" ftype="tabular" />
+                <param name="datasets_3|sample" value="edgren_true_positives.txt" ftype="tabular" />
                 <param name="datasets_3|format" value="fusionmap" />
                 <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
@@ -140,26 +140,26 @@
             <param name="acceptor_donor_order_specific_matchig" value="--acceptor-donor-order-specific-matching" />
             <param name="output_format" value="list_boolean" />
             
-            <output name="fuma_overview" file="output_test_1.txt" />
+            <output name="fuma_overview" file="edgren_test_01_specifc_matching_output.txt" />
         </test>
         <test>
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_0|sample" value="chimerascan.txt" ftype="tabular" />
+                <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
                 <param name="datasets_0|format" value="chimerascan" />
                 <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_1|sample" value="defuse.txt" ftype="tabular" />
+                <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
                 <param name="datasets_1|format" value="defuse" />
                 <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_2|sample" value="fusion-map.txt" ftype="tabular" />
+                <param name="datasets_2|sample" value="edgren_fusion-map.txt" ftype="tabular" />
                 <param name="datasets_2|format" value="fusionmap" />
                 <param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
             <!-- <repeat name="datasets"> -->
-                <param name="datasets_3|sample" value="edgren_tp.txt" ftype="tabular" />
+                <param name="datasets_3|sample" value="edgren_true_positives.txt" ftype="tabular" />
                 <param name="datasets_3|format" value="fusionmap" />
                 <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             <!-- </repeat> -->
@@ -171,7 +171,7 @@
             <param name="acceptor_donor_order_specific_matchig" value="" />
             <param name="output_format" value="list_boolean" />
             
-            <output name="fuma_overview" file="output_test_2.txt" />
+            <output name="fuma_overview" file="edgren_test_02_unspecifc_matching_output.txt" />
         </test>
     </tests>
     
