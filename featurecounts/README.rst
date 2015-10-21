@@ -11,7 +11,7 @@ Development
 -----------
 
 * Repository-Maintainer: Youri Hoogstrate
-* Repository-Developers: Youri Hoogstrate, Marius van den Beek
+* Repository-Developers: Youri Hoogstrate, Marius van den Beek, Bjoern Gruening
 
 * Repository-Development: https://github.com/ErasmusMC-Bioinformatics/featurecounts_galaxy_wrapper
 

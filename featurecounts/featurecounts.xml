@@ -10,7 +10,6 @@
     </stdio>
     <version_command>featureCounts -v 2&gt;&amp;1 | grep .</version_command>
     <command><![CDATA[
-
         ## Check 01: do the alignments have a dbkey and is the option set to using it?
         #if $reference_gene_sets_source.source_select == "attribute" and len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) != 1
             echo "Invalid number of dbkeys are found: ${ len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) }, while only one should be used. Make sure that the alignments are done on the same reference genome and that 'tool-data/gene_sets.loc' is configured properly!" >&2
@@ -63,38 +62,47 @@
                     2>&1
 
                 #set $columns = [str(i+7) for i, alignment in enumerate($alignments)]
-                #set $columns=",".join($columns)
-                
-                #if $format == "tabdel_default" or $format.value == "tabdel_default"
-                    && cp $output tmp.txt
-                    && egrep -v "^#" tmp.txt > tmp2.txt
-                    && cut -f 1,$columns tmp2.txt > tmp_left.txt
-                    && cut -f 6 tmp2.txt > tmp_right.txt
-                    && paste tmp_left.txt tmp_right.txt > $output
-                #elif $format == "tabdel_short" or $format.value == "tabdel_short"
-                    && cp $output tmp.txt
-                    && egrep -v "^#" tmp.txt | cut -f 1,$columns > $output
-                #end if
+                #set $columns =",".join($columns)
 
-                ## For every alignment, replace its filename for: "hid: sample name"
-                #for $alignment in $alignments
-                    #set $alignment_escaped = str($alignment).replace('/', '\/').replace('.', '\.')
-                    #set $alignment_name_escaped = str(alignment.hid)+": "+str($alignment.name).replace('\t',' ').replace('\\','\\\\').replace("'","\\'").replace('/','\/')
+                #if $format.value in ["tabdel_with_gene_length", "tabdel_short", "tabdel_full"]
+                    ## Separate the comments from the table
+                    && grep "^#" $output > comments.txt
+                    && grep -v "^#" $output > body.txt
+                    && sed -i.bak '0,/Geneid/ s/Geneid/#Geneid/' body.txt
+                    
+                    ## For every alignment, replace the filename for: "hid: sample name"
+                    #for $alignment in $alignments
+                        #set $alignment_escaped = str($alignment).replace('/', '\/').replace('.', '\.')
+                        #set $alignment_name_escaped = str(alignment.hid)+": "+str($alignment.name).replace('\t',' ').replace('\\','\\\\').replace("'","\\'").replace('/','\/')
 
-                    #if $format.value == "tabdel_default" or $format.value == "tabdel_short"
-                        && sed -e '1 s/$alignment_escaped/${alignment_name_escaped}/g' $output > tmp.txt
-                    #elif $format.value == "bed":
-                        && $__tool_directory__/featurecounts2bed.sh -f "$output" > tmp.txt
-                    #else
-                        && sed -e '1,2 s/$alignment_escaped/${alignment_name_escaped}/g' $output > tmp.txt
+                        && sed -i.bak -e '1 s/$alignment_escaped/${alignment_name_escaped}/g' body.txt
+                        && sed -i.bak -e '1 s/$alignment_escaped/${alignment_name_escaped}/g' $output".summary"
+                    #end for
+
+                    ## Set the right columns for the tabular formats
+                    #if $format.value == "tabdel_with_gene_length"
+                        && cut -f 1,$columns body.txt > expression_matrix.txt
+
+                        ## Paste doesn't allow a non ordered list of columns: -f 1,7,8,6 will only return columns 1,7 and 8
+                        ## Thus the gene length column has to be done separately
+                        && cut -f 6 body.txt > gene_lengths.txt
+                        && paste expression_matrix.txt gene_lengths.txt > expression_matrix.txt.bak
+                        && mv -f expression_matrix.txt.bak expression_matrix.txt
+                    #elif $format.value == "tabdel_short"
+                        && cut -f 1,$columns body.txt > expression_matrix.txt
+                    #elif $format.value == "tabdel_full"
+                        && mv -f body.txt expression_matrix.txt
                     #end if
+                    
+                    ## Glue the comment line(s) and the table back together
+                    && cat comments.txt expression_matrix.txt > $output
 
-                    && mv tmp.txt "${output}"
-
-                    && sed -e '1 s/$alignment_escaped/${alignment_name_escaped}/g' $output".summary" > tmp.txt
-                    && mv tmp.txt ${output}".summary"
-                #end for
-                && mv ${output}".summary" "${output_summary}"
+                #elif $format.value == "bed"
+                    && $__tool_directory__/featurecounts2bed.sh -f "$output" > tmp.txt
+                    && mv -f tmp.txt $output
+                #end if
+                
+                && mv $output".summary" $output_summary
             #end if
         #end if
     ]]></command>
@@ -138,10 +146,10 @@
             </when>
         </conditional>
         <param name="format" type="select" label="Output format">
-            <option value="tabdel_default">Gene-name "\t" gene-count "\t" gene-length</option>
             <option value="tabdel_short" selected="true">Gene-name "\t" gene-count</option>
+            <option value="tabdel_with_gene_length">Gene-name "\t" gene-count "\t" gene-length</option>
             <option value="bed">BED format (line per exon): chr "\t" start "\t" stop "\t" description "\t" readcount</option>
-            <option value="complex">featureCounts 1.4.0+ default (extensive; complex)</option>
+            <option value="tabdel_full">featureCounts 1.4.0+ default (full: includes regions provided by the GTF file)</option>
         </param>
         <conditional name="extended_parameters">
             <param name="parameters" type="select" label="featureCounts parameters" help="For more advanced featureCounts settings.">
@@ -196,7 +204,7 @@
                     label="PE: Exclude chimeric fragments"
                     help="Paired-end specific: If specified, the chimeric fragments (those fragments that have their two ends aligned to different chromosomes) will NOT be included for summarization. This option is only applicable for paired-end read data." />
 
-                <param name ="summarization_level" type="boolean" truevalue=" -f" falsevalue=""
+                <param name="summarization_level" type="boolean" truevalue=" -f" falsevalue=""
                     label="On feature level"
                     help="If specified, read summarization will be performed at the feature level. By default (-f is not specified), the read summarization is performed at the meta-feature level." />
 
@@ -211,9 +219,25 @@
         <test>
             <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
             <param name="source_select" value="history" />
-            <param name="format" value="tabdel_default" />
+            <param name="format" value="tabdel_short" />
             <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
-            <output name="output" file="output.tab"/>
+            <output name="output" file="output__short.tab" lines_diff="2"/><!-- First header line contains temporary files -->
+            <output name="output_summary" file="output_summary.tab"/>
+        </test>
+        <test>
+            <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
+            <param name="source_select" value="history" />
+            <param name="format" value="tabdel_with_gene_length" />
+            <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
+            <output name="output" file="output__tabdel_with_gene_length.tab" lines_diff="2"/><!-- First header line contains temporary files -->
+            <output name="output_summary" file="output_summary.tab"/>
+        </test>
+        <test>
+            <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
+            <param name="source_select" value="history" />
+            <param name="format" value="tabdel_full" />
+            <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
+            <output name="output" file="output__full.tab" lines_diff="2"/><!-- First header line contains temporary files -->
             <output name="output_summary" file="output_summary.tab"/>
         </test>
     </tests>
@@ -265,9 +289,8 @@ http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresea
 More tools by the Translational Research IT (TraIT) project can be found
 in the following toolsheds:
 
-http://toolshed.g2.bx.psu.edu/
-
-http://testtoolshed.g2.bx.psu.edu/
+- http://toolshed.g2.bx.psu.edu/
+- http://testtoolshed.g2.bx.psu.edu/
 
 References
 ----------
@@ -282,7 +305,7 @@ References
 Acknowledgements
 ----------------
 
-I would like to thank Marius van den Beek for his contribution to this galaxy wrapper.
+I would like to thank Marius van den Beek and Bjoern Gruening for their contribution to this galaxy wrapper.
     ]]></help>
     <citations>
         <citation type="doi">10.1093/bioinformatics/btt656</citation>
