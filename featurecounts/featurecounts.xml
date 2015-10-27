@@ -146,9 +146,9 @@
             </when>
         </conditional>
         <param name="format" type="select" label="Output format">
-            <option value="tabdel_short" selected="true">Gene-name "\t" gene-count</option>
-            <option value="tabdel_with_gene_length">Gene-name "\t" gene-count "\t" gene-length</option>
-            <option value="bed">BED format (line per exon): chr "\t" start "\t" stop "\t" description "\t" readcount</option>
+            <option value="tabdel_default">Gene-ID "\t" read-count "\t" gene-length</option>
+            <option value="tabdel_short" selected="true">Gene-ID "\t" read-count</option>
+            <option value="bed">BED format (line per exon): chr "\t" start "\t" stop "\t" description "\t" read-count</option>
             <option value="tabdel_full">featureCounts 1.4.0+ default (full: includes regions provided by the GTF file)</option>
         </param>
         <conditional name="extended_parameters">
