@@ -1,0 +1,10 @@
+categories:
+- Variant Analysis
+- SAM
+description: VarScan2 mpileup2snp - optimized for direct BAM/SAM input and parallel mpileup generation
+long_description: |
+  VarScan is a variant caller for high-throughput sequencing data.
+name: varscan_mpileup2snp_from_bam
+owner: yhoogstrate
+remote_repository_url: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools
+type: unrestricted
