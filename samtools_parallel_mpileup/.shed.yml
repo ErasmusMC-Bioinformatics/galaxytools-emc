@@ -1,9 +1,10 @@
 categories:
-- Tool Dependency Packages
+- SAM
+- Variant Analysis
 description: samtools - optimized for parallel mpileup generation
 long_description: |
-  Tool dependency definition that downloads and compiles version 0.1.19-a of samtools-parallel-mpileup.
-name: package_samtools_parallel_mpileup_0_1_19_a
+  samtools - optimized for parallel mpileup generation
+name: samtools_parallel_mpileup
 owner: yhoogstrate
 remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/samtools_parallel_mpileup_galaxy_wrapper
-type: tool_dependency_definition
+type: unrestricted

@@ -4,7 +4,7 @@
         <repository name="package_ncurses_6_0" owner="iuc" prior_installation_required="True" />
     </package>
     
-    <package name="samtools_parallel_mpileup_0_1_19_a" version="0.1.19-a">
+    <package name="samtools_parallel_mpileup" version="0.1.19-a">
         <install version="1.0">
             <actions>
                 <action type="set_environment_for_install">
