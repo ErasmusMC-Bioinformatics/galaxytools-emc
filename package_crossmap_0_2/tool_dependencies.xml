@@ -38,9 +38,14 @@
                 
                 Using - - root places the installation in:
                 $INSTALL_DIR / (python path dir) /
+                
+                
+                The setuptools shipped with galaxy's python version crashes if
+                a setuptools installation contains a setup_requires tag
                 -->
                 <action type="shell_command">
                     sed -i.bak -r "s/numpy.(sum|nan_to_num)+/np.\1/" "bin/CrossMap.py" ;
+                    sed -i.bak -r "s/setup_requires/#setup_requires/" "setup.py" ;
                     
                     python setup.py install --root $INSTALL_DIR &amp;&amp;
                     export SUB_DIR=$(dirname $(which python)) &amp;&amp;
