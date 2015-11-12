@@ -1,4 +1,4 @@
-<tool id="crossmap" name="CrossMap" version="0.2.d">
+<tool id="crossmap" name="CrossMap" version="0.2.e">
     <description>Convert genome coordinates or annotation files between genome assemblies</description>
     
     <requirements>
@@ -8,13 +8,15 @@
     </requirements>
     
     <stdio>
-        <regex match="Usage: CrossMap.py" source="stdout" level="fatal"/>
+        <regex match="Aborted (core dumped)" source="stdout" level="fatal"/>
         <regex match=".*" source="both" level="log"/>
+        <exit_code range="1:" />
     </stdio>
     
     <version_command>python $CROSSMAP_ROOT_DIR/bin/CrossMap.py 2&gt;&amp;1 | head -n 1 | grep -E --only-matching 'CrossMap.*'</version_command>
     
-    <command><!-- First line of CrossMap has hardcoded "#!/usr/bin/python". This makes use of Galaxy's python: -->
+    <!-- First line of CrossMap has hardcoded "#!/usr/bin/python". This makes use of Galaxy's python: -->
+    <command><![CDATA[
         python \$CROSSMAP_ROOT_DIR/bin/CrossMap.py
             ${multiple.input_format.replace("sam","bam")}
             
@@ -53,7 +55,7 @@
                 && mv "${output}.bw" "$output"
                 && mv "${output}.sorted.bgr" "$output2"
             #end if
-    </command>
+    ]]></command>
 
     <inputs>
         <conditional name="multiple">
@@ -317,7 +319,7 @@
         </data>
         
         <data format="text" name="output_unmapped" label="${tool.name} (unmapped) on ${on_string}">
-            <filter>multiple['input_format'] in ["bam" , "vcf"]</filter>
+            <filter>multiple['input_format'] in ["bam" , "sam" , "vcf"]</filter>
             <change_format>
                 <when input="multiple.input_format" value="bam" format="bam" />
                 <when input="multiple.input_format" value="vcf" format="vcf" />
