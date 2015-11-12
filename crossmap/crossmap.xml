@@ -1,4 +1,4 @@
-<tool id="crossmap" name="CrossMap" version="0.2.c">
+<tool id="crossmap" name="CrossMap" version="0.2.d">
     <description>Convert genome coordinates or annotation files between genome assemblies</description>
     
     <requirements>
@@ -12,10 +12,10 @@
         <regex match=".*" source="both" level="log"/>
     </stdio>
     
-    <version_command>CrossMap.py 2&gt;&amp;1 | head -n 1 | grep -E --only-matching 'CrossMap.*'</version_command>
+    <version_command>python \$CROSSMAP_ROOT_DIR/bin/CrossMap.py 2&gt;&amp;1 | head -n 1 | grep -E --only-matching 'CrossMap.*'</version_command>
     
-    <command>
-        CrossMap.py
+    <command><!-- First line of CrossMap has hardcoded "#!/usr/bin/python". This makes use of Galaxy's python: -->
+        python \$CROSSMAP_ROOT_DIR/bin/CrossMap.py
             ${multiple.input_format.replace("sam","bam")}
             
             #if $multiple.input_format == "vcf" and $multiple.seq_source.index_source == "cached"
