@@ -73,7 +73,7 @@
                         <option value="history">From History</option>
                     </param>
                         <when value="cached">
-                            <param type="data" format="bam" name="input" label="BAM/SAM file">
+                            <param type="data" format="bam" name="input" label="BAM file">
                                 <validator type="unspecified_build" />
                                 <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
                             </param>
@@ -105,7 +105,7 @@
                         <option value="history">From History</option>
                     </param>
                         <when value="cached">
-                            <param type="data" format="sam" name="input" label="BAM/SAM file">
+                            <param type="data" format="sam" name="input" label="SAM file">
                                 <validator type="unspecified_build" />
                                 <validator type="dataset_metadata_in_file" filename="liftOver.loc" metadata_name="dbkey" metadata_column="0" message="LiftOver mapping (chain file) is not available for the specified build." />
                             </param>
@@ -333,6 +333,17 @@
     
     <tests>
     <!-- BAM/SAM -->
+        <test>
+            <param name="input_format" value="bam"/>
+            <param name="index_source" value="history"/>
+            <param name="input" value="test_bam_01_input_a.sam" ftype="bam"/>
+            <param name="input_chain" value="aToB.over.chain" ftype="csv"/>
+            <param name="include_fails" value="False"/>
+            
+            <output name="output" file="test_bam_01_output_a.sam" compare="diff" lines_diff="4"/>
+            <output name="output_unmapped" file="test_bam_01_output_a.unmap.sam"/>
+        </test>
+    
         <test>
             <param name="input_format" value="sam"/>
             <param name="index_source" value="history"/>
