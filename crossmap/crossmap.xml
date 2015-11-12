@@ -44,14 +44,14 @@
             "$output"
             
             #if $multiple.input_format in ["bam", "sam"]
-                ; mv "${output}.${multiple.input_format}" "$output"
-                ; mv "${output}.unmap.${multiple.input_format}" "$output_unmapped"
+                && mv "${output}.${multiple.input_format}" "$output"
+                && mv "${output}.unmap.${multiple.input_format}" "$output_unmapped"
             #else if $multiple.input_format in ["vcf"]
-                ; mv "${output}" "$output"
-                ; mv "${output}.unmap" "$output_unmapped"
+                && mv "${output}" "$output"
+                && mv "${output}.unmap" "$output_unmapped"
             #else if $multiple.input_format in ["wig", "bigwig"]
-                ; mv "${output}.bw" "$output"
-                ; mv "${output}.sorted.bgr" "$output2"
+                && mv "${output}.bw" "$output"
+                && mv "${output}.sorted.bgr" "$output2"
             #end if
     </command>
 
