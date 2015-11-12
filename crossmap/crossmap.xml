@@ -12,7 +12,7 @@
         <regex match=".*" source="both" level="log"/>
     </stdio>
     
-    <version_command>python \$CROSSMAP_ROOT_DIR/bin/CrossMap.py 2&gt;&amp;1 | head -n 1 | grep -E --only-matching 'CrossMap.*'</version_command>
+    <version_command>python $CROSSMAP_ROOT_DIR/bin/CrossMap.py 2&gt;&amp;1 | head -n 1 | grep -E --only-matching 'CrossMap.*'</version_command>
     
     <command><!-- First line of CrossMap has hardcoded "#!/usr/bin/python". This makes use of Galaxy's python: -->
         python \$CROSSMAP_ROOT_DIR/bin/CrossMap.py
@@ -304,7 +304,7 @@
     </inputs>
     
     <outputs>
-        <data format="text" name="output" label="${tool.name} on ">
+        <data format="text" name="output" label="${tool.name} on ${on_string}">
             <change_format>
                 <when input="multiple.input_format" value="bam" format="bam" />
                 <when input="multiple.input_format" value="sam" format="sam" />
@@ -312,19 +312,19 @@
                 <when input="multiple.input_format" value="bigwig" format="bigwig" />
                 <when input="multiple.input_format" value="gff" format="gff" />
                 <when input="multiple.input_format" value="vcf" format="vcf" />
-                <when input="imultiple.nput_format" value="wig" format="bigwig" />
+                <when input="multiple.input_format" value="wig" format="bigwig" />
             </change_format>
         </data>
         
-        <data format="text" name="output_unmapped" label="${tool.name} unmapped on ">
-            <filter>input_format in ["bam" , "vcf"]</filter>
+        <data format="text" name="output_unmapped" label="${tool.name} (unmapped) on ${on_string}">
+            <filter>multiple['input_format'] in ["bam" , "vcf"]</filter>
             <change_format>
                 <when input="multiple.input_format" value="bam" format="bam" />
                 <when input="multiple.input_format" value="vcf" format="vcf" />
             </change_format>
         </data>
-        <data format="text" name="output2" label="${tool.name} on ">
-            <filter>input_format in ["wig"]</filter>
+        <data format="text" name="output2" label="${tool.name} (bedgraph) on ${on_string}">
+            <filter>multiple['input_format'] in ["wig"]</filter>
             <change_format>
                 <when input="multiple.input_format" value="wig" format="bedgraph" />
             </change_format>
