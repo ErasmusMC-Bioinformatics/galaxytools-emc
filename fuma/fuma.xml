@@ -97,7 +97,7 @@
                 <param name="strand_specific_matching" type="boolean" checked="True"
                         truevalue="--strand-specific-matching"
                     falsevalue="--no-strand-specific-matching"
-                    label="Consider fusion genes distinct when the breakpoints have different strands: (A&lt;-,B&lt;) != (-&gt;A,B&lt;-); default"
+                    label="Consider fusion genes distinct when the breakpoints have different strands: (A&lt;-,B&lt;-) != (-&gt;A,B&lt;-); default"
                     help="Only a limited number of file formats support this feature" />
                 <param name="acceptor_donor_order_specific_matchig" type="boolean" checked="False"
                         truevalue="--acceptor-donor-order-specific-matching"
