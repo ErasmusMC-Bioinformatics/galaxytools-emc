@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="fuma" name="FuMa" version="2.10.0.a">
-    <description>match detected fusion genes based on gene names (in particular for RNA-Seq).</description>
+<tool id="fuma" name="FuMa" version="2.11.0.a">
+    <description>match detected fusion genes based on gene names (in particular for RNA-Seq)</description>
     
     <requirements>
         <requirement type="package" version="2.7">python</requirement>
-        <requirement type="package" version="2.10.0">fuma</requirement>
+        <requirement type="package" version="2.11.0">fuma</requirement>
     </requirements>
     
     <version_command>fuma --version 2>&amp;1 | head -n 1</version_command><!-- -V also works, but is not GNU standard -->
@@ -75,11 +75,11 @@
                 <option value="tophat-fusion_post_result">Tophat Fusion Post (result.txt)</option>
                 <option value="tophat-fusion_post_result_html">Tophat Fusion Post (result.html)</option>
             </param>
-            <param name="gene_annotation" type="data" format="bed" label="Corresponding gene-name annotation file (BED format)" help="Make use of persistent gene annotations! Gene annotations should only be different if different reference genome builds were used." />
+            <param name="gene_annotation" type="data" format="bed" label="Corresponding gene-name annotation file (BED format)" help="Make use of persistent gene annotations! Gene annotations should only be different if different reference genome builds were used" />
         </repeat>
         
         <conditional name="params">
-            <param name="settingsType" type="select" label="Settings to use" help="You can use the default settings or set custom values for any FuMa parameter.">
+            <param name="settingsType" type="select" label="Settings to use" help="You can use the default settings or set custom values for any FuMa parameter">
                 <option value="preSet" selected="true">Use Defaults</option>
                 <option value="full">Full parameter list</option>
             </param>
@@ -88,14 +88,22 @@
                 <param name="acceptor_donor_order_specific_matchig" type="hidden" value="--acceptor-donor-order-specific-matching" />
             </when>
             <when value="full">
-                <param name="matching_method" type="select" label="Matching method: technique used to match fusion genes based on annotated gene sets" help="Overlap is the most sensitive but also more sensitive for long gene artefacts; subset is the recommended technique and EGM is conservative.">
+                <param name="matching_method" type="select" label="Matching method: technique used to match fusion genes based on annotated gene sets" help="Overlap is the most sensitive but also more sensitive for long gene artefacts; subset is the recommended technique and EGM is conservative">
                     <option value="overlap">Overlap</option>
                     <option value="subset" selected="True">Subset</option>
                     <option value="egm">Exact Geneset Matching (EGM)</option>
                 </param>
                 
-                <param name="strand_specific_matching" type="boolean" checked="True" truevalue="--strand-specific-matching" falsevalue="" label="Consider fusion genes distinct when the breakpoints have different strands" help="Only a limited number of file formats support this feature." />
-                <param name="acceptor_donor_order_specific_matchig" type="boolean" checked="True" truevalue="--acceptor-donor-order-specific-matching" falsevalue="" label="Consider fusion genes distinct when the donor and acceptor sites are swapped (A,B) != (B,A)" help="This settings is not recommended when fusion genes detected in DNA-Seq are used" />
+                <param name="strand_specific_matching" type="boolean" checked="True"
+                        truevalue="--strand-specific-matching"
+                    falsevalue="--no-strand-specific-matching"
+                    label="Consider fusion genes distinct when the breakpoints have different strands: (A&lt;-,B&lt;) != (-&gt;A,B&lt;-); default"
+                    help="Only a limited number of file formats support this feature" />
+                <param name="acceptor_donor_order_specific_matchig" type="boolean" checked="False"
+                        truevalue="--acceptor-donor-order-specific-matching"
+                    falsevalue="--no-acceptor-donor-order-specific-matching"
+                    label="Consider fusion genes distinct when the donor and acceptor sites are swapped (A,B) != (B,A)"
+                    help="This settings is not recommended when fusion genes detected in DNA-Seq are used" />
                 
                 <param name="output_format" type="select" label="Output format">
                     <option value="list_boolean" selected="true">List (Boolean)</option>
@@ -167,8 +175,8 @@
             <param name="settingsType" value="full" />
             
             <param name="matching_method" value="subset" />
-            <param name="strand_specific_matching" value="" />
-            <param name="acceptor_donor_order_specific_matchig" value="" />
+            <param name="strand_specific_matching" value="False" /><!-- Set to false, automatically sets the false value -->
+            <param name="acceptor_donor_order_specific_matchig" value="False" /><!-- Set to false, automatically sets the false value -->
             <param name="output_format" value="list_boolean" />
             
             <output name="fuma_overview" file="edgren_test_02_unspecifc_matching_output.txt" />
@@ -180,9 +188,7 @@
 Introduction
 ============
 
-FuMa (Fusion Matcher) matches predicted fusion events (both genomic and transcriptomic) according to chromosomal location or assocatiated gene annotation(s) where the latter should be genome build inspecific.
-
-Because RNA-Sequencing deals with samples that may have undergrond splicing, reads may split up because of biological processes. If a fusion event takes place, the same thing may happen. Therefore we hypothesize that using spanning read distances may be unreliable, because there are known introns of > 100kb. Therefore, FuMa translates the breakpoint to gene names, and only overlaps breakpoints with the same genename(s).
+A new generation of tools that identify fusion genes in RNA-seq data is limited in either sensitivity and or specificity. To allow further downstream analysis and to estimate performance, predicted fusion genes from different tools have to be compared. However, the transcriptomic context complicates genomic location-based matching. FusionMatcher (FuMa) is a program that reports identical fusion genes based on gene-name annotations. FuMa automatically compares and summarizes all combinations of two or more datasets in a single run, without additional programming necessary. FuMa uses one gene annotation, avoiding mismatches caused by tool specific gene annotations. FuMa matches 10% more fusion genes compared to exact gene matching (EGM) due to overlapping genes and accepts intermediate output files that allow a step wise analysis of corresponding tools.
 
 =====
 Usage
@@ -240,8 +246,8 @@ UCSC genome browser provides a very simple way of obtaining BED files with one g
     
     <citations>
         <citation type="bibtex">
-           @unpublished{fuma,
-              author       = {Youri Hoogstrate}, 
+           @article{fuma,
+              author       = { Hoogstrate, Youri and Böttcher, René and Hiltemann, Saskia and van der Spek, Peter J. and Stubbs, Andrew P. }, 
               title        = {FuMa: reporting overlap in RNA-seq detected fusion genes},
               url          = { https://github.com/yhoogstrate/fuma }
             }
