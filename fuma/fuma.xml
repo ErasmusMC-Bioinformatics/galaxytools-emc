@@ -36,6 +36,8 @@
           $params.strand_specific_matching
           $params.acceptor_donor_order_specific_matchig
           
+          --long-gene-size $params.long_gene_size
+          
           -a
             $gene_annotations_str
           -s
@@ -85,7 +87,8 @@
             </param>
             <when value="preSet">
                 <param name="strand_specific_matching" type="hidden" value="--strand-specific-matching" />
-                <param name="acceptor_donor_order_specific_matchig" type="hidden" value="--acceptor-donor-order-specific-matching" />
+                <param name="acceptor_donor_order_specific_matchig" type="hidden" value="--no-acceptor-donor-order-specific-matching" />
+                <param name="long_gene_size" type="hidden" value="200000" />
             </when>
             <when value="full">
                 <param name="matching_method" type="select" label="Matching method: technique used to match fusion genes based on annotated gene sets" help="Overlap is the most sensitive but also more sensitive for long gene artefacts; subset is the recommended technique and EGM is conservative">
@@ -104,6 +107,8 @@
                     falsevalue="--no-acceptor-donor-order-specific-matching"
                     label="Consider fusion genes distinct when the donor and acceptor sites are swapped (A,B) != (B,A)"
                     help="This settings is not recommended when fusion genes detected in DNA-Seq are used" />
+                
+                <param name="long_gene_size" type="integer" min="0" value="200000" label="Long gene size" help="Gene-name based matching is more sensitive to long genes. This is the gene size used to mark fusion genes spanning a 'long gene' as reported the output. Use 0 to disable this feature (--long-gene-size)" />
                 
                 <param name="output_format" type="select" label="Output format">
                     <option value="list_boolean" selected="true">List (Boolean)</option>
@@ -146,6 +151,7 @@
             <param name="matching_method" value="subset" />
             <param name="strand_specific_matching" value="--strand-specific-matching" />
             <param name="acceptor_donor_order_specific_matchig" value="--acceptor-donor-order-specific-matching" />
+            <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
             
             <output name="fuma_overview" file="edgren_test_01_specifc_matching_output.txt" />
@@ -177,6 +183,7 @@
             <param name="matching_method" value="subset" />
             <param name="strand_specific_matching" value="False" /><!-- Set to false, automatically sets the false value -->
             <param name="acceptor_donor_order_specific_matchig" value="False" /><!-- Set to false, automatically sets the false value -->
+            <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
             
             <output name="fuma_overview" file="edgren_test_02_unspecifc_matching_output.txt" />
