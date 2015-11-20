@@ -3,7 +3,7 @@
     <package name="python" version="2.7">
         <repository name="package_python_2_7" owner="iuc" prior_installation_required="True" />
     </package>
-    <package name="fuma" version="2.10.1">
-        <repository name="package_fuma_2_10_1" owner="yhoogstrate" prior_installation_required="False" />
+    <package name="fuma" version="2.11.0">
+        <repository name="package_fuma_2_11_0" owner="yhoogstrate" prior_installation_required="False" />
     </package>
 </tool_dependency>
