@@ -1,13 +1,13 @@
-<tool id="segmentation_fold" name="segmentation-fold" version="0.2.0">
+<tool id="segmentation_fold" name="segmentation-fold" version="1.1.0_1">
     <description>RNA-Folding including predefined segments including K-turns</description>
     
     <requirements>
-        <requirement type="package" version="1.0.0">segmentation-fold</requirement>
+        <requirement type="package" version="1.1.0">segmentation-fold</requirement>
     </requirements>
     
     <stdio></stdio>
     
-    <version_command>segmentation-fold -V | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
+    <version_command>segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
     
     <command><![CDATA[
         segmentation-fold
@@ -22,17 +22,16 @@
             -h $min_hairpin_size
             
             #if $parameters.settings == "default"
-                -x "${SEGMENTATION_FOLD_DEFAULT_XML}"
+                -x "\$SEGMENTATION_FOLD_DEFAULT_XML"
             #else
-                -x $parameters.input_xml
+                -x "${parameters.input_xml}"
             #end if
             
-            -t \${GALAXY_SLOTS:-2}
+            -t \${GALAXY_SLOTS:-4}
             > $output_dbn
     ]]></command>
     
     <inputs>
-        
         <conditional name="input">
             <param name="method" type="select" label="Energy parameters">
                 <option value="fasta" selected="true">As FASTA-file</option>
@@ -62,7 +61,8 @@
     </inputs>
     
     <outputs>
-        <data format="dot-bracket" name="output_dbn" label="${tool.name} on ${input.input_fasta.hid + ': ' + input.input_fasta.name if $input.method == 'fasta' else $input.input_sequence.upper() }" />
+        <data format="dot-bracket" name="output_dbn" label="asdasdasd" />
+        <!--<data format="dot-bracket" name="output_dbn" label="${tool.name} on ${str(input.input_fasta.hid) + ': ' + input.input_fasta.name if $input.method == 'fasta' else $input.input_sequence.upper() }" />-->
     </outputs>
     
     <tests>
@@ -184,13 +184,13 @@
 Segmentation-fold is a bioinformatics application that predicts RNA
 2D-structure with an extended version of the Zuker algorithm. This
 modification contains a new "structure element" named a segment and is
-capable of folding a pre-defined substructure with multiple canonical
+capable of folding a pre-defined substructures with multiple canonical
 or non-canonical pairings.
 
-This allows folding of more complex structures like the K-turns, which
-are also part of the implemented free energy tables. These thermodynamic
-parameters (free Gibbs energy levels) have been estimated using a
-computational approach and therefore lack accuracy.
+This allows folding of more complex structures like K-turns, which are
+also part of the implemented free energy table. These thermodynamic
+parameters (free Gibbs energy) have been estimated using a in silico
+approach and therefore lack high resolution.
     ]]></help>
     
     <citations>
