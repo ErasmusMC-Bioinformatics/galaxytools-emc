@@ -190,8 +190,9 @@ design_matrix <- design_matrix[columns,,drop=FALSE]
 ## Filter for HTSeq predifined counts:
 exclude_HTSeq <- c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
 exclude_DEXSeq <- c("_ambiguous","_empty","_lowaqual","_notaligned")
+exclude_STAR <- c("N_unmapped", "N_multimapping", "N_noFeature", "N_ambiguous")
 
-exclude <- match(c(exclude_HTSeq, exclude_DEXSeq),rownames(read_counts))
+exclude <- match(c(exclude_HTSeq, exclude_DEXSeq, exclude_STAR),rownames(read_counts))
 exclude <- exclude[is.na(exclude)==0]
 if(length(exclude) != 0)  {
   read_counts <- read_counts[-exclude,]
