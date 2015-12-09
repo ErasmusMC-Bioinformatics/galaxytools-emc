@@ -252,12 +252,6 @@ UCSC genome browser provides a very simple way of obtaining BED files with one g
     ]]></help>
     
     <citations>
-        <citation type="bibtex">
-           @article{fuma,
-              author       = { Hoogstrate, Youri and Böttcher, René and Hiltemann, Saskia and van der Spek, Peter J. and Stubbs, Andrew P. }, 
-              title        = {FuMa: reporting overlap in RNA-seq detected fusion genes},
-              url          = { https://github.com/yhoogstrate/fuma }
-            }
-        </citation>
+        <citation type="doi">10.1093/bioinformatics/btv721</citation>
     </citations>
 </tool>
