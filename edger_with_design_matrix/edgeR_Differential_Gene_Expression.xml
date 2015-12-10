@@ -36,7 +36,46 @@
     
     <version_command>echo $(R --version | grep version | grep -v GNU)", EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
     
-    <command>
+    <command><![CDATA[
+        #if $analysis_type.analysis_select == "multi_factor"
+            #set $expression_matrix = $analysis_type.expression_matrix
+            #set $design_matrix = $analysis_type.design_matrix
+            #set $contrast = $analysis_type.contrast
+        #else
+            ## Design and Expression matrices do not exist - create them
+            #set $expression_matrix = "expression_matrix.txt"
+            #set $design_matrix = "design_matrix.txt"
+            #set $contrast = str($analysis_type.factorLevel_condition)+"-"+str($analysis_type.factorLevel_control)
+
+            ## -- Create expression matrix
+            cut -f 1 "$analysis_type.countsFile_control[1]" > gene_ids.column.txt &&
+            #for $file in $analysis_type.countsFile_control:
+                cut -f 2 "${file}" > "${file}.expression_column.txt"    &&
+            #end for
+            #for $file in $analysis_type.countsFile_condition:
+                cut -f 2 "${file}" > "${file}.expression_column.txt"    &&
+            #end for
+            
+            paste
+                gene_ids.column.txt
+            #for $file in $analysis_type.countsFile_control:
+                "${file}.expression_column.txt"
+            #end for
+            #for $file in $analysis_type.countsFile_condition:
+                "${file}.expression_column.txt"
+            #end for
+                > "${expression_matrix}"                                &&
+            
+            ## -- Create design matrix matrix
+            echo "sample-name	Condition" >> ${design_matrix}          &&
+            #for $file in $analysis_type.countsFile_control:
+                echo "${file.name}	${analysis_type.factorLevel_control}" >> ${design_matrix}        &&
+            #end for
+            #for $file in $analysis_type.countsFile_condition:
+                echo "${file.name}	${analysis_type.factorLevel_condition}" >> ${design_matrix}      &&
+            #end for
+        #end if
+        
         R --vanilla --slave -f $R_script '--args
             $expression_matrix
             $design_matrix
@@ -47,7 +86,7 @@
             $output_count_edgeR 
             $output_cpm
             
-            /dev/null                                                    <!-- Calculation of FPKM/RPKM should come here -->
+            /dev/null                                                   ### Calculation of FPKM/RPKM should come here
             
             #if $output_raw_counts:
                 $output_raw_counts
@@ -117,6 +156,7 @@
             
             $output_format_images
             '
+    ]]>
     </command>
     
     <configfiles>
@@ -458,10 +498,37 @@ if(sum(empty_samples) > 0) {
     </configfiles>
     
     <inputs>
-        <param name="expression_matrix" type="data" format="tabular" label="Expression (read count) matrix" />
-        <param name="design_matrix" type="data" format="tabular" label="Design matrix" help="Ensure your samplenames are identical to those in the expression matrix. Preferentially, create the contrast matrix using 'edgeR: Design- from Expression matrix'." />
-        
-        <param name="contrast" type="text" label="Contrast (biological question)" help="e.g. 'tumor-normal' or '(G1+G2)/2-G3' using the factors chosen in the design matrix. Read the 'makeContrasts' manual from Limma package for more info: http://www.bioconductor.org/packages/release/bioc/html/limma.html and http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf." />
+        <conditional name="analysis_type">
+            <param name="analysis_select" type="select" label="Analysis type">
+                <option value="2_factor" selected="true">2-Group test</option>
+                <option value="multi_factor">Multigroup test and/or complex designs with e.g. blocking</option>
+            </param>
+            <when value="2_factor">
+                <param name="factorLevel_control" type="text" value="Control"
+                       label="Specify a factor level" help="Only letters, numbers and underscores will be retained in this field">
+                    <sanitizer>
+                        <valid initial="string.letters,string.digits"><add value="_" /></valid>
+                    </sanitizer>
+                </param>
+                <param name="countsFile_control" type="data" format="tabular,csv" multiple="true" label="Counts file(s)"/>
+                
+                <param name="factorLevel_condition" type="text" value="Condition"
+                       label="Specify a factor level" help="Only letters, numbers and underscores will be retained in this field">
+                    <sanitizer>
+                        <valid initial="string.letters,string.digits"><add value="_" /></valid>
+                    </sanitizer>
+                </param>
+                <param name="countsFile_condition" type="data" format="tabular,csv" multiple="true" label="Counts file(s)"/>
+            </when>
+            <when value="multi_factor">
+                <param name="expression_matrix" type="data" format="tabular,csv" label="Expression (read count) matrix" />
+                <param name="design_matrix" type="data" format="tabular,csv" label="Design matrix"
+                       help="Ensure your samplenames are identical to those in the expression matrix. Preferentially, create the contrast matrix using 'edgeR: Design- from Expression matrix'." />
+                
+                <param name="contrast" type="text" label="Contrast (biological question)"
+                       help="e.g. 'tumor-normal' or '(G1+G2)/2-G3' using the factors chosen in the design matrix. Read the 'makeContrasts' manual from Limma package for more info: http://www.bioconductor.org/packages/release/bioc/html/limma.html and http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf." />
+            </when>
+        </conditional>
         
         <param name="fdr" type="float" min="0" max="1" value="0.05" label="False Discovery Rate (FDR)" />
         
@@ -482,19 +549,23 @@ if(sum(empty_samples) > 0) {
         <param name="output_format_images" type="select" label="Output format of images" display="radio">
             <option value="png">Portable network graphics (.png)</option>
             <option value="pdf">Portable document format (.pdf)</option>
-            <option value="svg">Scalable vector graphics (.svg)</option>
+            <option value="svg" selected="true">Scalable vector graphics (.svg)</option>
         </param>
     </inputs>
     
     <outputs>
-        <data format="tabular" name="output_count_edgeR" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - differentially expressed genes" />
-        <data format="tabular" name="output_cpm" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - CPM" />
+        <data format="tabular" name="output_count_edgeR" label="edgeR DGE on ${on_string}: differentially expressed genes" >
+            <actions>
+                <action name="column_names" type="metadata" default="original_gene_position,genes,logFC,logCPM,LR,PValue,FDR" />
+            </actions>
+        </data>
+        <data format="tabular" name="output_cpm" label="edgeR DGE on ${on_string}: CPM" />
         
-        <data format="tabular" name="output_raw_counts" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - raw counts">
+        <data format="tabular" name="output_raw_counts" label="edgeR DGE on ${on_string}: raw counts">
             <filter>outputs and ("make_output_raw_counts" in outputs)</filter>
         </data>
         
-        <data format="png" name="output_MDSplot_logFC" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (logFC method)">
+        <data format="png" name="output_MDSplot_logFC" label="edgeR DGE on ${on_string}: MDS-plot (logFC method)">
             <filter>outputs and ("make_output_MDSplot_logFC" in outputs)</filter>
             
             <change_format>
@@ -504,11 +575,11 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="tabular" name="output_MDSplot_logFC_coordinates" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot coordinates table (logFC method)">
+        <data format="tabular" name="output_MDSplot_logFC_coordinates" label="edgeR DGE on ${on_string}: MDS-plot coordinates table (logFC method)">
             <filter>outputs and ("make_output_MDSplot_logFC_coordinates" in outputs)</filter>
         </data>
         
-        <data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot (bcv method)">
+        <data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${on_string}: MDS-plot (bcv method)">
             <filter>outputs and ("make_output_MDSplot_bcv" in outputs)</filter>
             
             <change_format>
@@ -518,11 +589,11 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="tabular" name="output_MDSplot_bcv_coordinates" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MDS-plot coordinates table (BCV method)">
+        <data format="tabular" name="output_MDSplot_bcv_coordinates" label="edgeR DGE on ${on_string}: MDS-plot coordinates table (BCV method)">
             <filter>outputs and ("make_output_MDSplot_bcv_coordinates" in outputs)</filter>
         </data>
         
-        <data format="png" name="output_BCVplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - BCV-plot">
+        <data format="png" name="output_BCVplot" label="edgeR DGE on ${on_string}: BCV-plot">
             <filter>outputs and ("make_output_BCVplot" in outputs)</filter>
             
             <change_format>
@@ -532,7 +603,7 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="png" name="output_MAplot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - MA-plot">
+        <data format="png" name="output_MAplot" label="edgeR DGE on ${on_string}: MA-plot">
             <filter>outputs and ("make_output_MAplot" in outputs)</filter>
             
             <change_format>
@@ -542,7 +613,7 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="png" name="output_PValue_distribution_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - P-Value distribution">
+        <data format="png" name="output_PValue_distribution_plot" label="edgeR DGE on ${on_string}: P-Value distribution">
             <filter>outputs and ("make_output_PValue_distribution_plot" in outputs)</filter>
             
             <change_format>
@@ -552,7 +623,7 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="png" name="output_hierarchical_clustering_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Hierarchical custering">
+        <data format="png" name="output_hierarchical_clustering_plot" label="edgeR DGE on ${on_string}: Hierarchical custering">
             <filter>outputs and ("make_output_hierarchical_clustering_plot" in outputs)</filter>
             
             <change_format>
@@ -562,7 +633,7 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="png" name="output_heatmap_plot" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - Heatmap">
+        <data format="png" name="output_heatmap_plot" label="edgeR DGE on ${on_string}: Heatmap">
             <filter>outputs and ("make_output_heatmap_plot" in outputs)</filter>
             
             <change_format>
@@ -572,17 +643,19 @@ if(sum(empty_samples) > 0) {
             </change_format>
         </data>
         
-        <data format="RData" name="output_RData_obj" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R data object">
+        <data format="RData" name="output_RData_obj" label="edgeR DGE on ${on_string}: R data object">
             <filter>outputs and ("make_output_RData_obj" in outputs)</filter>
         </data>
         
-        <data format="txt" name="output_R" label="edgeR DGE on ${design_matrix.hid}: ${design_matrix.name} - R output (debug)" >
+        <data format="txt" name="output_R" label="edgeR DGE on ${on_string}: R output (debug)" >
             <filter>outputs and ("make_output_R_stdout" in outputs)</filter>
         </data>
     </outputs>
     
     <tests>
         <test>
+            <param name="analysis_select" value="multi_factor" />
+            
             <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
             <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
             
@@ -590,7 +663,18 @@ if(sum(empty_samples) > 0) {
         
             <param name="fdr" value="0.05" />
             
-            <param name="output_format_images" value="png" />
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="2_factor" />
+            
+            <param name="factorLevel_control" value="C" />
+            <param name="countsFile_control" value="Differential_Gene_Expression/C1,Differential_Gene_Expression/C2,Differential_Gene_Expression/C3,Differential_Gene_Expression/C4" ftype="tabular" />
+            
+            <param name="factorLevel_condition" value="E" />
+            <param name="countsFile_condition" value="Differential_Gene_Expression/E1,Differential_Gene_Expression/E2,Differential_Gene_Expression/E3,Differential_Gene_Expression/E4" ftype="tabular" />
+        
+            <param name="fdr" value="0.05" />
             
             <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
         </test>
@@ -660,24 +744,6 @@ The contrast represents the biological question. There can be many questions ask
 - Tumor-Normal
 - African-European
 - 0.5*(Control+Placebo) / Treated
-
-Installation
-------------
-
-This tool requires no specific configuration. The following dependencies will installed automatically:
-
-- R
-- limma
-- edgeR
-
-License
--------
-- R
-    - GPL 2 &amp; GPL 3
-- limma
-    - GPL (&gt;=2)
-- edgeR
-    - GPL (&gt;=2)
 
 @CONTACT@
     </help>
