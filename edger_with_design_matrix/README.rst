@@ -1,6 +1,13 @@
 EdgeR wrapper for Galaxy
 ========================
 
+This is a wrapper for the RNA-Seq differentially gene expression analysis tool EdgeR.
+This wrapper contains 2 flavours of tests, a classical 2 group analysis and a more
+sophistiacted multi-factor analysis.
+
+Input data can be generated using so called count tools. The wrapper has been written
+to be compatible with at least featureCounts (by yhoogstrate) and HTSeq-count (by iuc).
+
 http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
 
 Implementation of EdgeR supporting quite advanced experimental
@@ -42,17 +49,4 @@ GPL (>=2)
 
 **This wrapper**:
 
-    Copyright (C) 2013-2015  Youri Hoogstrate
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+GPL (>=2)
