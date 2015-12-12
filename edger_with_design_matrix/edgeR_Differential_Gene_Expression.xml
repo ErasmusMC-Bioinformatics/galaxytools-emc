@@ -81,6 +81,7 @@
             $design_matrix
             $contrast
             
+            $analysis_report_genes
             $fdr
             
             $output_count_edgeR 
@@ -174,28 +175,29 @@ expression_matrix_file              <- args[1]
 design_matrix_file                  <- args[2]
 contrast                            <- args[3]
 
-fdr                                 <- args[4]
+truncate_table_by_fdr               <- args[4]
+fdr                                 <- as.double(args[5])
 
-output_count_edgeR                  <- args[5]
-output_cpm                          <- args[6]
+output_count_edgeR                  <- args[6]
+output_cpm                          <- args[7]
 
-output_xpkm                         <- args[7]        ##FPKM file - to be implemented
+output_xpkm                         <- args[8]        ##FPKM file - to be implemented
 
-output_raw_counts                   <- args[8]
+output_raw_counts                   <- args[9]
 
-output_MDSplot_logFC                <- args[9]
-output_MDSplot_logFC_coordinates    <- args[10]
+output_MDSplot_logFC                <- args[10]
+output_MDSplot_logFC_coordinates    <- args[11]
 
-output_MDSplot_bcv                  <- args[11]
-output_MDSplot_bcv_coordinates      <- args[12]
+output_MDSplot_bcv                  <- args[12]
+output_MDSplot_bcv_coordinates      <- args[13]
 
-output_BCVplot                      <- args[13]
-output_MAplot                       <- args[14]
-output_PValue_distribution_plot     <- args[15]
-output_hierarchical_clustering_plot <- args[16]
-output_heatmap_plot                 <- args[17]
-output_RData_obj                    <- args[18]
-output_format_images                <- args[19]
+output_BCVplot                      <- args[14]
+output_MAplot                       <- args[15]
+output_PValue_distribution_plot     <- args[16]
+output_hierarchical_clustering_plot <- args[17]
+output_heatmap_plot                 <- args[18]
+output_RData_obj                    <- args[19]
+output_format_images                <- args[20]
 
 
 ## Obtain read-counts
@@ -388,7 +390,13 @@ if(sum(empty_samples) > 0) {
 
   lrt <- glmLRT(fit, contrast=cont[,1])
   write(paste("Exporting DGE results to file...",output_count_edgeR,sep=""),stdout())
-  write.table(file=output_count_edgeR,topTags(lrt,n=nrow(read_counts))\$table,sep="\t",row.names=TRUE,col.names=NA)
+  
+  if(truncate_table_by_fdr =="all") {
+    write.table(file=output_count_edgeR,topTags(lrt,n=nrow(read_counts))\$table,sep="\t",row.names=TRUE,col.names=NA)
+  }
+  else {
+    write.table(file=output_count_edgeR,subset(topTags(lrt,n=nrow(read_counts))\$table, FDR < fdr),sep="\t",row.names=TRUE,col.names=NA)
+  }
   write.table(file=output_cpm,cpm(dge,normalized.lib.sizes=TRUE),sep="\t",row.names=TRUE,col.names=NA)
 
   ## todo EXPORT FPKM
@@ -530,7 +538,12 @@ if(sum(empty_samples) > 0) {
             </when>
         </conditional>
         
-        <param name="fdr" type="float" min="0" max="1" value="0.05" label="False Discovery Rate (FDR)" />
+        <param name="analysis_report_genes" type="select" label="Report differentially expressed genes">
+            <option value="all" selected="true">All genes</option>
+            <option value="significant">Only significant (defined by FDR cutoff)</option>
+        </param>
+        
+        <param name="fdr" type="float" min="0" max="1" value="0.01" label="False Discovery Rate (FDR) cutoff" help="Used to highlight significant genes in figures" />
         
         <param name="outputs" type="select" label="Optional desired outputs" multiple="true" display="checkboxes">
             <option value="make_output_raw_counts">Raw counts table</option>
@@ -661,7 +674,35 @@ if(sum(empty_samples) > 0) {
             
             <param name="contrast" value="E-C"/>
         
+            <param name="analysis_report_genes" value="all"/>
+            <param name="fdr" value="0.01" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="multi_factor" />
+            
+            <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+            <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
+            
+            <param name="contrast" value="E-C"/>
+        
+            <param name="analysis_report_genes" value="significant"/>
             <param name="fdr" value="0.05" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.significant.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="2_factor" />
+            
+            <param name="factorLevel_control" value="C" />
+            <param name="countsFile_control" value="Differential_Gene_Expression/C1,Differential_Gene_Expression/C2,Differential_Gene_Expression/C3,Differential_Gene_Expression/C4" ftype="tabular" />
+            
+            <param name="factorLevel_condition" value="E" />
+            <param name="countsFile_condition" value="Differential_Gene_Expression/E1,Differential_Gene_Expression/E2,Differential_Gene_Expression/E3,Differential_Gene_Expression/E4" ftype="tabular" />
+        
+            <param name="analysis_report_genes" value="all"/>
+            <param name="fdr" value="0.01" />
             
             <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
         </test>
@@ -674,9 +715,10 @@ if(sum(empty_samples) > 0) {
             <param name="factorLevel_condition" value="E" />
             <param name="countsFile_condition" value="Differential_Gene_Expression/E1,Differential_Gene_Expression/E2,Differential_Gene_Expression/E3,Differential_Gene_Expression/E4" ftype="tabular" />
         
+            <param name="analysis_report_genes" value="significant"/>
             <param name="fdr" value="0.05" />
             
-            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.significant.tabular.txt" />
         </test>
     </tests>
     
