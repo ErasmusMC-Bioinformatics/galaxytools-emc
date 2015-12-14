@@ -208,15 +208,22 @@ colnames(design_matrix) <- make.names(colnames(design_matrix))
 
 for(i in 1:ncol(design_matrix)) {
   old <- design_matrix[,i]
-  design_matrix[,i] <- make.names(design_matrix[,i])
-  if(paste(design_matrix[,i],collapse="\t") != paste(old,collapse="\t")) {
-    print("Renaming of factors:")
-    print(old)
-    print("To:")
-    print(design_matrix[,i])
+  
+  if(any(grepl("^[0-9]+$", old, perl=TRUE) == FALSE)){
+    # Convert invalid names
+    design_matrix[,i] <- make.names(design_matrix[,i])
+    
+    # Print if names have been converted
+    if(paste(design_matrix[,i],collapse="\t") != paste(old,collapse="\t")) {
+      print("Renamed of factors:")
+      print(old)
+      print("To:")
+      print(design_matrix[,i])
+    }
+  } else {
+    # Only numerical factors: these are blocking / pairing factors
+    design_matrix[,i] <- as.numeric(design_matrix[,i])
   }
-  ## The following line seems to malfunction the script:
-  ##design_matrix[,i] <- as.factor(design_matrix[,i])
 }
 
 ## 1) In the expression matrix, you only want to have the samples described in the design matrix
@@ -719,6 +726,19 @@ if(sum(empty_samples) > 0) {
             <param name="fdr" value="0.05" />
             
             <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.significant.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="multi_factor" />
+            
+            <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+            <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.batch-effects.txt" />
+            
+            <param name="contrast" value="E-C"/>
+        
+            <param name="analysis_report_genes" value="all"/>
+            <param name="fdr" value="0.01" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.batch-effects.tabular.txt" />
         </test>
     </tests>
     
