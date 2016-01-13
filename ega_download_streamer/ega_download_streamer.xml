@@ -1,0 +1,60 @@
+<tool id="ega_download_streamer" name="EGA Download streamer" version="1.1.5.g1">
+    <description>data from the European Genome-phenome Archive in a secure manner</description>
+    <requirements>
+        <requirement type="package" version="1.1.5">EGA_download_streamer</requirement>
+    </requirements>
+    <stdio>
+        <!-- Anything other than zero is an error -->
+        <exit_code range="1:" />
+        <exit_code range=":-1" />
+    </stdio>
+    <version_command>java -jar $EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar -version | grep -i Version</version_command>
+    <command><![CDATA[
+        #import random
+        #import string
+        #set $encryption_key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(24))
+        
+        echo "Creating an encryption request at server" && 
+        java -jar "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar" -p "\$EGA_USERNAME" "\$PASS" -rf $ega_file_identifier -re $encryption_key -label "request_$ega_file_identifier" && 
+        
+        echo "\n\n\nDownloading request" && 
+        java -jar "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar" -p "\$EGA_USERNAME" "\$PASS" -dr "request_$ega_file_identifier" -nt 7 > download.log && 
+        cat download.log && 
+        
+        ENCRYPTED_FILES_NAME=\$(grep -oE "Saving to:(.*?)\.cip" download.log | cut -f 3 -d " ") && 
+        DECRYPTED_FILES_NAME=\${ENCRYPTED_FILES_NAME%.cip} && 
+        
+        echo "\n\n\n Decrpyting the file" && 
+        java -jar "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar" -p "\$EGA_USERNAME" "\$PASS" -dc "\$ENCRYPTED_FILES_NAME" -dck $encryption_key &&
+        
+        if file --mime-type "\$DECRYPTED_FILES_NAME" | grep -q /gzip$; then
+            gunzip -cf "\$DECRYPTED_FILES_NAME" > $output ;
+        else
+            mv \$DECRYPTED_FILES_NAME $output ;
+        fi ;
+        
+    ]]></command>
+    <inputs>
+        <param name="ega_file_identifier" type="text" value="EGAF00..." label="Identifier of the file in EGA" />
+        <!--
+        @todo santize for non alplhanumerical stuff
+        
+        EGAF00000662831
+        -->
+    </inputs>
+    <outputs>
+        <data name="output" auto_format="true" label="${tool.name} on ${ega_file_identifier}" />
+        <!-- <data name="output" format="auto"/> -->
+    </outputs>
+    <tests>
+    </tests>
+    
+    <help>
+    help
+    
+    make sure environment variables $EGA_USERNAME and $PASS are exported. This is a serious security issue and is not user friendly.
+    </help>
+    
+    <citations>
+    </citations>
+</tool>
