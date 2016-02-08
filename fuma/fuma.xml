@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="fuma" name="FuMa" version="2.11.0.a">
+<tool id="fuma" name="FuMa" version="2.11.3-g0">
     <description>match detected fusion genes based on gene names (in particular for RNA-Seq)</description>
     
     <requirements>
         <requirement type="package" version="2.7">python</requirement>
-        <requirement type="package" version="2.11.0">fuma</requirement>
+        <requirement type="package" version="2.11.3">fuma</requirement>
     </requirements>
     
     <version_command>fuma --version 2>&amp;1 | head -n 1</version_command><!-- -V also works, but is not GNU standard -->
@@ -64,12 +64,15 @@
             <param name="format" type="select" label="Format of dataset">
                 <option value="chimera">Chimera prettyPrint()</option>
                 <option value="chimerascan">ChimeraScan</option>
-                <option value="defuse">DeFuse</option>
                 <option value="complete-genomics">Complete Genomics var/mastervar</option>
+                <option value="defuse">DeFuse</option>
+                <option value="ericscript">EricScript (.results.total.txt)</option>
                 <option value="fusion-catcher_final">Fusion Catcher (final-list file)</option>
                 <option value="fusionmap">FusionMap</option>
                 <option value="trinity-gmap">GMAP (As step after Trinity)</option>
                 <option value="oncofuse">OncoFuse</option>
+                <option value="soapfuse-final-gene">SOAPFuse (final.*.for.genes.txt)</option>
+                <option value="soapfuse-final-transcript">SOAPFuse (final.*.for.trans.txt)</option>
                 <option value="rna-star_chimeric">STAR (chimeric file)</option>
                 <option value="star-fusion_final">STAR-Fusion (candidates.final)</option>
                 <option value="tophat-fusion_pre">Tophat Fusion Pre (fusions.out)</option>
@@ -224,6 +227,8 @@ Formats
 +-------------------+-----------------------+-------------------------------------+
 |DeFuse             | results.filtered.txt  | defuse                              |
 +-------------------+-----------------------+-------------------------------------+
+|EricScript         | .results.total.txt    | ericscript *************            |
++-------------------+-----------------------+-------------------------------------+
 |Fusion Catcher     | final-list_cand*.txt  | fusion-catcher_final                |
 +-------------------+-----------------------+-------------------------------------+
 |FusionMap          |                       | fusionmap                           |
@@ -233,6 +238,10 @@ Formats
 |OncoFuse           |                       | oncofuse                            |
 +-------------------+-----------------------+-------------------------------------+
 |RNA STAR           | Chimeric.out.junction | rna-star_chimeric                   |
++-------------------+-----------------------+-------------------------------------+
+|SOAPFuse           | final.*.for.genes.txt | soapfuse-final-gene                 |
++-------------------+-----------------------+-------------------------------------+
+|SOAPFuse           | final.*.for.trans.txt | soapfuse-final-transcript           |
 +-------------------+-----------------------+-------------------------------------+
 |STAR Fusion        | _candidates.final     | star-fusion_final                   |
 +-------------------+-----------------------+-------------------------------------+
@@ -244,6 +253,12 @@ Formats
 +-------------------+-----------------------+-------------------------------------+
 |TopHat Fusion post | result.html           | tophat-fusion_post_result_html      |
 +-------------------+-----------------------+-------------------------------------+
+
+************* EricScript often contains entries with unknown breakpoints.
+Because no genomic coordinates are given those fusion genes can not be
+imported into FuMa and only those with breakpoints will be taken into account.
+
+
 
 To annotate genes upon the breakpoints you must provide a BED file that contains gene annotations for the user genome build. Make sure **your BED file contains one gene per line**. You should use BED files that contain one exon per line only if you want restrict your analysis to fusion genes detected within exons.
 
