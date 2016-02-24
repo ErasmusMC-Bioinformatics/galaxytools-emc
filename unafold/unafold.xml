@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tool id="unafold" name="UNAFold" version="1.0.0">
+<tool id="unafold" name="UNAFold" version="1.1.0">
     <description>UNAFold RNA and DNA structure prediction</description>
 
     <requirements>
@@ -13,6 +13,11 @@
     <version_command>UNAFold.pl --version</version_command>
 
     <command><![CDATA[
+        #if str($input_source.select_fasta) == "false"
+            echo ">Sequence"                      >  "input.fasta" &&
+            echo "${input_source.input_sequence}" >> "input.fasta" &&
+        #end if
+        
         UNAFold.pl
             -n $n.a
             -t $temp
@@ -20,7 +25,13 @@
                 -N $sodium
                 -M $magnesium
             #end if
-            $input_file                                 &&
+            
+            #if str($input_source.select_fasta) == "false"
+                "input.fasta"
+            #else
+                "${input_source.input_file}"
+            #end if
+            &&
         
         output=\$(ls | grep \.ct | sort -r | head -n 1) &&
         
@@ -28,7 +39,16 @@
     ]]></command>
 
     <inputs>
-        <param format="fasta" name="input_file" type="data" label="Input sequence (FASTA)"/>
+        <conditional name="input_source">
+            <param name="select_fasta" type="boolean" truevalue="true" falsevalue="false" label="Input from FASTA file" selected="false" />
+            
+            <when value="true">
+                <param format="fasta" name="input_file" type="data" label="Input sequence (FASTA)"/>
+            </when>
+            <when value="false">
+                <param name="input_sequence" type="text" label="Input sequence"/>
+            </when>
+        </conditional>
     
         <conditional name="n">
             <param name="a" type="select" label="Nucleic Acid Type">
@@ -48,15 +68,23 @@
     </inputs>
 
     <outputs>
-        <data format="ct" name="output_ct" label="${tool.name} on ${input_file.hid}: ${input_file.name}"/>
+        <data format="ct" name="output_ct" label="${tool.name}"/>
     </outputs>
 
     <tests>
         <test>
+            <param name="select_fasta" value="true" />
             <param name="input_file" value="test1_input.fa" ftype="fasta" />
             <param name="temp" value="37" />
             
             <output name="output_ct" file="test1_output.ct" />
+        </test>
+        <test>
+            <param name="select_fasta" value="false" />
+            <param name="input_sequence" value="GGGGGaaaCCCCC" />
+            <param name="temp" value="37" />
+            
+            <output name="output_ct" file="test1_output.ct" lines_diff="2" /><!-- Sequence name (header) differs -->
         </test>
     </tests>
 
@@ -92,33 +120,31 @@
 
 ``-X, --max=<maximum number of foldings> (defaults to 100)``
 
-    ``--ann=(none | p-num | ss-count) (defaults to none)``
+``--ann=(none | p-num | ss-count) (defaults to none)``
 
-    ``--mode=(auto | bases | lines) (defaults to auto)``
+``--mode=(auto | bases | lines) (defaults to auto)``
 
-    ``--label=<base numbering frequency>``
+``--label=<base numbering frequency>``
 
-    ``--rotate=<structure rotation angle>``
+``--rotate=<structure rotation angle>``
 
-    ``--run-type=(text | html) (defaults to text)``
+``--run-type=(text | html) (defaults to text)``
 
-    ``--model=(EM | PF) (defaults to EM)``
+``--model=(EM | PF) (defaults to EM)``
 
-    ``--circular``
+``--circular``
 
 ``Obscure options:``
 
-    ``--allpairs``
+``--allpairs``
 
-    ``--maxloop=<maximum bulge/interior loop size> (defaults to 30)``
+``--maxloop=<maximum bulge/interior loop size> (defaults to 30)``
 
-    ``--nodangle``
+``--nodangle``
 
-    ``--simple``
+``--simple``
 
-    ``--prefilter=<filter value>``
-
-``Report bugs to markhn@rpi.edu``
+``--prefilter=<filter value>``
     ]]></help>
 
     <citations>
