@@ -1,0 +1,103 @@
+<tool id="scan_for_segments" name="scan-for-segments" version="1.6.0">
+    <description>Scan for the presence of segments in sequences using segmentation-fold</description>
+    
+    <requirements>
+        <requirement type="package" version="1.1.0">segmentation-fold</requirement>
+    </requirements>
+    
+    <stdio></stdio>
+    
+    <version_command>segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
+    
+    <command><![CDATA[
+        scan-for-segments
+            -T \${GALAXY_SLOTS:-4}
+            #if $parameters.use_custom_xml == "true"
+                -x "${parameters.input_xml}"
+            #else
+                -x "\$SEGMENTATION_FOLD_DEFAULT_XML"
+            #end if
+            -p "in-depth"
+            "${input_fasta}"
+            
+            >   $output_list
+    ]]></command>
+
+    <inputs>
+        <param name="input_fasta"
+               type="data"
+               format="fasta"
+               argument="-f"
+               label="Fasta file with RNA-sequece" />
+
+        <conditional name="parameters">
+            <param name="use_custom_xml"
+                type="boolean"
+                truevalue="true"
+                falsevalue="false"
+                selected="false"
+                label="Use segment definition from history" />
+
+            <when value="false" />
+            <when value="true">
+                <param name="input_xml"
+                    type="data"
+                    format="xml"
+                    multiple="false"
+                    argument="-x"
+                    label="Custom 'segments.xml'-syntaxed file" />
+            </when>
+        </conditional>
+    </inputs>
+
+    <outputs>
+        <data format="text" name="output_list" label="${tool.name} on ${str($input_fasta.hid) + ': ' + $input_fasta.name}" />
+    </outputs>
+
+    <tests>
+        <test>
+            <param name="input_fasta" value="SNORD13-revised.fa" ftype="fasta" />
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD13-revised.scan-for-segments.txt" />
+        </test>
+        <test>
+            <param name="input_fasta" value="SNORD48-revised.fa" ftype="fasta" />
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD48-revised.scan-for-segments.txt" />
+        </test>
+        <test>
+            <param name="input_fasta" value="SNORD114-4-revised.fa" ftype="fasta" />
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD114-4-revised.scan-for-segments.txt" />
+        </test>
+        <test>
+            <param name="input_fasta" value="SNORD118-revised.fa" ftype="fasta" />
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD118-revised.scan-for-segments.txt" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+This is an utility of the segmentation-fold package that allows to scan for the presence of certain segments.
+If present, it will also scan for the Gibbs free energy necessairy the segment has to provide to contribute to the optimal structure.
+    ]]></help>
+    
+    <citations>
+        <citation type="bibtex">
+           @mastersthesis{mastersthesis,
+              author       = {Youri Hoogstrate}, 
+              title        = {An algorithm for predicting RNA 2D structures including K-turns},
+              school       = {University of Technology Delft, Leiden University},
+              year         = 2012,
+              address      = {},
+              month        = 11,
+              note         = {Research assignment for Master Computer-science},
+              url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
+            }
+        </citation>
+    </citations>
+</tool>
