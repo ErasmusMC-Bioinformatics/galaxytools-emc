@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<segments>
+		<segment>
+			<id>Kt-CD-box.UGU</id><!-- Common -->
+			<sequence_5prime>UGUGAU</sequence_5prime>
+			<bonds          >   :::</bonds>
+			<sequence_3prime>   AGU</sequence_3prime>
+			<energy>-11.1072</energy>
+			<directions>
+				<five_prime>true</five_prime>
+				<three_prime>true</three_prime>
+			</directions>
+		</segment>
+		
+		<segment>
+			<id>Kt-CD-box.CGU</id><!-- Common -->
+			<sequence_5prime>CGUGAU</sequence_5prime>
+			<bonds          >   :::</bonds>
+			<sequence_3prime>   AGU</sequence_3prime>
+			<energy>-11.1072</energy>
+			<directions>
+				<five_prime>true</five_prime>
+				<three_prime>true</three_prime>
+			</directions>
+		</segment>
+	</segments>
+	
+	
+	<segmentloops />
+	
+	
+	<!-- RNA-Molecules -->
+	<rnas>
+		<rna>
+			<title>C/D-box snoRNA</title>
+			<organism>A. fulgidus</organism>
+			<sequence>GCUCUGACCGAAAGGCGUGAUGAGC</sequence>
+			
+			<structures>
+				<structure>
+					<associated_segments>
+						<link>Kt-CD-box.CGU</link>
+					</associated_segments>
+					<dot_bracket type="full"   >(((((((((....))...)))))))</dot_bracket>
+				</structure>
+				
+				<structure>
+					<associated_segments />
+					<dot_bracket />
+				</structure>
+			</structures>
+			
+			<references>
+				<pdb>1RLG</pdb>
+				<url>http://www.sciencedirect.com/science/article/pii/S0969212604001169</url>
+			</references>
+		</rna>
+		
+		<rna>
+			<title>Artificial double C/D K-turn construct</title>
+			<sequence>GGGAGUCUUGUGAUGAGAAGUACUGGAUCUGAAGUAGCCCUUUUUGGGCUACUUGUGAUGAAACACUCAUGGUCUGAAGACUCCC</sequence>
+			
+			<structures>
+				<structure>
+					<associated_segments>
+						<link>Kt-CD-box.UGU</link>
+					</associated_segments>
+					<dot_bracket type="full"   >((((((((...((((?????????????((((((((((((.....))))))))...))))?????????????))))))))))))</dot_bracket>
+				</structure>
+				
+				<structure>
+					<associated_segments />
+					<dot_bracket />
+				</structure>
+			</structures>
+			
+			<references>
+				<pdb>3ICX</pdb>
+				<pdb>3ID6</pdb>
+				<doi>http://dx.doi.org/10.1038/nature09688</doi>
+			</references>
+		</rna>
+	</rnas>
+</root>
