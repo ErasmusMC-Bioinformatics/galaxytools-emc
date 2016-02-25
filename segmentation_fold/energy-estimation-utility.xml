@@ -1,0 +1,110 @@
+<tool id="energy_estimation_utility" name="energy-estimation-utility" version="1.6.0">
+    <description>Estimate the maximal energy a segment needs to assign to become part of the optimal structure using segmentation-fold</description>
+    
+    <requirements>
+        <requirement type="package" version="1.1.0">segmentation-fold</requirement>
+    </requirements>
+    
+    <stdio></stdio>
+    
+    <version_command>segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
+    
+    <command><![CDATA[
+        energy-estimation-utility
+            #if $parameters.use_custom_xml == "true"
+                -x "${parameters.input_xml}"
+            #else
+                -x "\$SEGMENTATION_FOLD_DEFAULT_XML"
+            #end if
+            
+            -r ${randomization.shuffle_n_times}
+        > "${output_list}"
+    ]]></command>
+    
+    <inputs>
+        <conditional name="parameters">
+            <param name="use_custom_xml"
+                type="boolean"
+                truevalue="true"
+                falsevalue="false"
+                selected="false"
+                label="Use segment definition from history" />
+
+            <when value="false" />
+            <when value="true">
+                <param name="input_xml"
+                    type="data"
+                    format="xml"
+                    multiple="false"
+                    argument="-x"
+                    label="Custom 'segments.xml'-syntaxed file" />
+            </when>
+        </conditional>
+        
+        <conditional name="randomization">
+            <param name="do_randomization"
+                type="boolean"
+                truevalue="true"
+                falsevalue="false"
+                selected="false"
+                label="Randomly shuffle the sequence(s) instead"
+                help="This can be helpful in determining a baseline of observing an energy parameter by chance" />
+
+            <when value="false">
+                <param name="shuffle_n_times"
+                       type="hidden"
+                       value="0"/>
+            </when>
+            <when value="true">
+                <param name="shuffle_n_times"
+                       type="integer"
+                       min="0"
+                       value="10" 
+                       argument="-r"
+                       label="Number of times the sequences have to be shuffled and energy parameters have to be estimated on" />
+            </when>
+        </conditional>
+    </inputs>
+    
+    <outputs>
+        <data format="text" name="output_list" label="${tool.name}" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param  name="use_custom_xml" value="true" />
+            <param  name="input_xml" value="segments_truncated.xml" ftype="xml" />
+            <param  name="do_randomization" value="false" />
+            <param  name="shuffle_n_times" value="0" />
+            
+            <output name="output_list" file="segments_truncated.out.txt" />
+        </test>
+        <test>
+            <param  name="use_custom_xml" value="true" />
+            <param  name="input_xml" value="segments_truncated.xml" ftype="xml" />
+            <param  name="do_randomization" value="false" />
+            <param  name="shuffle_n_times" value="1" />
+            
+            <output name="output_list" file="segments_truncated.out.txt" lines_diff="8" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+The tool uses the sequences from the xml file.
+    ]]></help>
+    
+    <citations>
+        <citation type="bibtex">
+           @mastersthesis{mastersthesis,
+              author       = {Youri Hoogstrate}, 
+              title        = {An algorithm for predicting RNA 2D structures including K-turns},
+              school       = {University of Technology Delft, Leiden University},
+              year         = 2012,
+              address      = {},
+              month        = 11,
+              note         = {Research assignment for Master Computer-science},
+              url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
+            }
+        </citation>
+    </citations>
+</tool>

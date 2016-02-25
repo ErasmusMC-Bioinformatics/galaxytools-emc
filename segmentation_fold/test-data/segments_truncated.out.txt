@@ -1,0 +1,4 @@
+>C/D-box snoRNA (shuffle iteration 1)
+cgCGUGAUgagUGAgucagagcacc
+>Artificial double C/D K-turn construct (shuffle iteration 1)
+ggcauuaccgacaguccucguaacaggaauaucguacggucUGUGAUaUGAuuucaucguggaacuuUGUGAUcggcgggauUGA
