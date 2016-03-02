@@ -1,8 +1,9 @@
-<tool id="scan_for_segments" name="scan-for-segments" version="1.6.2-0">
+<tool id="scan_for_segments" name="scan-for-segments" version="1.6.2-1">
     <description>Scan for the presence of segments in sequences using segmentation-fold</description>
     
     <requirements>
         <requirement type="package" version="1.6.2">segmentation-fold</requirement>
+        <requirement type="package" version="2.7.10">python</requirement>
     </requirements>
     
     <stdio></stdio>

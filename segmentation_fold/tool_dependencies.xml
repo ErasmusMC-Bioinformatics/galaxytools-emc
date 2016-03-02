@@ -3,4 +3,8 @@
     <package name="segmentation-fold" version="1.6.2">
         <repository name="package_segmentation_fold_1_6_2" owner="yhoogstrate" />
     </package>
+    
+    <package name="python" version="2.7.10">
+        <repository name="package_python_2_7_10" owner="iuc" />
+    </package>
 </tool_dependency>
