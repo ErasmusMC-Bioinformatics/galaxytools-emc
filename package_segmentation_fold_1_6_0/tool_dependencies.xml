@@ -8,12 +8,12 @@
         <repository name="package_cmake_3_2_3" owner="iuc" prior_installation_required="True" />
     </package>
     
-    <package name="segmentation-fold" version="1.6.2">
+    <package name="segmentation-fold" version="1.6.0">
         <install version="1.0">
             <actions>
                 <action type="download_by_url"
-                        sha256sum="1ac1909d9c73caf9ce7592f79bcb15e265a578088656a07729680b8ea2399800"
-                        >https://github.com/yhoogstrate/segmentation-fold/archive/v1.6.2.tar.gz</action>
+                        sha265sum="44968d81dc74720126234b76b09c24278aedcc6831fbeadb012717e75dc145da"
+                        >https://github.com/yhoogstrate/segmentation-fold/archive/v1.6.0.tar.gz</action>
                     
                 <action type="set_environment_for_install">
                     <repository name="package_boost_1_57" owner="iuc">

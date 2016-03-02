@@ -6,7 +6,7 @@ long_description: |
   
   This allows folding of more complex structures like K-turns, which are also part of the implemented free energy table. These thermodynamic parameters (Gibbs free energy) have been estimated using an in silico approach.
 
-name: package_segmentation_fold_1_6_2
+name: package_segmentation_fold_1_6_0
 owner: yhoogstrate
 homepage_url: https://github.com/yhoogstrate/segmentation-fold
 remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/segmentation_fold_galaxy_wrapper
