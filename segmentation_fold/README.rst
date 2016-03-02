@@ -5,6 +5,11 @@ https://github.com/yhoogstrate/segmentation-fold
 
 Segmentation-fold: An algorithm for predicting RNA 2D structures including K-turns
 
+Installation
+------------
+
+Requires a C++11 compliant compiler!
+
 Development
 -----------
 
