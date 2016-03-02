@@ -77,7 +77,7 @@
             <param  name="do_randomization" value="false" />
             <param  name="shuffle_n_times" value="0" />
             
-            <output name="output_list" file="segments_truncated.out.txt" />
+            <output name="output_list" file="segments_truncated.out.txt" lines_diff="2" /><!-- Accept rounding errors by diff CPU's etc. -->
         </test>
         <test>
             <param  name="use_custom_xml" value="true" />
@@ -85,7 +85,7 @@
             <param  name="do_randomization" value="false" />
             <param  name="shuffle_n_times" value="1" />
             
-            <output name="output_list" file="segments_truncated.out.txt" lines_diff="8" />
+            <output name="output_list" file="segments_truncated.2.out.txt" lines_diff="10" />
         </test>
     </tests>
     
