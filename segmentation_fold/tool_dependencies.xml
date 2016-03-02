@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="segmentation-fold" version="1.1.0">
-        <repository name="package_segmentation_fold_1_1_0" owner="yhoogstrate" />
+    <package name="segmentation-fold" version="1.6.2">
+        <repository name="package_segmentation_fold_1_6_2" owner="yhoogstrate" />
     </package>
 </tool_dependency>
