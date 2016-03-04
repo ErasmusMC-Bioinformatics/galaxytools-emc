@@ -13,10 +13,11 @@
     <command><![CDATA[
         scan-for-segments
             -T \${GALAXY_SLOTS:-4}
-            #if $parameters.use_custom_xml == "true"
-                -x "${parameters.input_xml}"
+            -x
+            #if str($parameters.use_custom_xml) == "true"
+                "${parameters.input_xml}"
             #else
-                -x "\$SEGMENTATION_FOLD_DEFAULT_XML"
+                "\$SEGMENTATION_FOLD_DEFAULT_XML"
             #end if
             -p "in-depth"
             "${input_fasta}"

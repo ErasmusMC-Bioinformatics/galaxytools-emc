@@ -1,7 +1,7 @@
 categories:
 - RNA
 - Sequence Analysis
-description: RNA-Folding including predefined segments including K-turns
+description: RNA-Folding with predefined segments including K-turns
 long_description: |
   Segmentation-fold is a bioinformatics application that predicts RNA 2D-structure with an extended version of the Zuker algorithm. This modification contains a new "structure element" named a segment and is capable of folding a pre-defined substructure with multiple canonical or non-canonical pairings.
   
