@@ -1,0 +1,10 @@
+categories:
+- Tool Dependency Packages
+description: European Genome-phenome Archive (EGA) download client
+long_description: |
+  Individual files or whole datasets may be downloaded from European Genome-phenome Archive (EGA) in a secure manner by first placing a download request and then downloading the file/s associated with the request. All files are automatically encrypted prior to streaming and must be decrypted using the streamer after download is complete. 
+  https://www.ebi.ac.uk/ega/about/your_EGA_account/download_streaming_client#about
+name: package_ega_download_streamer_2_1_6
+owner: yhoogstrate
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/ega_client_galaxy_wrapper
+type: tool_dependency_definition

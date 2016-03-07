@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="EGA_download_streamer" version="2.1.1">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url" sha256sum="9f918aa630e5b20dc0d6fc447e33129f3c1f07b26b24805a73b184ac04b566e2">https://www.ebi.ac.uk/ega/sites/ebi.ac.uk.ega/files/documents/EgaDemoClient_2.1.1.zip</action>
+                <action type="move_file">
+                    <source>EgaDemoClient.jar</source>
+                    <destination>$INSTALL_DIR/jars</destination>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="JAVA_JAR_PATH" action="set_to">$INSTALL_DIR/jars</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+            Individual files or whole datasets may be downloaded from European Genome-phenome Archive (EGA) in a secure manner by first placing a download request and then downloading the file/s associated with the request. All files are automatically encrypted prior to streaming and must be decrypted using the streamer after download is complete. 
+            
+            https://www.ebi.ac.uk/ega/about/your_EGA_account/download_streaming_client#about
+        </readme>
+    </package>
+</tool_dependency>
