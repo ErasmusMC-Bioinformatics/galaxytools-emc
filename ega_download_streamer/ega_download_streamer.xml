@@ -1,4 +1,4 @@
-<tool id="ega_download_streamer" name="EGA Download streamer" version="2.1.3.g0">
+<tool id="ega_download_streamer" name="EGA Download streamer" version="2.1.6.g0">
     <description>data from the European Genome-phenome Archive in a secure manner</description>
     <requirements>
         <requirement type="package" version="2.1.6">EGA_download_streamer</requirement>
@@ -42,19 +42,16 @@
         DECRYPTED_FILES_NAME=\${ENCRYPTED_FILES_NAME%.cip} && 
         
         echo "\n\n\n Decrpyting \$ENCRYPTED_FILES_NAME to \$DECRYPTED_FILES_NAME" && 
-        ls &&
         java -jar
             "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar"
             -pf credentials.txt
             -dc "\$ENCRYPTED_FILES_NAME"
             -dck "$encryption_key" &&
         
-        ls &&
         if file --mime-type "\$DECRYPTED_FILES_NAME" | grep -q /gzip$; then
-            echo "Unzipping as well" &&
+            echo "Unpacking as well" &&
             gunzip -cf "\$DECRYPTED_FILES_NAME" > "$output" ;
         else
-            echo "File format is: "\$(file --mime-type "\$DECRYPTED_FILES_NAME") &&
             mv "\$DECRYPTED_FILES_NAME" "$output" ;
         fi ;
         
@@ -64,11 +61,6 @@
     ]]></command>
     <inputs>
         <param name="ega_file_identifier" type="text" value="" label="Identifier of the file in EGA" />
-        <!--
-        @todo santize for non alplhanumerical stuff
-        
-        EGAF00001059069
-        -->
     </inputs>
     <outputs>
         <data name="output" auto_format="true" label="${tool.name} on ${ega_file_identifier}" />
@@ -82,8 +74,17 @@
     </tests>
     
     <help>
-The admin has to configure the server such that the environment variables $user and $pass are exported and reflect the credentials of the EGA account.
-This can also be done in the config/jobs_conf.xml file.
+**What it does**
+
+Individual files or whole datasets may be downloaded from European Genome-phenome Archive (EGA) in a secure manner by first placing a download request and then downloading the file/s associated with the request. All files are automatically encrypted prior to streaming and must be decrypted using the streamer after download is complete. 
+
+To download a given dataset, the user should provide the corresponding EGA file identifier (e.g. EGAF00001059069).
+
+**Configuration**
+
+The admin has to configure the server such that the environment variables $user and $pass are exported and reflect the credentials of the EGA account. The user and password shall not be visible to users. This can also be done in the config/jobs_conf.xml file.
+
+https://www.ebi.ac.uk/ega/about/your_EGA_account/download_streaming_client
     </help>
     
     <citations>
