@@ -21,40 +21,76 @@
         echo \$user > credentials.txt &&
         echo \$pass >> credentials.txt &&
         
-        echo "Creating an encryption request at server" && 
-        java -jar
-            "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar"
+        echo "Creating an encryption request at server:" && 
+        
+        if java -jar
+            "\$JAVA_JAR_PATH/EgaDemoClient.jar"
             -pf "credentials.txt"
             -rf "$ega_file_identifier"
             -re "$encryption_key"
-            -label "${random_request_uid}" | grep -v "Login failed" && 
+            -label "${random_request_uid}" | grep -v "Login failed" > request.log ; then
+            
+            cat request.log && 
+            echo "" && 
+            echo "" && 
+            echo "" && 
+            echo "Downloading request:" &&
+            
+            if java -jar
+                "\$JAVA_JAR_PATH/EgaDemoClient.jar"
+                -pf "credentials.txt"
+                -dr "${random_request_uid}"
+                -nt 7 > download.log ; then
+                
+                cat download.log &&
+                
+                ## Commands below may fail if authentication was not a success
+                ENCRYPTED_FILES_NAME=\$(grep -oE "Completed Download Target:[ ]+(.*?)\.cip" download.log | sed -r "s/^Completed Download Target:[ ]+//" ) && 
+                DECRYPTED_FILES_NAME=\${ENCRYPTED_FILES_NAME%.cip} && 
+                
+                echo "" && 
+                echo "" && 
+                echo "" && 
+                echo "Decrpyting \$ENCRYPTED_FILES_NAME to \$DECRYPTED_FILES_NAME:" && 
+                
+                if java -jar
+                        "\$JAVA_JAR_PATH/EgaDemoClient.jar"
+                        -pf credentials.txt
+                        -dc "\$ENCRYPTED_FILES_NAME"
+                        -dck "$encryption_key" > decrypt.log ; then
+                    
+                    cat decrypt.log &&
+                    
+                    if file --mime-type "\$DECRYPTED_FILES_NAME" | grep -q /gzip\$; then
+                    
+                        echo "" && 
+                        echo "" && 
+                        echo "" && 
+                        echo "Unpacking because it is an archive" &&
+                        gunzip -cf "\$DECRYPTED_FILES_NAME" > "$output" ;
+                        
+                    else
+                        mv "\$DECRYPTED_FILES_NAME" "$output" ;
+                    fi ;
+                    
+                else
+                    echo "Error: decrypting failed:" 1>&2 &&
+                    cat decrypt.log &&
+                    exit 1 ; 
+                fi ;
+            
+            else
+                echo "Error: downloading the request failed:" 1>&2 &&
+                cat download.log &&
+                exit 1 ; 
+            fi ;
         
-        echo "\n\n\nDownloading request" && 
-        java -jar
-            "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar"
-            -pf "credentials.txt"
-            -dr "${random_request_uid}"
-            -nt 7 > download.log && 
-        
-        cat download.log &&
-         
-        ## Commands below may fail if authentication was not a success
-        ENCRYPTED_FILES_NAME=\$(grep -oE "Completed Download Target:[ ]+(.*?)\.cip" download.log | sed -r "s/^Completed Download Target:[ ]+//" ) && 
-        DECRYPTED_FILES_NAME=\${ENCRYPTED_FILES_NAME%.cip} && 
-        
-        echo "\n\n\n Decrpyting \$ENCRYPTED_FILES_NAME to \$DECRYPTED_FILES_NAME" && 
-        java -jar
-            "\$EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar"
-            -pf credentials.txt
-            -dc "\$ENCRYPTED_FILES_NAME"
-            -dck "$encryption_key" &&
-        
-        if file --mime-type "\$DECRYPTED_FILES_NAME" | grep -q /gzip$; then
-            echo "Unpacking as well" &&
-            gunzip -cf "\$DECRYPTED_FILES_NAME" > "$output" ;
         else
-            mv "\$DECRYPTED_FILES_NAME" "$output" ;
-        fi ;
+            echo "Error: making the request failed" 1>&2 &&
+            cat request.log && 
+            exit 1 ;
+        fi &&
+        
         
         echo "Cleaning up credentials" && 
         echo "overwriten" > "credentials.txt" && 
