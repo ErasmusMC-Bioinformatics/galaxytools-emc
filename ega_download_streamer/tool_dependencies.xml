@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="EGA_download_streamer" version="2.1.1">
-        <repository name="package_ega_download_streamer_2_1_1" owner="yhoogstrate" />
+    <package name="EGA_download_streamer" version="2.1.6">
+        <repository name="package_ega_download_streamer_2_1_6" owner="yhoogstrate" />
     </package>
 </tool_dependency>
