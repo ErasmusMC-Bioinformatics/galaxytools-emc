@@ -6,10 +6,11 @@
     <stdio>
         <!-- Anything other than zero is an error -->
         <regex match="Login failed" source="both" level="fatal"/>
+        <regex match="error:" source="both" level="fatal"/>
         <exit_code range="1:" />
         <exit_code range=":-1" />
     </stdio>
-    <version_command>java -jar $EGA_DOWNLOAD_STREAMER_ROOT_DIR/jars/EgaDemoClient.jar -version | grep -i Version | grep -v -i new</version_command>
+    <version_command>java -jar $JAVA_JAR_PATH"/EgaDemoClient.jar" -version | grep -i Version | grep -v -i new</version_command>
     <command><![CDATA[
         #import random
         #import string
