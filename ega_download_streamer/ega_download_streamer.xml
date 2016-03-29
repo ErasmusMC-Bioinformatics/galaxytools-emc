@@ -74,13 +74,16 @@
         <data name="output" auto_format="true" label="${tool.name} on ${ega_file_identifier}" />
     </outputs>
     <tests>
-        <!-- EGAF00001059069 -->
+        <test>
+            <param name="ega_file_identifier" value="EGAF00001059069" />
+            
+            <output name="output" file="EGAF00001059069.fastq" />
+        </test>
     </tests>
     
     <help>
-Make sure environment variables $user and $pass are exported.
-This is a serious security issue and is not user friendly.
-The admin should set up a generic account in the config/jobs_conf.xml by settings these variables correctly.
+The admin has to configure the server such that the environment variables $user and $pass are exported and reflect the credentials of the EGA account.
+This can also be done in the config/jobs_conf.xml file.
     </help>
     
     <citations>
