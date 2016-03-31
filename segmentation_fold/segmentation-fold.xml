@@ -61,7 +61,7 @@
     </inputs>
     
     <outputs>
-        <data format="dot-bracket" name="output_dbn" label="asdasdasd" />
+        <data format="dbn" name="output_dbn" label="segmentation-fold" />
         <!--<data format="dot-bracket" name="output_dbn" label="${tool.name} on ${str(input.input_fasta.hid) + ': ' + input.input_fasta.name if $input.method == 'fasta' else $input.input_sequence.upper() }" />-->
     </outputs>
     
