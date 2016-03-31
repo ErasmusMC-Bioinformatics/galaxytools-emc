@@ -1,4 +1,4 @@
-<tool id="segmentation_fold" name="segmentation-fold" version="1.6.3-0">
+<tool id="segmentation_fold" name="segmentation-fold" version="1.6.3-1">
     <description>RNA-Folding including predefined segments including K-turns</description>
     
     <requirements>

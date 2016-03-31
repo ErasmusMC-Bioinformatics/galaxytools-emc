@@ -1,4 +1,4 @@
-<tool id="energy_estimation_utility" name="energy-estimation-utility" version="1.6.3-0">
+<tool id="energy_estimation_utility" name="energy-estimation-utility" version="1.6.3-1">
     <description>Estimate the maximal energy a segment needs to assign to become part of the optimal structure using segmentation-fold</description>
     
     <requirements>
