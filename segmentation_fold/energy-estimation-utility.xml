@@ -1,8 +1,8 @@
-<tool id="energy_estimation_utility" name="energy-estimation-utility" version="1.6.2-1">
+<tool id="energy_estimation_utility" name="energy-estimation-utility" version="1.6.3-0">
     <description>Estimate the maximal energy a segment needs to assign to become part of the optimal structure using segmentation-fold</description>
     
     <requirements>
-        <requirement type="package" version="1.6.2">segmentation-fold</requirement>
+        <requirement type="package" version="1.6.3">segmentation-fold</requirement>
         <requirement type="package" version="2.7.10">python</requirement>
     </requirements>
     

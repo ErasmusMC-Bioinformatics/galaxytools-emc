@@ -1,8 +1,8 @@
-<tool id="segmentation_fold" name="segmentation-fold" version="1.6.2-0">
+<tool id="segmentation_fold" name="segmentation-fold" version="1.6.3-0">
     <description>RNA-Folding including predefined segments including K-turns</description>
     
     <requirements>
-        <requirement type="package" version="1.6.2">segmentation-fold</requirement>
+        <requirement type="package" version="1.6.3">segmentation-fold</requirement>
     </requirements>
     
     <stdio></stdio>
@@ -181,16 +181,57 @@
     </tests>
     
     <help><![CDATA[
-Segmentation-fold is a bioinformatics application that predicts RNA
-2D-structure with an extended version of the Zuker algorithm. This
-modification contains a new "structure element" named a segment and is
-capable of folding a pre-defined substructures with multiple canonical
-or non-canonical pairings.
+**What it does**:
 
-This allows folding of more complex structures like K-turns, which are
-also part of the implemented free energy table. These thermodynamic
-parameters (free Gibbs energy) have been estimated using a in silico
-approach and therefore lack high resolution.
+Segmentation-fold is a application in the field of bioinformatics that
+predicts RNA 2D-structures. The model has an extension with respect to
+the classical Zuker algorithm, to allow new "structure elements" named
+segments and segmentloops. This makes it capable of folding a
+pre-defined substructure with multiple canonical or non-canonical base
+pairs, like K-turns and loop-E-motifs. Some of such sturcture elements
+are present in the corresponding energy table, although custom tables
+can be provided as well.
+
+
+**Running segmentation-fold**
+
+Segmentation-fold has to be provided with a sequence of which it has to
+predict the 2D structure. This can be done using a plain text sequence
+(allowed charset: ACTUG) or a FASTA file. A FASTA file has the following
+syntax:
+
+    >Sequence name and other details
+    
+    AGUGUAGCUGUGUCGAUCGUAAGUCAG
+
+As the database of free energy parameters will most likely be updated
+over time we have added the possiblity to include this XML file as
+additional parameter. The most up to date version of this file can be
+found at the following url:
+
+https://github.com/yhoogstrate/segmentation-fold/blob/master/share/segmentation-fold/segments.xml
+
+If you would like to compare the results with a prediction as if the
+segment and segmentloop extension were disabled, you can disable it with
+the given parameter.
+
+**Output**
+
+The output is in DotBracket format (dbn) and can be visualized with e.g.
+DrawRNAjs or VaRNA.
+
+DrawRNAjs can be installed in galaxy by following the instructions at
+the following link:
+
+https://github.com/bgruening/galaxytools/tree/master/visualisations/drawrnajs
+
+Details on the dbn-format can be found here:
+
+https://wiki.galaxyproject.org/Learn/Datatypes#Dbn
+
+**Authors**
+
+Youri Hoogstrate (yhoogstrate @ github)
     ]]></help>
     
     <citations>

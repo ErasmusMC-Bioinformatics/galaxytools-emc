@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="segmentation-fold" version="1.6.2">
-        <repository name="package_segmentation_fold_1_6_2" owner="yhoogstrate" />
+    <package name="segmentation-fold" version="1.6.3">
+        <repository name="package_segmentation_fold_1_6_3" owner="yhoogstrate" />
     </package>
     
     <package name="python" version="2.7.10">
