@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="python" version="2.7">
+        <repository name="package_python_2_7" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="htseq" version="0.6.1">
+        <repository name="package_htseq_0_6" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="fuma" version="3.0.0">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url"
+                sha256sum="d18c009964186af5453343d5189d56c4638a570ecab96bb1fbc10f0650b64b76">https://github.com/yhoogstrate/fuma/archive/v3.0.0.tar.gz</action>
+                
+                <action type="set_environment_for_install">
+                     <repository name="package_python_2_7" owner="iuc">
+                        <package name="python" version="2.7" />
+                    </repository>
+                    
+                   <repository name="package_htseq_0_6" owner="iuc">
+                        <package name="htseq" version="0.6.1" />
+                    </repository>
+                </action>
+                
+                <action type="make_directory">$INSTALL_DIR/lib/python</action>
+                <action type="make_directory">$INSTALL_DIR/lib64/python</action>
+                
+                <action type="shell_command"><![CDATA[
+                    export PYTHONPATH=$PYTHONPATH:$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python &&
+                    python setup.py build                                                           &&
+                    python setup.py install --home $INSTALL_DIR --install-scripts $INSTALL_DIR/bin
+                    
+                    ## Tests fails because the import of unittest goes wrong:
+                    ## http://stackoverflow.com/questions/26893504/attributeerror-module-object-has-no-attribute-testcase
+                    ## python setup.py test
+                ]]></action>
+                
+                <action type="set_environment">
+                    <environment_variable action="append_to" name="PYTHONPATH">$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+            Downloads and installs FusionMatcher (FuMa).
+        </readme>
+    </package>
+</tool_dependency>
