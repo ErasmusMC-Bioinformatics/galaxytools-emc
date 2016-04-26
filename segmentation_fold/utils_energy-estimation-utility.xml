@@ -1,14 +1,16 @@
-<tool id="energy_estimation_utility" name="energy-estimation-utility" version="1.6.3-1">
+<tool id="energy_estimation_utility" name="energy-estimation-utility" version="@VERSION@-1">
     <description>Estimate the maximal energy a segment needs to assign to become part of the optimal structure using segmentation-fold</description>
-    
+	<macros>
+        <import>macros.xml</import>
+    </macros>
+
     <requirements>
-        <requirement type="package" version="1.6.3">segmentation-fold</requirement>
-        <requirement type="package" version="2.7.10">python</requirement>
+        @REQUIREMENTS_SMF@
+        @REQUIREMENTS_UTILS@
     </requirements>
-    
-    <stdio></stdio>
-    
-    <version_command>segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
+    <expand macro="stdio" />
+
+    <version_command>@VERSION_COMMAND_SMF@ ; @VERSION_COMMAND_UTILS@</version_command>
     
     <command><![CDATA[
         energy-estimation-utility
@@ -94,18 +96,5 @@
 The tool uses the sequences from the xml file.
     ]]></help>
     
-    <citations>
-        <citation type="bibtex">
-           @mastersthesis{mastersthesis,
-              author       = {Youri Hoogstrate}, 
-              title        = {An algorithm for predicting RNA 2D structures including K-turns},
-              school       = {University of Technology Delft, Leiden University},
-              year         = 2012,
-              address      = {},
-              month        = 11,
-              note         = {Research assignment for Master Computer-science},
-              url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
-            }
-        </citation>
-    </citations>
+	<expand macro="citations" />
 </tool>

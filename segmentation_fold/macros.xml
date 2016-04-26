@@ -1,0 +1,46 @@
+<macros>
+    <token name="@VERSION@">smf-v1.6-4_utils-v1.0.3</token>
+
+    <xml name="stdio">
+        <stdio>
+            <exit_code range="1:" />
+            <exit_code range=":-1" />
+        </stdio>
+    </xml>
+
+    <token name="@VERSION_COMMAND_SMF@"><![CDATA[
+        segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+	]]></token>
+	<token name="@VERSION_COMMAND_UTILS@"><![CDATA[
+        segmentation-fold-utils --version
+	]]></token>
+
+
+    <token name="@REQUIREMENTS_UTILS@"><![CDATA[
+        <requirement type="package" version="1.0.3">segmentation-fold-utils</requirement>
+        <requirement type="package" version="2.7.10">python</requirement>
+	]]></token>
+
+    <token name="@REQUIREMENTS_SMF@"><![CDATA[
+        <requirement type="package" version="1.6.3">segmentation-fold</requirement>
+	]]></token>
+
+
+    <xml name="citations">
+		<citations>
+			<citation type="bibtex">
+			   @mastersthesis{mastersthesis,
+				  author       = {Youri Hoogstrate}, 
+				  title        = {An algorithm for predicting RNA 2D structures including K-turns},
+				  school       = {University of Technology Delft, Leiden University},
+				  year         = 2012,
+				  address      = {},
+				  month        = 11,
+				  note         = {Research assignment for Master Computer-science},
+				  url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
+				}
+			</citation>
+		</citations>
+    </xml>
+
+</macros>

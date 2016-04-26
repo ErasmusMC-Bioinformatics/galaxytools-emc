@@ -1,0 +1,84 @@
+<tool id="smf_utils_find_boxes" name="find-boxes" version="@VERSION@-0">
+    <description>Scan for the presence of boxes in a FASTA file</description>
+	<macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <requirements>
+        @REQUIREMENTS_UTILS@
+    </requirements>
+    <expand macro="stdio" />
+
+    <version_command>@VERSION_COMMAND_UTILS@</version_command>
+    
+    <command><![CDATA[
+        segmentation-fold-utils
+			find-boxes
+				--box1 '${box1}'
+				--box2 '${box2}'
+				$forward
+				$reverse
+				$fasta_input
+				$bed_output
+    ]]></command>
+
+    <inputs>
+        <param name="fasta_input"
+               type="data"
+               format="fasta"
+               argument="-f"
+               label="Fasta file with RNA-sequece" />
+
+        <param name="box1"
+               type="text"
+               value="NRUGAUG"
+               argument="--box1"
+               label="Sequence of box1 (default = C-box: 'NRUGAUG')"
+               help="Sequence encoding can be found at the following url: https://en.wikipedia.org/wiki/FASTA_format#Sequence_representations" />
+
+        <param name="box2"
+               type="text"
+               value="CUGA"
+               argument="--box2"
+               label="Sequence of box2 (default = D-box: 'CUGA')"
+               help="Sequence encoding can be found at the following url: https://en.wikipedia.org/wiki/FASTA_format#Sequence_representations" />
+
+		<param name="forward"
+			   type="boolean"
+			   truevalue="--forward"
+			   falsevalue="--no-forward"
+			   checked="true"
+			   label="Search in the forward direction of the reference sequence" />
+
+		<param name="reverse"
+			   type="boolean"
+			   truevalue="--reverse"
+			   falsevalue="--no-reverse"
+			   checked="true"
+			   label="Search in the reverse complement of the reference sequence" />
+    </inputs>
+
+    <outputs>
+        <data format="bed"
+              name="bed_output"
+              label="${tool.name} on ${str($fasta_input.hid) + ': ' + $fasta_input.name}" />
+    </outputs>
+
+    <tests>
+        <test>
+            <param name="fasta_input" value="FindBoxes.genome.fa" format="fasta" />
+            <param name="box1" value="NRUGAUG" />
+            <param name="box2" value="CUGA" />
+            <param name="forward" value="--forward" />
+            <param name="reverse" value="--reverse" />
+            
+            <output name="bed_output" file="FindBoxes.test_02.bed" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+Scans a refernce for BOX motifs (like C- and D-box)
+    ]]></help>
+    
+    <expand macro="citations" />
+</tool>
