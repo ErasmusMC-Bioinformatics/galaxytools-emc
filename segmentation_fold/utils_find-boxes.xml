@@ -18,8 +18,8 @@
 				--box2 '${box2}'
 				$forward
 				$reverse
-				$fasta_input
-				$bed_output
+				'${fasta_input}'
+				'${bed_output}'
     ]]></command>
 
     <inputs>
