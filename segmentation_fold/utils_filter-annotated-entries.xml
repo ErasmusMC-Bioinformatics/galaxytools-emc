@@ -1,0 +1,14 @@
+<tool id="smf_utils_filter-annotated-entries" name="filter-annotated-entries" version="@VERSION@-0">
+    <description></description>
+    
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <requirements>
+        @REQUIREMENTS_UTILS@
+    </requirements>
+    <expand macro="stdio" />
+    
+    <version_command>@VERSION_COMMAND_UTILS@</version_command>
+</tool>

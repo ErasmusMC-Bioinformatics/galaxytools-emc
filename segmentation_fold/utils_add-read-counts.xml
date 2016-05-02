@@ -1,0 +1,34 @@
+<tool id="smf_utils_add-read-counts" name="add-read-counts" version="@VERSION@-0">
+    <description></description>
+    
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <requirements>
+        @REQUIREMENTS_UTILS@
+    </requirements>
+    <expand macro="stdio" />
+    
+    <version_command>@VERSION_COMMAND_UTILS@</version_command>
+    
+    <command><![CDATA[
+        segmentation-fold-utils
+            add-read-counts
+    ]]></command>
+
+    <inputs>
+    </inputs>
+
+    <outputs>
+    </outputs>
+
+    <tests>
+</tests>
+    
+    <help><![CDATA[
+This is an utility of the segmentation-fold package
+    ]]></help>
+    
+    <expand macro="citations" />
+</tool>

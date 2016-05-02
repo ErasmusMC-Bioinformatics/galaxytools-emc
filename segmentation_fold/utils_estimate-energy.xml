@@ -1,0 +1,141 @@
+<tool id="smf_utils_scan-for-segments" name="scan-for-segments" version="@VERSION@-1">
+    <description>Scan for the presence of segments in sequences using segmentation-fold</description>
+    
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <requirements>
+        @REQUIREMENTS_SMF@
+        @REQUIREMENTS_UTILS@
+    </requirements>
+    <expand macro="stdio" />
+    
+    <version_command>echo $(@VERSION_COMMAND_SMF@)", "$(@VERSION_COMMAND_UTILS@)</version_command>
+    
+    <command><![CDATA[
+        segmentation-fold-utils
+            estimate-energy
+                -T \${GALAXY_SLOTS:-2}
+                -x
+                #if str($parameters.use_custom_xml) == "true"
+                    "${parameters.input_xml}"
+                #else
+                    "\$SEGMENTATION_FOLD_DEFAULT_XML"
+                #end if
+                
+                -p $precision
+                -r $randomize
+                
+                #if $sequences_from_fasta_file:
+                    --sequences-from-fasta-file "${sequences_from_fasta_file}"
+                #end if
+                
+                $output_list
+    ]]></command>
+
+    <inputs>
+        <conditional name="parameters">
+            <param name="use_custom_xml"
+                type="boolean"
+                truevalue="true"
+                falsevalue="false"
+                selected="false"
+                label="Use segment definition from history" />
+
+            <when value="false" />
+            <when value="true">
+                <param name="input_xml"
+                    type="data"
+                    format="xml"
+                    multiple="false"
+                    argument="-x"
+                    label="Custom 'segments.xml'-syntaxed file" />
+            </when>
+        </conditional>
+        
+        <param name="precision"
+               type="float"
+               value="0.05"
+               min="0"
+               argument="--precision"
+               label="Precision"
+               help="Minimal difference for binary split - the smaller this value the slower. if this value equals 0, the difference is set to infinity (default: 0.05)" />
+
+        <param name="randomize"
+               type="integer"
+               value="0"
+               min="0"
+               argument="--randomize"
+               label="Shuffle each sequence this many times and predict energy of shuffled sequence(s)·(default:·0,·0·means·disabled)" />
+        
+        <param name="sequences_from_fasta_file"
+               type="data"
+               format="fasta"
+               multiple="false"
+               optional="true"
+               argument="--sequences-from-fasta-file"
+               label="Optional sequences to scan for Segment(Loop)s (FASTA)"
+               help="Use sequences from a FASTA file instead of the XML file that contains the segments. In XML files you can explicitly link one Segment(Loop) to one particular sequence instead of doing n*n comparisons (default: None)" />
+    </inputs>
+
+    <outputs>
+        <data format="text" name="output_list" label="${tool.name}" />
+    </outputs>
+
+    <tests>
+        <!-- scan-for-segments: xml * fasta -->
+        <test>
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            <param name="sequences_from_fasta_file" value="SNORD13-revised.fa" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD13-revised.scan-for-segments.txt" />
+        </test>
+        <test>
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            <param name="sequences_from_fasta_file" value="SNORD48-revised.fa" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD48-revised.scan-for-segments.txt" />
+        </test>
+        <test>
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            <param name="sequences_from_fasta_file" value="SNORD114-4-revised.fa" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD114-4-revised.scan-for-segments.txt" />
+        </test>
+        <test>
+            <param name="use_custom_xml" value="false" ftype="fasta" />
+            <param name="sequences_from_fasta_file" value="SNORD118-revised.fa" ftype="fasta" />
+            
+            <output name="output_list" file="SNORD118-revised.scan-for-segments.txt" />
+        </test>
+        
+        
+        
+        <!-- energy-estimation: xml * xml --><!-- Accept rounding errors by diff CPU's etc. -->
+        <!--
+        <test>
+            <param  name="use_custom_xml" value="true" />
+            <param  name="input_xml" value="segments_truncated.xml" ftype="xml" />
+            <param  name="do_randomization" value="false" />
+            <param  name="shuffle_n_times" value="0" />
+            
+            <output name="output_list" file="segments_truncated.out.txt" lines_diff="2" />
+        </test>
+        <test>
+            <param  name="use_custom_xml" value="true" />
+            <param  name="input_xml" value="segments_truncated.xml" ftype="xml" />
+            <param  name="do_randomization" value="false" />
+            <param  name="shuffle_n_times" value="1" />
+            
+            <output name="output_list" file="segments_truncated.2.out.txt" lines_diff="10" />
+        </test>-->
+    </tests>
+    
+    <help><![CDATA[
+This is an utility of the segmentation-fold package that allows to scan for the presence of certain segments.
+If present, it will also scan for the Gibbs free energy necessairy the segment has to provide to contribute to the optimal structure.
+    ]]></help>
+    
+    <expand macro="citations" />
+</tool>
