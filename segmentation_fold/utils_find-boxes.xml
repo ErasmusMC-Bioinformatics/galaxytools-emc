@@ -78,7 +78,7 @@
     </tests>
     
     <help><![CDATA[
-Scans a refernce for BOX motifs (like C- and D-box)
+Scans a FASTA reference for BOX motifs (like C- and D-box) and reports them in a BED file
     ]]></help>
     
     <expand macro="citations" />
