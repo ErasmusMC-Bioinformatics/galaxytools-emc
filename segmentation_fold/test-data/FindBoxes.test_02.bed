@@ -1,36 +1,36 @@
-chr2	5	9	box2-f:CTGA	+
-chr2	16	20	box2-f:CTGA	+
-chr3	0	4	box2-f:CTGA	+
-chr3	11	15	box2-f:CTGA	+
-chr4	0	4	box2-f:CTGA	+
-chr4	4	8	box2-f:CTGA	+
-chr5	0	4	box2-r:TCAG	-
-chr5	10	14	box2-r:TCAG	-
-chr6	0	4	box2-r:TCAG	-
-chr6	10	14	box2-r:TCAG	-
-chr7	0	7	box1-f:NRTGATG	+
-chr7	7	14	box1-f:NRTGATG	+
-chr7	14	21	box1-f:NRTGATG	+
-chr7	21	28	box1-f:NRTGATG	+
-chr7	28	35	box1-f:NRTGATG	+
-chr7	35	42	box1-f:NRTGATG	+
-chr7	42	49	box1-f:NRTGATG	+
-chr7	49	56	box1-f:NRTGATG	+
-chr8_no_valid_C_boxes	1	5	box2-f:CTGA	+
-chr8_no_valid_C_boxes	8	12	box2-f:CTGA	+
-chr8_no_valid_C_boxes	15	19	box2-f:CTGA	+
-chr8_no_valid_C_boxes	22	26	box2-f:CTGA	+
-chr9	0	7	box1-r:CATCAYN	-
-chr9	7	14	box1-r:CATCAYN	-
-chr9	14	21	box1-r:CATCAYN	-
-chr9	21	28	box1-r:CATCAYN	-
-chr9	28	35	box1-r:CATCAYN	-
-chr9	35	42	box1-r:CATCAYN	-
-chr9	42	49	box1-r:CATCAYN	-
-chr9	49	56	box1-r:CATCAYN	-
-chr10	0	7	box1-f:NRTGATG	+
-chr10	14	18	box2-f:CTGA	+
-chr10	28	35	box1-f:NRTGATG	+
-chr10	42	46	box2-f:CTGA	+
-chr10	56	63	box1-f:NRTGATG	+
-chr10	70	74	box2-f:CTGA	+
+chr2	5	9	box2-f:CTGA	0	+
+chr2	16	20	box2-f:CTGA	0	+
+chr3	0	4	box2-f:CTGA	0	+
+chr3	11	15	box2-f:CTGA	0	+
+chr4	0	4	box2-f:CTGA	0	+
+chr4	4	8	box2-f:CTGA	0	+
+chr5	0	4	box2-r:TCAG	0	-
+chr5	10	14	box2-r:TCAG	0	-
+chr6	0	4	box2-r:TCAG	0	-
+chr6	10	14	box2-r:TCAG	0	-
+chr7	0	7	box1-f:NRTGATG	0	+
+chr7	7	14	box1-f:NRTGATG	0	+
+chr7	14	21	box1-f:NRTGATG	0	+
+chr7	21	28	box1-f:NRTGATG	0	+
+chr7	28	35	box1-f:NRTGATG	0	+
+chr7	35	42	box1-f:NRTGATG	0	+
+chr7	42	49	box1-f:NRTGATG	0	+
+chr7	49	56	box1-f:NRTGATG	0	+
+chr8_no_valid_C_boxes	1	5	box2-f:CTGA	0	+
+chr8_no_valid_C_boxes	8	12	box2-f:CTGA	0	+
+chr8_no_valid_C_boxes	15	19	box2-f:CTGA	0	+
+chr8_no_valid_C_boxes	22	26	box2-f:CTGA	0	+
+chr9	0	7	box1-r:CATCAYN	0	-
+chr9	7	14	box1-r:CATCAYN	0	-
+chr9	14	21	box1-r:CATCAYN	0	-
+chr9	21	28	box1-r:CATCAYN	0	-
+chr9	28	35	box1-r:CATCAYN	0	-
+chr9	35	42	box1-r:CATCAYN	0	-
+chr9	42	49	box1-r:CATCAYN	0	-
+chr9	49	56	box1-r:CATCAYN	0	-
+chr10	0	7	box1-f:NRTGATG	0	+
+chr10	14	18	box2-f:CTGA	0	+
+chr10	28	35	box1-f:NRTGATG	0	+
+chr10	42	46	box2-f:CTGA	0	+
+chr10	56	63	box1-f:NRTGATG	0	+
+chr10	70	74	box2-f:CTGA	0	+
