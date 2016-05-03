@@ -1,5 +1,5 @@
 <tool id="smf_utils_extract-boxed-sequences" name="extract-boxed-sequences" version="@VERSION@-0">
-    <description></description>
+    <description>Extracts boxed sequences from bed_input_file which has to be created with 'find-box', part of this utility</description>
     
     <macros>
         <import>macros.xml</import>

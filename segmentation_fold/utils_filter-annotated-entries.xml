@@ -1,5 +1,5 @@
 <tool id="smf_utils_filter-annotated-entries" name="filter-annotated-entries" version="@VERSION@-0">
-    <description></description>
+    <description>Split entries into two files based on whether they overlap annotations in a bed file</description>
     
     <macros>
         <import>macros.xml</import>

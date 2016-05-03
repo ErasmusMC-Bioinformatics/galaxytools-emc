@@ -1,5 +1,5 @@
-<tool id="smf_utils_scan-for-segments" name="scan-for-segments" version="@VERSION@-1">
-    <description>Scan for the presence of segments in sequences using segmentation-fold</description>
+<tool id="smf_utils_estimate-energy" name="scan-for-segments" version="@VERSION@-1">
+    <description>Estimates whether a certain Segment(Loop) is present and for which delta-G this transistion takes place</description>
     
     <macros>
         <import>macros.xml</import>
@@ -84,7 +84,7 @@
     </outputs>
 
     <tests>
-        <!-- scan-for-segments: xml * fasta -->
+        <!-- xml * fasta mode -->
         <test>
             <param name="use_custom_xml" value="false" ftype="fasta" />
             <param name="sequences_from_fasta_file" value="SNORD13-revised.fa" ftype="fasta" />
@@ -111,9 +111,7 @@
         </test>
         
         
-        
-        <!-- energy-estimation: xml * xml --><!-- Accept rounding errors by diff CPU's etc. -->
-        <!--
+        <!-- xml * xml mode -->
         <test>
             <param  name="use_custom_xml" value="true" />
             <param  name="input_xml" value="segments_truncated.xml" ftype="xml" />
@@ -129,7 +127,7 @@
             <param  name="shuffle_n_times" value="1" />
             
             <output name="output_list" file="segments_truncated.2.out.txt" lines_diff="10" />
-        </test>-->
+        </test>
     </tests>
     
     <help><![CDATA[

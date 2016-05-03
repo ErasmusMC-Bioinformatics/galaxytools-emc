@@ -1,5 +1,7 @@
->C/D-box snoRNA (shuffle iteration 1)
-agaggCGUGAUcccaacgUGAuggc
-....((((.......))))......	....(...((((.....)))))...	-9.3900680542
->Artificial double C/D K-turn construct (shuffle iteration 1)
-uguucugucacggcacauaccuccggUGUGAUggUGAauaguaUGAgaaguaucgugugucagaggcccuaaUGUGAUgccuuaa
+>CD-box snoRNA x Kt-CD-box.CGU
+GCUCUGACCGAAAGGCGUGAUGAGC
+((((....((.....))....))))	(((((((((....))...)))))))	2.49938964844
+>Artificial double CD K-turn construct x Kt-CD-box.UGU
+GGGAGUCUUGUGAUGAGAAGUACUGGAUCUGAAGUAGCCCUUUUUGGGCUACUUGUGAUGAAACACUCAUGGUCUGAAGACUCCC
+((((((((((((........))).((((((((((((((((.....))))))))(((......))).))).))))).)))))))))	((((((((...(((((..(....((..(((((((((((((.....))))))))...)))))..))....)..)))))))))))))	-1.26037597656
+((((((((((((........))).((((((((((((((((.....))))))))(((......))).))).))))).)))))))))	((((((((...(((((..(....((..(((((((((((((.....))))))))...)))))..))....)..)))))))))))))	-1.26037597656

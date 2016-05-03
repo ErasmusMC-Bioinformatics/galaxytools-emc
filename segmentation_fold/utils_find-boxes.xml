@@ -1,5 +1,6 @@
 <tool id="smf_utils_find-boxes" name="find-boxes" version="@VERSION@-0">
-    <description>Scan for the presence of boxes in a FASTA file</description>
+    <description>Finds all occurances of two given boxes (sequence motifs) within a FASTA file</description>
+    
     <macros>
         <import>macros.xml</import>
     </macros>
