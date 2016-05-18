@@ -26,7 +26,7 @@
     <inputs>
         <param name="dbn_input_file"
                type="data"
-               format="dbn,txt"
+               format="dbn,txt,text"
                label="Input DBN file"
                help="The 'fasta'-headers should contain the genomic position being used to find overlapping reads in the BAM file"/>
         <param name="bam_input_file"

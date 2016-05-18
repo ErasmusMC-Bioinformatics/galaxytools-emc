@@ -1,4 +1,4 @@
-<tool id="smf_utils_estimate-energy" name="scan-for-segments" version="@VERSION@-1">
+<tool id="smf_utils_estimate-energy" name="estimate-energy" version="@VERSION@-1">
     <description>Estimates whether a certain Segment(Loop) is present and for which delta-G this transistion takes place</description>
     
     <macros>
@@ -80,7 +80,7 @@
     </inputs>
 
     <outputs>
-        <data format="text" name="output_list" label="${tool.name}" />
+        <data format="dbn" name="output_list" label="${tool.name}" />
     </outputs>
 
     <tests>
