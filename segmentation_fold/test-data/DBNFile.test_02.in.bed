@@ -1,0 +1,6 @@
+chr1	0	1	firstbase	0	+
+chr1	0	5	1-2-3-4-5	0	+
+chr1	5	10	6-7-8-9-10	0	+
+chr1	10	11	hideme	0	+
+chr2	0	5	hideme2	0	+
+chr2	5	10	hideme3	0	+

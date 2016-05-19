@@ -1,0 +1,65 @@
+<tool id="smf_utils_filter-by-energy" name="filter-by-energy" version="@VERSION@-0">
+    <description>Split entries over two files based on the estimated energy</description>
+    
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <requirements>
+        <requirement type="package" version="2.7.10">python</requirement>
+        <requirement type="package" version="1.9">numpy</requirement>
+        <requirement type="package" version="0.8.2.1">pysam</requirement>
+        <requirement type="package" version="2.0.0">segmentation-fold-utils</requirement>
+    </requirements>
+    <expand macro="stdio" />
+    
+    <version_command>@VERSION_COMMAND_UTILS@</version_command>
+    
+    <command><![CDATA[
+        segmentation-fold-utils
+            filter-by-energy
+                --energy ${energy}
+                '$dbn_input_file'
+                '$dbn_output_file_larger_or_equal'
+                '$dbn_output_file_smaller'
+    ]]></command>
+
+    <inputs>
+        <param name="dbn_input_file"
+               type="data"
+               format="dbn,txt"
+               label="Input DBN file"
+               help="The 'fasta'-headers should contain the genomic position being used to find overlapping reads in the BAM file"/>
+        <param name="energy"
+               type="float"
+               value="0.0"
+               argument="--energy"
+               label="Energy value"
+               help="Entries with transitions with energy smaller than energy (&lt; e) or without transitions will be put into DBN_OUTPUT_FILE_LARGER_OR_EQUAL and those larger or equal (&gt;= e) to DBN_OUTPUT_FILE_SMALLER" />
+    </inputs>
+
+    <outputs>
+        <data name="dbn_output_file_larger_or_equal"
+              format="dbn"
+              label="${tool.name} on ${dbn_input_file.hid}: ${dbn_input_file.name} - energy larger/equal than selected"/>
+        <data name="dbn_output_file_smaller"
+              format="dbn"
+              label="${tool.name} on ${dbn_input_file.hid}: ${dbn_input_file.name} - energy smaller than selected"/>
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="dbn_input_file" value="DBNFile.test_03.in.dbn" ftype="dbn"/>
+            <param name="energy" value='0.0'/>
+
+            <output name="dbn_output_file_larger_or_equal" file="DBNFile.test_03.out.l.dbn" />
+            <output name="dbn_output_file_smaller" file="DBNFile.test_03.out.s.dbn" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+Filter based on whether the entries in the DBN file are already annotated or not
+    ]]></help>
+    
+    <expand macro="citations" />
+</tool>

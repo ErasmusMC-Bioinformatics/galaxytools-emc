@@ -1,13 +1,16 @@
-<tool id="segmentation_fold" name="segmentation-fold" version="1.6.3-1">
+<tool id="segmentation_fold" name="segmentation-fold" version="@VERSION@-1">
     <description>RNA-Folding including predefined segments including K-turns</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
     
     <requirements>
-        <requirement type="package" version="1.6.3">segmentation-fold</requirement>
+        <requirement type="package" version="1.6.5">segmentation-fold</requirement>
     </requirements>
     
-    <stdio></stdio>
+    <expand macro="stdio" />
     
-    <version_command>segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'</version_command>
+    <version_command>@VERSION_COMMAND_SMF@</version_command>
     
     <command><![CDATA[
         segmentation-fold
@@ -234,18 +237,5 @@ https://wiki.galaxyproject.org/Learn/Datatypes#Dbn
 Youri Hoogstrate (yhoogstrate @ github)
     ]]></help>
     
-    <citations>
-        <citation type="bibtex">
-           @mastersthesis{mastersthesis,
-              author       = {Youri Hoogstrate}, 
-              title        = {An algorithm for predicting RNA 2D structures including K-turns},
-              school       = {University of Technology Delft, Leiden University},
-              year         = 2012,
-              address      = {},
-              month        = 11,
-              note         = {Research assignment for Master Computer-science},
-              url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
-            }
-        </citation>
-    </citations>
+    <expand macro="citations" />
 </tool>
