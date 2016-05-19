@@ -1,6 +1,6 @@
 <tool id="segmentation_fold" name="segmentation-fold" version="@VERSION@-1">
     <description>RNA-Folding including predefined segments including K-turns</description>
-	<macros>
+    <macros>
         <import>macros.xml</import>
     </macros>
     

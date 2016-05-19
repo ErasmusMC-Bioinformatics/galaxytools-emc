@@ -11,6 +11,12 @@
     <package name="python" version="2.7.10">
         <repository name="package_python_2_7_10" owner="iuc" prior_installation_required="True" />
     </package>
+    <package name="numpy" version="1.9">
+        <repository name="package_python_2_7_numpy_1_9" owner="iuc" prior_installation_required="True" />
+    </package>
+    <package name="pysam" version="0.8.2.1">
+        <repository name="package_pysam_0_8_2" owner="yhoogstrate" prior_installation_required="True" />
+    </package>
     
     <package name="setuptools" version="19.0">
         <repository name="package_setuptools_19_0" owner="iuc" prior_installation_required="True" />
@@ -54,6 +60,19 @@
                         <package name="python" version="2.7.10" />
                     </repository>
                 </action>
+                
+                <action type="set_environment_for_install">
+                    <repository name="package_python_2_7_numpy_1_9" owner="iuc">
+                        <package name="numpy" version="1.9" />
+                    </repository>
+                </action>
+                
+                <action type="set_environment_for_install">
+                    <repository name="package_pysam_0_8_2" owner="yhoogstrate">
+                        <package name="pysam" version="0.8.2.1" />
+                    </repository>
+                </action>
+                
                 <action type="make_directory">$INSTALL_DIR/lib/python</action>
                 <action type="make_directory">$INSTALL_DIR/lib64/python</action>
                 <action type="shell_command"><![CDATA[

@@ -1,10 +1,16 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="segmentation-fold" version="1.6.3">
-        <repository name="package_segmentation_fold_1_6_3" owner="yhoogstrate" />
+    <package name="segmentation-fold" version="1.6.5">
+        <repository name="package_segmentation_fold_1_6_5" owner="yhoogstrate" />
     </package>
     
     <package name="python" version="2.7.10">
         <repository name="package_python_2_7_10" owner="iuc" />
+    </package>
+    <package name="numpy" version="1.9">
+        <repository name="package_python_2_7_numpy_1_9" owner="iuc" />
+    </package>
+    <package name="pysam" version="0.8.2.1">
+        <repository name="package_pysam_0_8_2" owner="yhoogstrate" />
     </package>
 </tool_dependency>
