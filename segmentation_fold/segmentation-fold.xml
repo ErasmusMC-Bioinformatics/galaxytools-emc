@@ -5,8 +5,9 @@
     </macros>
     
     <requirements>
-        @VERSION_COMMAND_SMF@
+        <requirement type="package" version="1.6.5">segmentation-fold</requirement>
     </requirements>
+    
     <expand macro="stdio" />
     
     <version_command>@VERSION_COMMAND_SMF@</version_command>
