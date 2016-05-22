@@ -71,7 +71,7 @@
                value="0"
                min="0"
                argument="--randomize"
-               label="Shuffle each sequence this many times and predict energy of shuffled sequence(s)·(default:·0,·0·means·disabled)" />
+               label="Shuffle each sequence this many times and predict energy of shuffled sequence(s) (default: 0, 0 means disabled)" />
         
         <param name="sequences_from_fasta_file"
                type="data"
