@@ -26,8 +26,8 @@
         <install version="1.0">
             <actions>
                 <action type="download_by_url"
-                        sha256sum="f7dfbc70313aa2502dd35692f33bf06ef32c17594a526ea054cf369837aad794"
-                        >https://github.com/yhoogstrate/segmentation-fold/archive/3cce35ab2265caf186c492764afb5a71ae55d80d.tar.gz</action>
+                        sha256sum="f7d2307f5234c133ad9807c6e5e68312866888ffa993e96ccdbb0f9b7ab5ff62"
+                        >https://github.com/yhoogstrate/segmentation-fold/archive/0ce5f9901e7dcb5d78d750b4df63ab6e03165edb.tar.gz</action>
                     
                 <action type="set_environment_for_install">
                     <repository name="package_boost_1_57" owner="iuc">
