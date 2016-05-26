@@ -1,4 +1,4 @@
-<tool id="smf_utils_filter-annotated-entries" name="filter-annotated-entries" version="@VERSION@-0">
+<tool id="smf_utils_filter-annotated-entries" name="filter-annotated-entries" version="@VERSION@-1">
     <description>Split entries into two files based on whether they overlap annotations in a bed file</description>
     
     <macros>
@@ -9,6 +9,7 @@
         <requirement type="package" version="2.7.10">python</requirement>
         <requirement type="package" version="1.9">numpy</requirement>
         <requirement type="package" version="0.8.2.1">pysam</requirement>
+        <requirement type="package" version="0.6.1">htseq</requirement>
         <requirement type="package" version="2.0.0">segmentation-fold-utils</requirement>
     </requirements>
     <expand macro="stdio" />

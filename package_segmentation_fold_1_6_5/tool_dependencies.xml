@@ -17,6 +17,9 @@
     <package name="pysam" version="0.8.2.1">
         <repository name="package_pysam_0_8_2" owner="yhoogstrate" prior_installation_required="True" />
     </package>
+    <package name="htseq" version="0.6.1">
+        <repository name="package_htseq_0_6" owner="iuc" prior_installation_required="True" />
+    </package>
     
     <package name="setuptools" version="19.0">
         <repository name="package_setuptools_19_0" owner="iuc" prior_installation_required="True" />
@@ -26,8 +29,8 @@
         <install version="1.0">
             <actions>
                 <action type="download_by_url"
-                        sha256sum="f7dfbc70313aa2502dd35692f33bf06ef32c17594a526ea054cf369837aad794"
-                        >https://github.com/yhoogstrate/segmentation-fold/archive/3cce35ab2265caf186c492764afb5a71ae55d80d.tar.gz</action>
+                        sha256sum="f7d2307f5234c133ad9807c6e5e68312866888ffa993e96ccdbb0f9b7ab5ff62"
+                        >https://github.com/yhoogstrate/segmentation-fold/archive/0ce5f9901e7dcb5d78d750b4df63ab6e03165edb.tar.gz</action>
                     
                 <action type="set_environment_for_install">
                     <repository name="package_boost_1_57" owner="iuc">
@@ -67,31 +70,29 @@
         <install version="1.0">
             <actions>
                 <action type="download_by_url"
-                        sha256sum="f7dfbc70313aa2502dd35692f33bf06ef32c17594a526ea054cf369837aad794"
-                        >https://github.com/yhoogstrate/segmentation-fold/archive/3cce35ab2265caf186c492764afb5a71ae55d80d.tar.gz</action>
+                        sha256sum="f7d2307f5234c133ad9807c6e5e68312866888ffa993e96ccdbb0f9b7ab5ff62"
+                        >https://github.com/yhoogstrate/segmentation-fold/archive/0ce5f9901e7dcb5d78d750b4df63ab6e03165edb.tar.gz</action>
                 
                 <!-- Also install the python utils -->
                 <action type="set_environment_for_install">
                     <repository name="package_setuptools_19_0" owner="iuc">
                         <package name="setuptools" version="19.0" />
                     </repository>
-                </action>
-                
-                <action type="set_environment_for_install">
+
                      <repository name="package_python_2_7_10" owner="iuc">
                         <package name="python" version="2.7.10" />
                     </repository>
-                </action>
-                
-                <action type="set_environment_for_install">
+
                     <repository name="package_python_2_7_numpy_1_9" owner="iuc">
                         <package name="numpy" version="1.9" />
                     </repository>
-                </action>
-                
-                <action type="set_environment_for_install">
+
                     <repository name="package_pysam_0_8_2" owner="yhoogstrate">
                         <package name="pysam" version="0.8.2.1" />
+                    </repository>
+                    
+                    <repository name="package_htseq_0_6" owner="iuc">
+                        <package name="htseq" version="0.6.1" />
                     </repository>
                 </action>
                 
@@ -100,6 +101,9 @@
                 <action type="shell_command"><![CDATA[
                     export PYTHONPATH="$PYTHONPATH:$INSTALL_DIR/lib/python:$INSTALL_DIR/lib64/python"  &&
                     cd scripts/energy-estimation-utility                                               &&
+                    echo "---------------------------------------------------------------------------" &&
+                    head -n 161 segmentation_fold_utils/XMLFile.py | tail -n 11                        &&
+                    echo "---------------------------------------------------------------------------" &&
                     python setup.py install --home "$INSTALL_DIR" --install-scripts "$INSTALL_DIR/bin"
                 ]]></action>
                 

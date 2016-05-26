@@ -1,4 +1,4 @@
-<tool id="smf_utils_estimate-energy" name="estimate-energy" version="@VERSION@-1">
+<tool id="smf_utils_estimate-energy" name="estimate-energy" version="@VERSION@-2">
     <description>Estimates whether a certain Segment(Loop) is present and for which delta-G this transistion takes place</description>
     
     <macros>
@@ -9,6 +9,7 @@
         <requirement type="package" version="2.7.10">python</requirement>
         <requirement type="package" version="1.9">numpy</requirement>
         <requirement type="package" version="0.8.2.1">pysam</requirement>
+        <requirement type="package" version="0.6.1">htseq</requirement>
         <requirement type="package" version="2.0.0">segmentation-fold-utils</requirement>
 
         <requirement type="package" version="1.6.5">segmentation-fold</requirement>

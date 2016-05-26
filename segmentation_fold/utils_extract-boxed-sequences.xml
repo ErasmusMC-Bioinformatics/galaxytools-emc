@@ -1,4 +1,4 @@
-<tool id="smf_utils_extract-boxed-sequences" name="extract-boxed-sequences" version="@VERSION@-0">
+<tool id="smf_utils_extract-boxed-sequences" name="extract-boxed-sequences" version="@VERSION@-1">
     <description>Extracts boxed sequences from bed_input_file which has to be created with 'find-box', part of this utility</description>
     
     <macros>
@@ -9,6 +9,7 @@
         <requirement type="package" version="2.7.10">python</requirement>
         <requirement type="package" version="1.9">numpy</requirement>
         <requirement type="package" version="0.8.2.1">pysam</requirement>
+        <requirement type="package" version="0.6.1">htseq</requirement>
         <requirement type="package" version="2.0.0">segmentation-fold-utils</requirement>
     </requirements>
     <expand macro="stdio" />

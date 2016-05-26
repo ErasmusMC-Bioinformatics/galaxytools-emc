@@ -14,6 +14,9 @@
     <package name="pysam" version="0.8.2.1">
         <repository name="package_pysam_0_8_2" owner="yhoogstrate" />
     </package>
+    <package name="htseq" version="0.6.1">
+        <repository name="package_htseq_0_6" owner="iuc" />
+    </package>
     
     <package name="segmentation-fold-utils" version="2.0.0">
         <repository name="package_segmentation_fold_1_6_5" owner="yhoogstrate" />
