@@ -113,13 +113,15 @@
     <help>
 **What it does**
 
-Individual files or whole datasets may be downloaded from European Genome-phenome Archive (EGA) in a secure manner by first placing a download request and then downloading the file/s associated with the request. All files are automatically encrypted prior to streaming and must be decrypted using the streamer after download is complete. 
+Individual files or whole datasets may be downloaded from European Genome-phenome Archive (EGA) in a secure manner by first placing a download request and then downloading the file/s associated with the request. All files are automatically encrypted prior to streaming and shall be decrypted using the streamer after downloading has completed. 
 
-To download a given dataset, the user should provide the corresponding EGA file identifier (e.g. EGAF00001059069).
+**How to use**
+
+When you load the tool in galaxy, the user should provide the corresponding EGA file identifier (e.g. EGAF00001059069).
 
 **Configuration**
 
-The admin has to configure the server such that the environment variables $user and $pass are exported and reflect the credentials of the EGA account. The user and password shall not be visible to users. This can also be done in the config/jobs_conf.xml file.
+The admin has to configure a generic account, further described in the README: https://raw.githubusercontent.com/ErasmusMC-Bioinformatics/ega_client_galaxy_wrapper/master/README.rst
 
 https://www.ebi.ac.uk/ega/about/your_EGA_account/download_streaming_client
     </help>
