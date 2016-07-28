@@ -1,5 +1,5 @@
 <macros>
-    <token name="@VERSION@">smf-v1.6-5_utils-v1.0.3</token>
+    <token name="@VERSION@">smf-v1.6-5_utils-v2.0.1</token>
 
     <xml name="stdio">
         <stdio>
@@ -17,7 +17,7 @@
         <requirement type="package" version="1.9">numpy</requirement>
         <requirement type="package" version="0.8.2.1">pysam</requirement>
         <requirement type="package" version="0.6.1">htseq</requirement>
-        <requirement type="package" version="2.0.0">segmentation-fold-utils</requirement>
+        <requirement type="package" version="2.0.1">segmentation-fold-utils</requirement>
     ]]></token>
 
     <token name="@REQUIREMENTS_SMF@"><![CDATA[
