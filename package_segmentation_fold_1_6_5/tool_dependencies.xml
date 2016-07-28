@@ -36,9 +36,7 @@
                     <repository name="package_boost_1_57" owner="iuc">
                         <package name="boost" version="1.57" />
                     </repository>
-                </action>
-                
-                <action type="set_environment_for_install">
+                    
                     <repository name="package_cmake_3_2_3" owner="iuc">
                         <package name="cmake" version="3.2.3" />
                     </repository>
@@ -94,6 +92,8 @@
                     <repository name="package_htseq_0_6" owner="iuc">
                         <package name="htseq" version="0.6.1" />
                     </repository>
+                    
+                    <package sha256sum="cc6a19da8ebff6e7074f731447ef7e112bd23adf3de5c597cf9989f2fd8defe9">https://pypi.python.org/packages/7a/00/c14926d8232b36b08218067bcd5853caefb4737cda3f0a47437151344792/click-6.6.tar.gz</package>
                 </action>
                 
                 <action type="make_directory">$INSTALL_DIR/lib/python</action>
