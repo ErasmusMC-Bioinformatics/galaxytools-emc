@@ -10,3 +10,5 @@ Please sign off by admins only
   - [ ] Parameters are reasonably covered
   - [ ] Test files are appropriate
 * [ ] `<command/>`: file names are escaped
+* [ ] Tool requires version/build increase
+
