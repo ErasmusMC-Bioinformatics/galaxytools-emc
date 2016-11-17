@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="edger_dge" name="edgeR: Differential Gene(Expression) Analysis" version="3.11.0.b">
+    <description>RNA-Seq gene expression analysis using edgeR (R package)</description>
+    
+    <macros>
+        <import>edgeR_macros.xml</import>
+    </macros>
+    
+    <requirements>
+        <requirement type="package" version="3.11.0">edger</requirement>
+    </requirements>
+    
+    <stdio>
+        <regex match="Error in[^a-z]+contrasts"
+               source="both"
+               level="fatal"
+               description="Have the design- and expression-matrix been swapped?" />
+        <regex match="Error in eval\(expr, envir, enclos\)"
+               source="both"
+               level="fatal"
+               description="You have most likely used a condition in the contrast, that is not present in the Design matrix" />
+        <regex match="Execution halted"
+               source="both"
+               level="fatal" />
+        <regex match="Calculating library sizes from column" 
+               source="stderr" 
+               level="log" />
+        <regex match="During startup - Warning messages"
+               source="stderr"
+               level="log" />
+        <regex match="Setting LC_[^ ]+ failed"
+               source="stderr"
+               level="warning"
+               description="LOCALE has not been set correctly" />
+    </stdio>
+    
+    <version_command>echo $(R --version | grep version | grep -v GNU)", EdgeR version" $(R --vanilla --slave -e "library(edgeR) ; cat(sessionInfo()\$otherPkgs\$edgeR\$Version)" 2&gt; /dev/null | grep -v -i "WARNING: ")</version_command>
+    
+    <command><![CDATA[
+        #if $analysis_type.analysis_select == "multi_factor"
+            #set $expression_matrix = $analysis_type.expression_matrix
+            #set $design_matrix = $analysis_type.design_matrix
+            #set $contrast = $analysis_type.contrast
+        #else
+            ## Design and Expression matrices do not exist - create them
+            #set $expression_matrix = "expression_matrix.txt"
+            #set $design_matrix = "design_matrix.txt"
+            #set $contrast = str($analysis_type.factorLevel_condition)+"-"+str($analysis_type.factorLevel_control)
+
+            ## -- Create expression matrix
+            cut -f 1 "$analysis_type.countsFile_control[1]" > gene_ids.column.txt &&
+            #for $file in $analysis_type.countsFile_control:
+                cut -f 2 "${file}" > "${file}.expression_column.txt"    &&
+            #end for
+            #for $file in $analysis_type.countsFile_condition:
+                cut -f 2 "${file}" > "${file}.expression_column.txt"    &&
+            #end for
+            
+            paste
+                gene_ids.column.txt
+            #for $file in $analysis_type.countsFile_control:
+                "${file}.expression_column.txt"
+            #end for
+            #for $file in $analysis_type.countsFile_condition:
+                "${file}.expression_column.txt"
+            #end for
+                > "${expression_matrix}"                                &&
+            
+            ## -- Create design matrix matrix
+            echo "sample-name	Condition" >> ${design_matrix}          &&
+            #for $file in $analysis_type.countsFile_control:
+                echo "${file.name}	${analysis_type.factorLevel_control}" >> ${design_matrix}        &&
+            #end for
+            #for $file in $analysis_type.countsFile_condition:
+                echo "${file.name}	${analysis_type.factorLevel_condition}" >> ${design_matrix}      &&
+            #end for
+        #end if
+        
+        R --vanilla --slave -f $R_script '--args
+            $expression_matrix
+            $design_matrix
+            $contrast
+            
+            $analysis_report_genes
+            $fdr
+            
+            $output_count_edgeR 
+            $output_cpm
+            
+            /dev/null                                                   ### Calculation of FPKM/RPKM should come here
+            
+            #if $output_raw_counts:
+                $output_raw_counts
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_logFC:
+                $output_MDSplot_logFC
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_logFC_coordinates:
+                $output_MDSplot_logFC_coordinates
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_bcv:
+                $output_MDSplot_bcv
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MDSplot_bcv_coordinates:
+                $output_MDSplot_bcv_coordinates
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_BCVplot:
+                $output_BCVplot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_MAplot:
+                $output_MAplot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_PValue_distribution_plot:
+                $output_PValue_distribution_plot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_hierarchical_clustering_plot:
+                $output_hierarchical_clustering_plot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_heatmap_plot:
+                $output_heatmap_plot
+            #else:
+                /dev/null
+            #end if
+            
+            #if $output_RData_obj:
+                $output_RData_obj
+            #else:
+                /dev/null
+            #end if
+            
+            $output_format_images
+            '
+    ]]>
+    </command>
+    
+    <configfiles>
+        <configfile name="R_script">
+<![CDATA[
+
+library(limma,quietly=TRUE)  ## quietly to avoid unnecessaity stderr messages
+library(edgeR,quietly=TRUE)  ## quietly to avoid unnecessaity stderr messages
+library(splines,quietly=TRUE)## quietly to avoid unnecessaity stderr messages
+ 
+## Fetch commandline arguments
+args <- commandArgs(trailingOnly = TRUE)
+
+expression_matrix_file              <- args[1]
+design_matrix_file                  <- args[2]
+contrast                            <- args[3]
+
+truncate_table_by_fdr               <- args[4]
+fdr                                 <- as.double(args[5])
+
+output_count_edgeR                  <- args[6]
+output_cpm                          <- args[7]
+
+output_xpkm                         <- args[8]        ##FPKM file - to be implemented
+
+output_raw_counts                   <- args[9]
+
+output_MDSplot_logFC                <- args[10]
+output_MDSplot_logFC_coordinates    <- args[11]
+
+output_MDSplot_bcv                  <- args[12]
+output_MDSplot_bcv_coordinates      <- args[13]
+
+output_BCVplot                      <- args[14]
+output_MAplot                       <- args[15]
+output_PValue_distribution_plot     <- args[16]
+output_hierarchical_clustering_plot <- args[17]
+output_heatmap_plot                 <- args[18]
+output_RData_obj                    <- args[19]
+output_format_images                <- args[20]
+
+
+## Obtain read-counts
+expression_matrix <- read.delim(expression_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
+design_matrix <- read.delim(design_matrix_file,header=T,stringsAsFactors=F,row.names=1,check.names=FALSE,na.strings=c(""))
+
+colnames(design_matrix) <- make.names(colnames(design_matrix))
+
+for(i in 1:ncol(design_matrix)) {
+  old <- design_matrix[,i]
+  
+  if(any(grepl("^[0-9]+$", old, perl=TRUE) == FALSE)){
+    # Convert invalid names
+    design_matrix[,i] <- make.names(design_matrix[,i])
+    
+    # Print if names have been converted
+    if(paste(design_matrix[,i],collapse="\t") != paste(old,collapse="\t")) {
+      print("Renamed of factors:")
+      print(old)
+      print("To:")
+      print(design_matrix[,i])
+    }
+  } else {
+    # Only numerical factors: these are blocking / pairing factors
+    design_matrix[,i] <- as.numeric(design_matrix[,i])
+  }
+}
+
+## 1) In the expression matrix, you only want to have the samples described in the design matrix
+columns <- match(rownames(design_matrix),colnames(expression_matrix))
+columns <- columns[!is.na(columns)]
+read_counts <- expression_matrix[,columns]
+
+## 2) In the design matrix, you only want to have samples of which you really have the counts
+columns <- match(colnames(read_counts),rownames(design_matrix))
+columns <- columns[!is.na(columns)]
+design_matrix <- design_matrix[columns,,drop=FALSE]
+
+## Filter for HTSeq predifined counts:
+exclude_HTSeq <- c("no_feature","ambiguous","too_low_aQual","not_aligned","alignment_not_unique")
+exclude_DEXSeq <- c("_ambiguous","_empty","_lowaqual","_notaligned")
+exclude_STAR <- c("N_unmapped", "N_multimapping", "N_noFeature", "N_ambiguous")
+
+exclude <- match(c(exclude_HTSeq, exclude_DEXSeq, exclude_STAR),rownames(read_counts))
+exclude <- exclude[is.na(exclude)==0]
+if(length(exclude) != 0)  {
+  read_counts <- read_counts[-exclude,]
+}
+
+
+## sorting expression matrix with the order of the read_counts
+##order <- match(colnames(read_counts) , rownames(design_matrix))
+##read_counts_ordered  <- read_counts[,order2]
+
+empty_samples <- apply(read_counts,2,function(x) sum(x) == 0)
+if(sum(empty_samples) > 0) {
+  write(paste("There are ",sum(empty_samples)," empty samples found:",sep=""),stderr())
+  write(colnames(read_counts)[empty_samples],stderr())
+} else {
+  
+  dge <- DGEList(counts=read_counts,genes=rownames(read_counts))
+  
+  formula <- paste(c("~0",make.names(colnames(design_matrix))),collapse = " + ")
+  design_matrix_tmp <- design_matrix
+  colnames(design_matrix_tmp) <- make.names(colnames(design_matrix_tmp))
+  design <- model.matrix(as.formula(formula),design_matrix_tmp)
+  rm(design_matrix_tmp)
+  
+  # Filter prefixes
+  prefixes = colnames(design_matrix)[attr(design,"assign")]
+  avoid = nchar(prefixes) == nchar(colnames(design))
+  replacements = substr(colnames(design),nchar(prefixes)+1,nchar(colnames(design)))
+  replacements[avoid] = colnames(design)[avoid]
+  colnames(design) = replacements
+  
+  # Do normalization
+  write("Calculating normalization factors...",stdout())
+  dge <- calcNormFactors(dge)
+  write("Estimating common dispersion...",stdout())
+  dge <- estimateGLMCommonDisp(dge,design)
+  write("Estimating trended dispersion...",stdout())
+  dge <- estimateGLMTrendedDisp(dge,design)
+  write("Estimating tagwise dispersion...",stdout())
+  dge <- estimateGLMTagwiseDisp(dge,design)
+  
+  
+  # hierarchical clustering makes use of the distance of the MDS
+  if(output_MDSplot_logFC != "/dev/null" || output_MDSplot_logFC_coordinates != "/dev/null" || output_hierarchical_clustering_plot != "/dev/null") {
+    write("Calculating MDS plot (logFC method)",stdout())
+    n_dim <- nrow(dge\$samples)
+    mds_distance_logFC <- plotMDS.DGEList(dge,top=500,labels=rep("",nrow(dge\$samples)),dim.plot=c(n_dim-2,n_dim-1))
+    dev.off()# Kill it
+    
+    # Reset to primary dimensions
+    mds_distance_logFC\$x = mds_distance_logFC\$cmdscale.out[,1]
+    mds_distance_logFC\$y = mds_distance_logFC\$cmdscale.out[,2]
+    
+    if(output_MDSplot_logFC != "/dev/null") {  
+      write("Creating MDS plot (logFC method)",stdout())
+      if(output_format_images == "pdf") {
+        pdf(output_MDSplot_logFC,height=14,width=14)
+      } else if(output_format_images == "svg") {
+        svg(output_MDSplot_logFC,height=14,width=14)
+      } else {
+        ## png(output_MDSplot_logFC)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_MDSplot_logFC,type="png16m",height=7*3,width=7*3)
+      }
+      
+      diff_x <- abs(max(mds_distance_logFC\$x)-min(mds_distance_logFC\$x))
+      diff_y <-(max(mds_distance_logFC\$y)-min(mds_distance_logFC\$y))
+      plot(c(min(mds_distance_logFC\$x),max(mds_distance_logFC\$x) + 0.45 * diff_x), c(min(mds_distance_logFC\$y) - 0.05 * diff_y,max(mds_distance_logFC\$y) + 0.05 * diff_y), main="edgeR logFC-MDS Plot on top 500 genes",type="n", xlab="Leading logFC dim 1", ylab="Leading logFC dim 2")
+      points(mds_distance_logFC\$x,mds_distance_logFC\$y,pch=20)
+      text(mds_distance_logFC\$x,mds_distance_logFC\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+      rm(diff_x,diff_y)
+      
+      dev.off()
+    }
+    
+    if(output_MDSplot_logFC_coordinates != "/dev/null") {
+      n_dim <- ncol(mds_distance_logFC\$cmdscale.out)
+      colnames(mds_distance_logFC\$cmdscale.out) <- paste(rep("Dim",n_dim),(1:n_dim),sep="_")
+      export <- data.frame(samples=rownames(mds_distance_logFC\$cmdscale.out),mds_distance_logFC\$cmdscale.out)
+      row.names(export) <- NULL
+      write.table(file=output_MDSplot_logFC_coordinates,export,sep="\t",row.names=FALSE,col.names=TRUE)
+    }
+  }
+  
+  
+  if(output_MDSplot_bcv != "/dev/null" || output_MDSplot_bcv_coordinates != "/dev/null" ) {
+    write("Creating MDS plot (bcv method)",stdout())
+    
+    ## 1. First create a virtual plot to obtain the desired coordinates
+    n_dim <- nrow(dge\$samples)
+    mds_distance_BCV <- plotMDS.DGEList(dge,method="bcv",top=500,labels=rep("",nrow(dge\$samples)),dim.plot=c(n_dim-2,n_dim-1))
+    dev.off()
+    
+    if(output_MDSplot_logFC != "/dev/null") {  
+      ## 2. Re-plot the coordinates in a new figure with the size and settings.
+      if(output_format_images == "pdf") {
+        pdf(output_MDSplot_bcv,height=14,width=14)
+      } else if(output_format_images == "svg") {
+        svg(output_MDSplot_bcv,height=14,width=14)
+      } else {
+        ## png(output_MDSplot_bcv)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_MDSplot_bcv,type="png16m",height=7*3,width=7*3)
+      }
+      
+      diff_x <- abs(max(mds_distance_BCV\$x)-min(mds_distance_BCV\$x))
+      diff_y <- (max(mds_distance_BCV\$y)-min(mds_distance_BCV\$y))
+      plot(c(min(mds_distance_BCV\$x),max(mds_distance_BCV\$x) + 0.45 * diff_x), c(min(mds_distance_BCV\$y) - 0.05 * diff_y,max(mds_distance_BCV\$y) + 0.05 * diff_y), main="edgeR BCV-MDS Plot",type="n", xlab="Leading BCV dim 1", ylab="Leading BCV dim 2")
+      points(mds_distance_BCV\$x,mds_distance_BCV\$y,pch=20)
+      text(mds_distance_BCV\$x, mds_distance_BCV\$y,rownames(dge\$samples),cex=1.25,col="gray",pos=4)
+      rm(diff_x,diff_y)
+      
+      dev.off()
+    }
+    
+    if(output_MDSplot_bcv_coordinates != "/dev/null") { 
+      n_dim <- ncol(mds_distance_BCV\$cmdscale.out)
+      colnames(mds_distance_BCV\$cmdscale.out) <- paste(rep("Dim",n_dim),(1:n_dim),sep="_")
+      export <- data.frame(samples=rownames(mds_distance_BCV\$cmdscale.out),mds_distance_BCV\$cmdscale.out)
+      row.names(export) <- NULL
+      write.table(file=output_MDSplot_bcv_coordinates,export,sep="\t",row.names=FALSE,col.names=TRUE)
+    }
+  }
+  
+  
+  if(output_BCVplot != "/dev/null") {
+    write("Creating Biological coefficient of variation plot",stdout())
+    
+    if(output_format_images == "pdf") {
+      pdf(output_BCVplot)
+    } else if(output_format_images == "svg") {
+      svg(output_BCVplot)
+    } else {
+      ## png(output_BCVplot)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_BCVplot,type="png16m",width=10.5*3,height=7*3)
+    }
+    
+    plotBCV(dge, cex=0.4, main="edgeR: Biological coefficient of variation (BCV) vs abundance")
+    dev.off()
+  }
+  
+  
+  write("Fitting GLM...",stdout())
+  fit <- glmFit(dge,design)
+
+  write(paste("Performing likelihood ratio test: ",contrast,sep=""),stdout())
+  cont <- c(contrast)
+  cont <- makeContrasts(contrasts=cont, levels=design)
+
+  lrt <- glmLRT(fit, contrast=cont[,1])
+  write(paste("Exporting DGE results to file...",output_count_edgeR,sep=""),stdout())
+  
+  if(truncate_table_by_fdr =="all") {
+    write.table(file=output_count_edgeR,topTags(lrt,n=nrow(read_counts))\$table,sep="\t",row.names=TRUE,col.names=NA)
+  }
+  else {
+    write.table(file=output_count_edgeR,subset(topTags(lrt,n=nrow(read_counts))\$table, FDR < fdr),sep="\t",row.names=TRUE,col.names=NA)
+  }
+  write.table(file=output_cpm,cpm(dge,normalized.lib.sizes=TRUE),sep="\t",row.names=TRUE,col.names=NA)
+
+  ## todo EXPORT FPKM
+  write.table(file=output_raw_counts,dge\$counts,sep="\t",row.names=TRUE,col.names=NA)
+  
+  if(output_MAplot != "/dev/null" || output_PValue_distribution_plot != "/dev/null") {
+    etable <- topTags(lrt, n=nrow(dge))\$table
+    etable <- etable[order(etable\$FDR), ]
+    
+    if(output_MAplot != "/dev/null") {
+      write("Creating MA plot...",stdout())
+      
+      if(output_format_images == "pdf") {
+        pdf(output_MAplot)
+      } else if(output_format_images == "svg") {
+        svg(output_MAplot)
+      } else {
+        ## png(output_MAplot)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_MAplot,type="png16m",width=10.5*3,height=7*3)
+      }
+      
+      with(etable, plot(logCPM, logFC, pch=20, main="edgeR: Fold change vs abundance"))
+      with(subset(etable, FDR < fdr), points(logCPM, logFC, pch=20, col="red"))
+      abline(h=c(-1,1), col="blue")
+      dev.off()
+    }
+  
+    if(output_PValue_distribution_plot != "/dev/null") {
+      write("Creating P-value distribution plot...",stdout())
+      
+      if(output_format_images == "pdf") {
+        pdf(output_PValue_distribution_plot,width=14,height=14)
+      } else if(output_format_images == "svg") {
+        svg(output_PValue_distribution_plot,width=14,height=14)
+      } else {
+        ## png(output_PValue_distribution_plot)
+        ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+        
+        bitmap(output_PValue_distribution_plot,type="png16m",width=7*3,height=7*3)
+      }
+      
+      expressed_genes <- subset(etable, PValue < 0.99)
+      h <- hist(expressed_genes\$PValue,breaks=nrow(expressed_genes)/15,main="Binned P-Values (< 0.99)")
+      center <- sum(h\$counts) / length(h\$counts)
+      lines(c(0,1),c(center,center),lty=2,col="red",lwd=2)
+      k <- ksmooth(h\$mid, h\$counts)
+      lines(k\$x,k\$y,col="red",lwd=2)
+      rmsd <- (h\$counts) - center
+      rmsd <- rmsd^2
+      rmsd <- sum(rmsd)
+      rmsd <- sqrt(rmsd)
+      text(0,max(h\$counts),paste("e=",round(rmsd,2),sep=""),pos=4,col="blue")
+      ## change e into epsilon somehow
+      dev.off()
+    }
+  }
+  
+  if(output_heatmap_plot != "/dev/null") {
+    
+    if(output_format_images == "pdf") {
+      pdf(output_heatmap_plot,width=10.5)
+    } else if(output_format_images == "svg") {
+      svg(output_heatmap_plot,width=10.5)
+    } else {
+      ## png(output_heatmap_plot)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_heatmap_plot,type="png16m",width=10.5*3,height=7*3)
+    }
+    
+    etable2 <- topTags(lrt, n=100)\$table
+    order <- rownames(etable2)
+    cpm_sub <- cpm(dge,normalized.lib.sizes=TRUE,log=TRUE)[as.numeric(order),]
+    heatmap(t(cpm_sub))
+    dev.off()
+  }
+  
+  if(output_hierarchical_clustering_plot != "/dev/null") {
+    if(output_hierarchical_clustering_plot == "pdf") {
+      pdf(output_hierarchical_clustering_plot,width=10.5)
+    } else if(output_hierarchical_clustering_plot == "svg") {
+      svg(output_hierarchical_clustering_plot,width=10.5)
+    } else {
+      ## png(output_hierarchical_clustering_plot)
+      ## png does not work out of the box in the Galaxy Toolshed Version of R due to its compile settings: https://biostar.usegalaxy.org/p/9170/
+      
+      bitmap(output_hierarchical_clustering_plot,type="png16m",width=10.5*3,height=7*3)
+    }
+    
+    mds_distance = as.dist(mds_distance_logFC\$distance.matrix)
+    clustering = hclust(mds_distance)
+    plot(clustering,main=paste("Cluster Dendogram on the ",mds_distance_logFC\$top," TopTags",sep="",sub="\ncomplete linkage on logFC MDS distance"))
+    
+    dev.off()
+  }
+  
+  if(output_RData_obj != "/dev/null") {
+    save.image(output_RData_obj)
+  }
+  
+  write("Done!",stdout())
+}
+]]>
+        </configfile>
+    </configfiles>
+    
+    <inputs>
+        <conditional name="analysis_type">
+            <param name="analysis_select" type="select" label="Analysis type">
+                <option value="2_factor" selected="true">2-Group test</option>
+                <option value="multi_factor">Multigroup test and/or complex designs with e.g. blocking</option>
+            </param>
+            <when value="2_factor">
+                <param name="factorLevel_control" type="text" value="Control"
+                       label="Specify a factor level" help="Only letters, numbers and underscores will be retained in this field">
+                    <sanitizer>
+                        <valid initial="string.letters,string.digits"><add value="_" /></valid>
+                    </sanitizer>
+                </param>
+                <param name="countsFile_control" type="data" format="tabular,csv" multiple="true" label="Counts file(s)"/>
+                
+                <param name="factorLevel_condition" type="text" value="Condition"
+                       label="Specify a factor level" help="Only letters, numbers and underscores will be retained in this field">
+                    <sanitizer>
+                        <valid initial="string.letters,string.digits"><add value="_" /></valid>
+                    </sanitizer>
+                </param>
+                <param name="countsFile_condition" type="data" format="tabular,csv" multiple="true" label="Counts file(s)"/>
+            </when>
+            <when value="multi_factor">
+                <param name="expression_matrix" type="data" format="tabular,csv" label="Expression (read count) matrix" />
+                <param name="design_matrix" type="data" format="tabular,csv" label="Design matrix"
+                       help="Ensure your samplenames are identical to those in the expression matrix. Preferentially, create the contrast matrix using 'edgeR: Design- from Expression matrix'." />
+                
+                <param name="contrast" type="text" label="Contrast (biological question)"
+                       help="e.g. 'tumor-normal' or '(G1+G2)/2-G3' using the factors chosen in the design matrix. Read the 'makeContrasts' manual from Limma package for more info: http://www.bioconductor.org/packages/release/bioc/html/limma.html and http://www.bioconductor.org/packages/release/bioc/vignettes/limma/inst/doc/usersguide.pdf." />
+            </when>
+        </conditional>
+        
+        <param name="analysis_report_genes" type="select" label="Report differentially expressed genes">
+            <option value="all" selected="true">All genes</option>
+            <option value="significant">Only significant (defined by FDR cutoff)</option>
+        </param>
+        
+        <param name="fdr" type="float" min="0" max="1" value="0.01" label="False Discovery Rate (FDR) cutoff" help="Used to highlight significant genes in figures" />
+        
+        <param name="outputs" type="select" label="Optional desired outputs" multiple="true" display="checkboxes">
+            <option value="make_output_raw_counts">Raw counts table</option>
+            <option value="make_output_MDSplot_logFC">MDS-plot (logFC-method)</option>
+            <option value="make_output_MDSplot_logFC_coordinates">MDS-plot coordinates table (logFC-method)</option>
+            <option value="make_output_MDSplot_bcv">MDS-plot (BCV-method; slow)</option>
+            <option value="make_output_MDSplot_bcv_coordinates">MDS-plot coordinates table (BCV-method; slow)</option>
+            <option value="make_output_BCVplot">BCV-plot</option>
+            <option value="make_output_MAplot">MA-plot</option>
+            <option value="make_output_PValue_distribution_plot">P-Value distribution plot</option>
+            <option value="make_output_hierarchical_clustering_plot">Hierarchical custering</option>
+            <option value="make_output_heatmap_plot">Heatmap</option>
+            <option value="make_output_RData_obj">R Data object</option>
+        </param>
+        
+        <param name="output_format_images" type="select" label="Output format of images" display="radio">
+            <option value="png">Portable network graphics (.png)</option>
+            <option value="pdf">Portable document format (.pdf)</option>
+            <option value="svg" selected="true">Scalable vector graphics (.svg)</option>
+        </param>
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="output_count_edgeR" label="edgeR DGE on ${on_string}: differentially expressed genes" >
+            <actions>
+                <action name="column_names" type="metadata" default="original_gene_position,genes,logFC,logCPM,LR,PValue,FDR" />
+            </actions>
+        </data>
+        <data format="tabular" name="output_cpm" label="edgeR DGE on ${on_string}: CPM" />
+        
+        <data format="tabular" name="output_raw_counts" label="edgeR DGE on ${on_string}: raw counts">
+            <filter>outputs and ("make_output_raw_counts" in outputs)</filter>
+        </data>
+        
+        <data format="png" name="output_MDSplot_logFC" label="edgeR DGE on ${on_string}: MDS-plot (logFC method)">
+            <filter>outputs and ("make_output_MDSplot_logFC" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="tabular" name="output_MDSplot_logFC_coordinates" label="edgeR DGE on ${on_string}: MDS-plot coordinates table (logFC method)">
+            <filter>outputs and ("make_output_MDSplot_logFC_coordinates" in outputs)</filter>
+        </data>
+        
+        <data format="png" name="output_MDSplot_bcv" label="edgeR DGE on ${on_string}: MDS-plot (bcv method)">
+            <filter>outputs and ("make_output_MDSplot_bcv" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="tabular" name="output_MDSplot_bcv_coordinates" label="edgeR DGE on ${on_string}: MDS-plot coordinates table (BCV method)">
+            <filter>outputs and ("make_output_MDSplot_bcv_coordinates" in outputs)</filter>
+        </data>
+        
+        <data format="png" name="output_BCVplot" label="edgeR DGE on ${on_string}: BCV-plot">
+            <filter>outputs and ("make_output_BCVplot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_MAplot" label="edgeR DGE on ${on_string}: MA-plot">
+            <filter>outputs and ("make_output_MAplot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_PValue_distribution_plot" label="edgeR DGE on ${on_string}: P-Value distribution">
+            <filter>outputs and ("make_output_PValue_distribution_plot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_hierarchical_clustering_plot" label="edgeR DGE on ${on_string}: Hierarchical custering">
+            <filter>outputs and ("make_output_hierarchical_clustering_plot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="png" name="output_heatmap_plot" label="edgeR DGE on ${on_string}: Heatmap">
+            <filter>outputs and ("make_output_heatmap_plot" in outputs)</filter>
+            
+            <change_format>
+                <when input="output_format_images" value="png" format="png" />
+                <when input="output_format_images" value="pdf" format="pdf" />
+                <when input="output_format_images" value="svg" format="svg" />
+            </change_format>
+        </data>
+        
+        <data format="RData" name="output_RData_obj" label="edgeR DGE on ${on_string}: R data object">
+            <filter>outputs and ("make_output_RData_obj" in outputs)</filter>
+        </data>
+        
+        <data format="txt" name="output_R" label="edgeR DGE on ${on_string}: R output (debug)" >
+            <filter>outputs and ("make_output_R_stdout" in outputs)</filter>
+        </data>
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="analysis_select" value="multi_factor" />
+            
+            <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+            <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
+            
+            <param name="contrast" value="E-C"/>
+        
+            <param name="analysis_report_genes" value="all"/>
+            <param name="fdr" value="0.01" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="multi_factor" />
+            
+            <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+            <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.txt" />
+            
+            <param name="contrast" value="E-C"/>
+        
+            <param name="analysis_report_genes" value="significant"/>
+            <param name="fdr" value="0.05" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.significant.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="2_factor" />
+            
+            <param name="factorLevel_control" value="C" />
+            <param name="countsFile_control" value="Differential_Gene_Expression/C1,Differential_Gene_Expression/C2,Differential_Gene_Expression/C3,Differential_Gene_Expression/C4" ftype="tabular" />
+            
+            <param name="factorLevel_condition" value="E" />
+            <param name="countsFile_condition" value="Differential_Gene_Expression/E1,Differential_Gene_Expression/E2,Differential_Gene_Expression/E3,Differential_Gene_Expression/E4" ftype="tabular" />
+        
+            <param name="analysis_report_genes" value="all"/>
+            <param name="fdr" value="0.01" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="2_factor" />
+            
+            <param name="factorLevel_control" value="C" />
+            <param name="countsFile_control" value="Differential_Gene_Expression/C1,Differential_Gene_Expression/C2,Differential_Gene_Expression/C3,Differential_Gene_Expression/C4" ftype="tabular" />
+            
+            <param name="factorLevel_condition" value="E" />
+            <param name="countsFile_condition" value="Differential_Gene_Expression/E1,Differential_Gene_Expression/E2,Differential_Gene_Expression/E3,Differential_Gene_Expression/E4" ftype="tabular" />
+        
+            <param name="analysis_report_genes" value="significant"/>
+            <param name="fdr" value="0.05" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.significant.tabular.txt" />
+        </test>
+        <test>
+            <param name="analysis_select" value="multi_factor" />
+            
+            <param name="expression_matrix" value="Differential_Gene_Expression/expression_matrix.tabular.txt" />
+            <param name="design_matrix" value="Differential_Gene_Expression/design_matrix.tabular.batch-effects.txt" />
+            
+            <param name="contrast" value="E-C"/>
+        
+            <param name="analysis_report_genes" value="all"/>
+            <param name="fdr" value="0.01" />
+            
+            <output name="output_count_edgeR" file="Differential_Gene_Expression/differentially_expressed_genes.batch-effects.tabular.txt" />
+        </test>
+    </tests>
+    
+    <help>
+edgeR: Differential Gene(Expression) Analysis
+#############################################
+
+Overview
+--------
+Differential expression analysis of RNA-seq and digital gene expression profiles with biological replication. Uses empirical Bayes estimation and exact tests based on the negative binomial distribution. Also useful for differential signal analysis with other types of genome-scale count data [1].
+
+For every experiment, the algorithm requires a design matrix. This matrix describes which samples belong to which groups.
+More details on this are given in the edgeR manual: http://www.bioconductor.org/packages/2.12/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf
+and the limma manual.
+
+Because the creation of a design matrix can be complex and time consuming, especially if no GUI is used, this package comes with an alternative tool which can help you with it.
+This tool is called *edgeR Design Matrix Creator*.
+If the appropriate design matrix (with corresponding links to the files) is given,
+the correct contrast ( http://en.wikipedia.org/wiki/Contrast_(statistics) ) has to be given.
+
+If you have for example two groups, with an equal weight, you would like to compare either
+"g1-g2" or "normal-cancer".
+
+The test function makes use of a MCF7 dataset used in a study that indicates that a higher sequencing depth is not neccesairily more important than a higher amount of replaciates[2].
+
+Input
+-----
+Expression matrix
+^^^^^^^^^^^^^^^^^
+::
+
+  Geneid  "\t" Sample-1 "\t" Sample-2 "\t" Sample-3 "\t" Sample-4 [...] "\n"
+  SMURF   "\t"      123 "\t"       21 "\t"    34545 "\t"       98  ...  "\n"
+  BRCA1   "\t"      435 "\t"     6655 "\t"       45 "\t"       55  ...  "\n"
+  LINK33  "\t"        4 "\t"      645 "\t"      345 "\t"        1  ...  "\n"
+  SNORD78 "\t"      498 "\t"       65 "\t"       98 "\t"       27  ...  "\n"
+  [...]
+
+*Note: Make sure the number of columns in the header is identical to the number of columns in the body.*
+
+Design matrix
+^^^^^^^^^^^^^
+::
+
+  Sample    "\t" Condition "\t" Ethnicity "\t" Patient "\t" Batch "\n"
+  Sample-1  "\t"     Tumor "\t"  European "\t"       1 "\t"     1 "\n"
+  Sample-2  "\t"    Normal "\t"  European "\t"       1 "\t"     1 "\n"
+  Sample-3  "\t"     Tumor "\t"  European "\t"       2 "\t"     1 "\n"
+  Sample-4  "\t"    Normal "\t"  European "\t"       2 "\t"     1 "\n"
+  Sample-5  "\t"     Tumor "\t"   African "\t"       3 "\t"     1 "\n"
+  Sample-6  "\t"    Normal "\t"   African "\t"       3 "\t"     1 "\n"
+  Sample-7  "\t"     Tumor "\t"   African "\t"       4 "\t"     2 "\n"
+  Sample-8  "\t"    Normal "\t"   African "\t"       4 "\t"     2 "\n"
+  Sample-9  "\t"     Tumor "\t"     Asian "\t"       5 "\t"     2 "\n"
+  Sample-10 "\t"    Normal "\t"     Asian "\t"       5 "\t"     2 "\n"
+  Sample-11 "\t"     Tumor "\t"     Asian "\t"       6 "\t"     2 "\n"
+  Sample-12 "\t"    Normal "\t"     Asian "\t"       6 "\t"     2 "\n"
+
+*Note: Avoid factor names that are (1) numerical, (2) contain mathematical symbols and preferebly only use letters.*
+
+Contrast
+^^^^^^^^
+The contrast represents the biological question. There can be many questions asked, e.g.:
+
+- Tumor-Normal
+- African-European
+- 0.5*(Control+Placebo) / Treated
+
+@CONTACT@
+    </help>
+    
+    <expand macro="citations" />
+</tool>

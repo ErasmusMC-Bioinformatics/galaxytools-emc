@@ -1,0 +1,9 @@
+sample-name	Condition
+C1	C
+C2	C
+C3	C
+C4	C
+E1	E
+E2	E
+E3	E
+E4	E
