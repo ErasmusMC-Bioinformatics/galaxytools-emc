@@ -1,1 +1,0 @@
-featurecounts/README.rst
