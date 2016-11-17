@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="unafold" version="3.8">
+        <repository name="package_unafold_3_8" owner="yhoogstrate" prior_installation_required="False" />
+    </package>
+</tool_dependency>
