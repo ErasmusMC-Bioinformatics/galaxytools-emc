@@ -1,0 +1,59 @@
+<tool id="smf_utils_fix-fasta-headers" name="fix-fasta-headers" version="@VERSION@-1">
+    <description>Replaces all spaces with underscores in the ">.."-sequence headers of a FASTA file</description>
+    
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <requirements>
+        <requirement type="package" version="2.7.10">python</requirement>
+        <requirement type="package" version="1.9">numpy</requirement>
+        <requirement type="package" version="0.8.2.1">pysam</requirement>
+        <requirement type="package" version="0.6.1">htseq</requirement>
+        <requirement type="package" version="2.1.0">segmentation-fold-utils</requirement>
+    </requirements>
+    
+    <expand macro="stdio" />
+
+    <version_command>@VERSION_COMMAND_UTILS@</version_command>
+    
+    <command><![CDATA[
+        segmentation-fold-utils
+            fix-fasta-headers
+                '${fasta_input}'
+                '${fasta_output}'
+    ]]></command>
+
+    <inputs>
+        <param name="fasta_input"
+               type="data"
+               format="fasta"
+               argument="-f"
+               label="Fasta file with RNA-sequece" />
+    </inputs>
+
+    <outputs>
+        <data format="fasta"
+              name="fasta_output"
+              label="${tool.name} on ${str($fasta_input.hid) + ': ' + $fasta_input.name}" />
+    </outputs>
+
+    <tests>
+        <test>
+            <param name="fasta_input" value="test_22.fa" format="fasta" />
+            
+            <output name="fasta_output" file="test_22.fixed.fa" />
+        </test>
+        <test>
+            <param name="fasta_input" value="test_23.fa" format="fasta" />
+            
+            <output name="fasta_output" file="test_23.fixed.fa" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+Replaces all spaces with underscores in the ">.."-sequence headers of a FASTA file for compatibility with pysam indexing.
+    ]]></help>
+    
+    <expand macro="citations" />
+</tool>
