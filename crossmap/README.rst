@@ -1,1 +1,0 @@
-crossmap/README.rst
