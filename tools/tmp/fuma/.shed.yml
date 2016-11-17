@@ -1,0 +1,28 @@
+categories:
+- Combinatorial Selections
+- RNA
+- Sequence Analysis
+- Transcriptomics
+- Variant Analysis
+description: |
+  FuMa: match RNA-Seq detected fusion genes from several detection tools
+long_description: |
+  FuMa: reporting overlap in RNA-seq detected fusion genes.
+  
+  A new generation of tools that identify fusion genes in RNA-seq data
+  is limited in either sensitivity and or specificity. To allow further
+  downstream analysis and to estimate performance, predicted fusion
+  genes from different tools have to be compared. However, several
+  factors complicate genomic location-based matching in a transcriptome
+  context. FusionMatcher (FuMa) is a program that reports identical
+  fusion genes based on gene-name annotations. FuMa automatically
+  compares and summarizes all combinations of two or more datasets in a
+  single run, without additional programming necessary. FuMa uses only
+  one single gene annotation, avoiding mismatches caused by tool
+  specific gene annotations. Furthermore, FuMa accepts intermediate
+  output files that allow a step wise analysis of corresponding tools.
+name: fuma
+owner: yhoogstrate
+homepage_url: https://github.com/yhoogstrate/fuma
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/fuma_galaxy_wrapper
+type: unrestricted
