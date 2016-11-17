@@ -1,0 +1,33 @@
+<tool id="data_manager_fetch_liftover_chain" name="liftOver Chain" version="0.0.1" tool_type="manage_data">
+    <description>fetching</description>
+    <command interpreter="python"><![CDATA[
+        data_manager_fetch_liftover_chain.py
+            --dbkey_from ${ dbkey_from }
+            --dbkey_to ${ dbkey_to }
+            "${out_file}"
+    ]]>
+    </command>
+    <inputs>
+        <param name="upstream_or_down" type="select" label="Get">
+          <option value="download">Obtain LiftOver Chain file</option>
+          <option value="internal_update">Update database with dbkeys</option>
+        </param>
+        
+        <param name="url_prefix" type="hidden" value="http://hgdownload.cse.ucsc.edu/goldenPath/" />
+        <param type="genomebuild" name="dbkey_from" value="" label="dbkey 'from'" help="To liftover from e.g. hg18 to hg19, use 'hg18'" />
+        <param type="genomebuild" name="dbkey_to" value="" label="dbkey 'to'" help="To liftover from e.g. hg18 to hg19, use 'hg19'" />
+    </inputs>
+    
+    <outputs>
+        <data name="out_file" format="data_manager_json"/>
+    </outputs>
+    
+    <tests>
+    </tests>
+    
+    <help>
+**What it does**
+
+Fetches a liftOver chain file from UCSC.
+    </help>
+</tool>

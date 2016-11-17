@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="python" version="2.7.10">
+        <repository name="package_python_2_7_10" owner="iuc" prior_installation_required="True" />
+    </package>
+    <package name="nose" version="1.3.7">
+        <repository name="package_nose_1_3_7" owner="yhoogstrate" prior_installation_required="True" />
+    </package>
+    <package name="numpy" version="1.9">
+        <repository name="package_python_2_7_numpy_1_9" owner="iuc" prior_installation_required="True" />
+    </package>
+    <package name="cython" version="0.23.1">
+        <repository name="package_cython_0_23_1" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="crossmap" version="0.2">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url" sha256sum="eb983c8d0ff0331f069e2378768d8988b6b9d8dd303a0f0f0cef9d882256af85">http://sourceforge.net/projects/crossmap/files/CrossMap-0.2.tar.gz</action>
+                
+                <action type="setup_python_environment">
+                    <repository name="package_python_2_7_10" owner="iuc">
+                        <package name="python" version="2.7.10" />
+                    </repository>
+                    <repository name="package_nose_1_3_7" owner="yhoogstrate">
+                        <package name="nose" version="1.3.7" />
+                    </repository>
+                    <repository name="package_cython_0_23_1" owner="iuc">
+                        <package name="cython" version="0.23.1" />
+                    </repository>
+                    <repository name="package_python_2_7_numpy_1_9" owner="iuc">
+                        <package name="numpy" version="1.9" />
+                    </repository>
+                </action>
+                
+                <!-- If CrossMap is installed with   - - home   or   - - prefix
+                it often crashes with a 'write-test' error
+                
+                Using - - root places the installation in:
+                $INSTALL_DIR / (python path dir) /
+                
+                
+                The setuptools shipped with galaxy's python version crashes if
+                a setuptools installation contains a setup_requires tag
+                -->
+                <action type="shell_command">
+                    sed -i.bak -r "s/numpy.(sum|nan_to_num)+/np.\1/" "bin/CrossMap.py" ;
+                    sed -i.bak -r "s/setup_requires/#setup_requires/" "setup.py" ;
+                    
+                    python setup.py install --root $INSTALL_DIR &amp;&amp;
+                    export SUB_DIR=$(dirname $(which python)) &amp;&amp;
+                    mv $INSTALL_DIR$SUB_DIR/../lib $INSTALL_DIR/lib &amp;&amp;
+                    mv $INSTALL_DIR$SUB_DIR $INSTALL_DIR/bin
+                </action>
+                
+                <action type="set_environment">
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/lib/python2.7/site-packages</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
+                    
+                    <environment_variable action="set_to" name="PATH_CROSSMAP">$INSTALL_DIR/bin</environment_variable>
+                    <environment_variable action="set_to" name="CROSSMAP_ROOT_DIR">$INSTALL_DIR</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+CrossMap is versatile tool to convert genome coordinates or annotation files between genome
+assemblies. It supports mostly commonly used file types, including BAM, BED,BigWig, GFF,
+GTF, SAM, Wiggle, and VCF formats. For large plain text file types, such as BED, GFF, GTF
+and VCF, reading from remote servers and file compression are supported.
+
+NEWS:
+ * 08/11/15: Release version 0.2: Fixed the bug that CrossMap will not convert wiggle format files due to name collision with bx python.
+ * 07/27/15: Release version 0.1.9. For VCF file conversion in v0.1.9:
+  - CrossMap uses the indexed reference genome (target assembly) sequences rather than load
+the entire file into memory. Users could index their reference genome file using samtools faidx
+before running CrossMap, otherwise CrossMap will index it automatically the first time you run it.
+  - In the output VCF file, whether the chromosome IDs contain "chr" or not depends on the input
+format.
+ * 05/15/15: Release version 0.1.8: Fixed the bug that CrossMap will output invalid VCF file when the
+input VCF file contains a INFO field with whitespace.
+ * 05/04/15: Release version 0.1.7: Address the problem that CrossMap does not convert strand in
+inversions when input file is BED6 or BED12 format.
+ * 11/06/14: Release version 0.1.6: Fixed "negative coordinates" bug.
+ * 08/05/14: Release version 0.1.5: Support compressed (*.gz, *.Z, *.z, *.bz, *.bz2, *.bzip2) wiggle file
+as input.
+ * 05/19/14: add chain files for hg38->hg19, hg19->hg38, hg18->hg38, hg19->GRCh37,
+GRCh37->hg19. In CrossMap v0.1.4, conversion results of BAM/SAM files can be directed to
+STDOUT to support piping.
+ * 12/12/13: CrossMap was accepted by Bioinformatics
+ * 10/23/13: CrossMap (0.1.3) was released
+ 
+Documentation: http://crossmap.sourceforge.net/
+        </readme>
+    </package>
+</tool_dependency>
