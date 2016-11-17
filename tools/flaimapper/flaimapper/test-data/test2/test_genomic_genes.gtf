@@ -1,0 +1,6 @@
+chr1	flaimapper testing	ncRNA	101	250	.	+	.	gene_id="ncRNA_1"
+chr1	flaimapper testing	ncRNA	201	400	.	+	.	gene_id="ncRNA_2"
+chr1	flaimapper testing	ncRNA	351	500	.	+	.	gene_id="ncRNA_3"
+chr22	flaimapper testing	ncRNA	101	200	.	+	.	gene_id="ncRNA_4"
+chr22	flaimapper testing	ncRNA	201	400	.	+	.	gene_id="ncRNA_5"
+chrY	flaimapper testing	ncRNA	1	100	.	+	.	gene_id="ncRNA_6"

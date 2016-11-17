@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="flaimapper-gtf-from-fasta" name="FlaiMapper: extract GTF from FASTA" version="1.2.1.w2">
+    <description>Extract GTF file from FASTA file (as FlaiMapper reference).</description>
+    <requirements>
+        <requirement type="package" version="1.2.1">flaimapper</requirement>
+    </requirements>
+    
+    <stdio>
+        <regex
+            match="[fai_load] build FASTA index." 
+            source="stderr" 
+            level="log" 
+            description="The FASTA file is being indexed." />
+    </stdio>
+    
+    <version_command>flaimapper --version</version_command>
+    
+    <command><![CDATA[
+        gtf-from-fasta -o $output $fasta
+    ]]></command>
+    
+    <inputs>
+        <param name="fasta" type="data" format="fasta" label="Fasta sequence corresponding to reference genome" help="This is the FASTA file that fits the used reference genome (e.g. hg19 or a ncRNA database)." />
+    </inputs>
+    
+    <outputs>
+        <data format="gtf" name="output" label="${tool.name} on ${fasta.name}" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="fasta" value="test3/ncrnadb09.fa" ftype="fasta" />
+            
+            <output name="output" file="test3/reference.gtf" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+FlaiMapper wrapper for Galaxy
+=============================
+
+https://github.com/yhoogstrate/flaimapper
+http://www.ncbi.nlm.nih.gov/pubmed/25338717
+http://dx.doi.org/10.1093/bioinformatics/btu696
+
+Fragment Location Annotation Identification Mapper
+
+FlaiMapper: computational annotation of small ncRNA-derived fragments using RNA-seq high-throughput data.
+
+Input formats
+-------------
+To make FlaiMapper compatible with both an entire reference genome as a
+separate ncRNA database, it requires an additional GTF file *(mask file)*.
+The major difference between an entire reference and a ncRNA database
+is that an entire reference usually contains multiple ncRNAs per sequence
+entry (chromosome). While for the ncRNA database, each entry should
+represent one single mature ncRNA.
+
+Therefore the mask file that represents to the FASTA file of a ncRNA
+database will only contain the start- and end positions of each entry.
+To generate this in an automated fashion, you can make use of this tool
+*as long as the FASTA file doesn't contain entire chromosomes* but
+mature ncRNA.
+
+An example input file is **ncRNAdb09**, available at the following URLs:
+https://raw.githubusercontent.com/yhoogstrate/flaimapper/master/share/annotations/ncRNA_annotation/ncrnadb09.fa *(reference file)*
+
+It should generate a GTF/GFF file (mask file) similar to the following URL:
+https://raw.githubusercontent.com/yhoogstrate/flaimapper/master/share/annotations/ncRNA_annotation/ncrnadb09.gtf *(mask file)*
+
+Installation
+------------
+
+The wrapper makes use of easy_install to install a python egg. Please
+ensure you have easy_install installed.
+
+License
+-------
+
+**flaimapper** and **wrapper**:
+
+GPL (>=3)
+
+**pysam**:
+
+The MIT License
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands).
+
+
+Development
+-----------
+
+* Repository-Maintainer: Youri Hoogstrate
+* Repository-Developers: Youri Hoogstrate
+
+* Repository-Development: https://github.com/ErasmusMC-Bioinformatics/galaxy-tools
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands).
+
+    ]]></help>
+    
+    <citations>
+        <citation type="doi">10.1093/bioinformatics/btu696</citation>
+    </citations>
+</tool>

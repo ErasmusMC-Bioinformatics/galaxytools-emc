@@ -1,0 +1,8 @@
+Fragment	Size	Reference sequence	Start	End	Precursor	Start in precursor	End in precursor	Sequence	Corresponding-reads (start)	Corresponding-reads (end)	Corresponding-reads (total)
+ncRNA_1_chr1_Fragment_1	30	chr1	220	249	ncRNA_1	120	149	GGATAGTGCCAAAGCTCACTCACCACTGCC	10	9	19
+ncRNA_2_chr1_Fragment_1	30	chr1	220	249	ncRNA_2	20	49	GGATAGTGCCAAAGCTCACTCACCACTGCC	10	9	19
+ncRNA_2_chr1_Fragment_2	30	chr1	260	289	ncRNA_2	60	89	GCTTACCTCTAGAATAAGTGTCAGCCAGTA	10	10	20
+ncRNA_3_chr1_Fragment_1	30	chr1	400	429	ncRNA_3	50	79	atacgtggcatttcaggaggcggccggagg	10	10	20
+ncRNA_4_chr22_Fragment_1	50	chr22	100	149	ncRNA_4	0	49	AGATACAGTGTCTTTGACACGTTTATGGATTACAGCAATCACATCCAAGA	10	10	20
+ncRNA_5_chr22_Fragment_1	30	chr22	370	399	ncRNA_5	170	199	TCTTGAGTGTTAAAATGTTGACCCCTGTAT	10	10	20
+ncRNA_6_chrY_Fragment_1	30	chrY	0	29	ncRNA_6	0	29	TTGGGATGCGGGTAGTAGATGACTGCAGGG	10	9	19

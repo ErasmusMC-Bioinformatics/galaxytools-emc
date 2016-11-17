@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tool_dependency>
+	<package name="flaimapper" version="1.2.1">
+		<repository name="package_flaimapper_1_2_1" owner="yhoogstrate" prior_installation_required="False" />
+	</package>
+</tool_dependency>
