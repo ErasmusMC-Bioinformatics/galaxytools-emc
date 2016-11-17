@@ -1,1 +1,0 @@
-fuma/README.rst
