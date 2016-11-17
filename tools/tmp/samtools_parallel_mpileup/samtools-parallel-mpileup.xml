@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="samtools_parallel_mpileup" name="Samtools parallel mpileup" version="0.1.19-a.a">
+    <description>Samtools mpileup (supporting parallelization)</description>
+    
+    <requirements>
+        <requirement type="package" version="0.1.19-a">samtools_parallel_mpileup</requirement>
+        <requirement type="package" version="0.1.19">samtools</requirement>
+    </requirements>
+    
+    <version_command>samtools-parallel-mpileup 2&gt;&amp;1 | grep Version</version_command>
+    
+    <command>
+        #if $reference_genome_source.source_select == "attribute" and len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) != 1
+            echo "Invalid number of dbkeys are found: ${ len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) }, while only one should be used. Make sure that the alignments are done on the same reference genome and that 'tool-data/all_fasta.loc' is configured properly!" >&amp;2
+        #else
+            #if $mpileup_parallelization.mpileup_parallelization_select == "true"
+                samtools-parallel-mpileup mpileup
+                -t $mpileup_parallelization.samtools_threads
+            #else
+                samtools mpileup
+            #end if
+                -f 
+                    #if $reference_genome_source.source_select == "indexed_filtered"
+                        "$reference_genome_source.reference_genome"
+                    #else if $reference_genome_source.source_select == "indexed_all"
+                        "$reference_genome_source.reference_genome"
+                    #else if $reference_genome_source.source_select == "history"
+                        "$reference_genome_source.reference_genome"
+                    #else
+                        <!--
+                            This is a workaround to obtain the "genome.fa" file that
+                            corresponds to the dbkey of the alignments.
+                            Because this file is "calculated" during run-time, it can
+                            be used in a workflow.
+                        -->
+                        "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'all_fasta' ].get_fields() )[0][-1] }"
+                    #end if
+            
+            #if $extended_parameters_regions.samtools_regions == "region"
+                -r $extended_parameters_regions.$samtools_r
+            #elif $extended_parameters_regions.samtools_regions == "regions_file_pos" or $extended_parameters_regions.samtools_regions == "regions_file_bed"
+                -l $extended_parameters_regions.$samtools_l
+            #end if
+            
+            #if $extended_parameters.parameters == "extended"
+                $extended_parameters.samtools_6
+                $extended_parameters.samtools_A
+                $extended_parameters.samtools_B
+                 -C $extended_parameters.samtools_C
+                 -d $extended_parameters.samtools_d
+                $extended_parameters.samtools_E
+                 -M $extended_parameters.samtools_M
+                $extended_parameters.samtools_R
+                 -q $extended_parameters.samtools_q
+                 -Q $extended_parameters.samtools_Q
+                
+                 -e $extended_parameters.samtools_e
+                 -F $extended_parameters.samtools_F
+                 -h $extended_parameters.samtools_h
+                $extended_parameters.samtools_I
+                 -L $extended_parameters.samtools_L
+                 -m $extended_parameters.samtools_m
+                 -o $extended_parameters.samtools_o
+                $extended_parameters.samtools_p
+                 -P $extended_parameters.samtools_P
+            #end if
+            
+            #for $alignment in $alignments
+                 ${alignment}
+            #end for
+            
+             2> stderr_1.txt
+            
+            #if $sort_mpileup
+             | sort -k1,1V -k2,2g 
+            #end if
+            
+             > $output ;
+             cat stderr_1.txt
+        #end if
+    </command>
+    
+    <inputs>
+        <param format="bam,sam" multiple="true" name="alignments" type="data" label="Alignment file" help="Mapped reads in BAM or SAM format."/>
+        
+        <!-- Find out how to access the reference genome from the BAM file(s) -->
+        <conditional name="reference_genome_source">
+            <param name="source_select" type="select" label="Fasta Source">
+                <option value="indexed_filtered">Use a built-in index (which fits your reference)</option>
+                <option value="history">Use reference from the history</option>
+                <option value="indexed_all">Use a built-in index (entire list) - avoid this option if possible; only useful if you design a workflow</option>
+                <option value="attribute">Use a built-in index based on the 'metadata.dbkey' attribute; ideal in workflows</option>
+            </param>
+            <when value="indexed_filtered">
+                <param name="reference_genome" type="select" label="Reference Genome used during alignment (fasta)" >
+                    <options from_data_table="all_fasta">
+                        <column name="name" index="2"/>
+                        <column name="dbkey" index="1"/>
+                        <column name="value" index="3"/><!-- Value is the path of the fasta file -->
+                        <filter type="data_meta" ref="alignments" multiple="false" key="dbkey" column="1" />
+                        <validator type="no_options" message="No indexes are available for the selected input dataset" />
+                    </options>
+                </param>
+            </when>
+            <when value="history">
+                <param name="reference_genome" format="fasta" type="data" label="Reference Genome used during alignment (fasta)" help="Reference genome (genome.fa) that corresponds to the *.bam file." />
+            </when>
+            <when value="indexed_all">
+                <param name="reference_genome" type="select" label="Reference Genome used during alignment (fasta)" >
+                    <options from_data_table="all_fasta">
+                        <column name="name"  index="2"/>
+                        <column name="dbkey" index="1"/>
+                        <column name="value" index="3"/><!-- Value is the path of the fasta file -->
+                        <validator type="no_options" message="No indexes are available for the selected input dataset" />
+                    </options>
+                </param>
+            </when>
+            <when value="attribute" />
+        </conditional>
+        
+        <conditional name="extended_parameters_regions">
+            <param name="samtools_regions" type="select" label="Region specific parameters" help="Let samtools target specific genomic locations.">
+                <option value="entire_genome">Entire genome</option>
+                <option value="region">Specific region</option>
+                <option value="regions_file_pos">Specific positions (file); list of positions</option>
+                <option value="regions_file_bed">Specific regions (file); list of regions in BED</option>
+            </param>
+            <when value="entire_genome">
+            </when>
+            <when value="region">
+                <param type="text" name="samtools_r" label="Samtools: region in which pileup is generated" help="chr:pos or chr:start-end" />
+            </when>
+            <when value="regions_file_pos">
+                <param type="data" name="samtools_l" format="tabular" label="Samtools: list of positions (chr pos)" />
+            </when>
+            <when value="regions_file_bed">
+                <param type="data" name="samtools_l" format="bed"     label="Samtools: specific regions (BED)" />
+            </when>
+        </conditional>
+        
+        <conditional name="mpileup_parallelization">
+            <param name="mpileup_parallelization_select" type="select" label="Use parallelization for the mpileup generation" help="Especially if larger numbers of bam/sam files are processed, or the file infrastructure is optimized for IO-paralellization, this feature might improve performance.">
+                <option value="false">No (uses original build of samtools)</option>
+                <option value="true" selected="true">Yes (uses samtools-parallel-mpileup)</option>
+            </param>
+            <when value="false" />
+            <when value="true">
+                <param type="integer" name="samtools_threads" value="2" min="1" label="Samtools: mpileup threads" />
+            </when>
+        </conditional>
+        
+        <param name="sort_mpileup" type="boolean" truevalue="true" falsevalue="false" label="Sort mpileup file" help="Because parallelization may disrupt the outputs order, sorting can be conveniet for e.g. testing. Notice that this function has only use in a limited number of situations but consumes (much) resources. Only use it if it's really neccesairy." />
+        
+        <conditional name="extended_parameters">
+            <param name="parameters" type="select" label="Advanced parameters" help="For more advanced VarScan and samtools settings.">
+                <option value="default">Default settings</option>
+                <option value="extended">Extended settings</option>
+            </param>
+            <when value="default" />
+            <when value="extended">
+                <param type="boolean" name="samtools_6" falsevalue="" truevalue=" -6" label="Samtools: assume the quality is in the Illumina-1.3+ encoding" />
+                <param type="boolean" name="samtools_A" falsevalue="" truevalue=" -A" label="Samtools: count anomalous read pairs" />
+                <param type="boolean" name="samtools_B" falsevalue="" truevalue=" -B" label="Samtools: disable BAQ computation" />
+                <param type="integer" name="samtools_C" value="0"                     label="Samtools: parameter for adjusting mapQ; 0 to disable [0]" />
+                <param type="integer" name="samtools_d" value="250"                   label="Samtools: max per-BAM depth to avoid excessive memory usage [250]" />
+                <param type="boolean" name="samtools_E" falsevalue="" truevalue=" -E" label="Samtools: recalculate extended BAQ on the fly thus ignoring existing BQs" />
+                <param type="integer" name="samtools_M" value="60"                    label="cap mapping quality at INT [60]" />
+                <param type="boolean" name="samtools_R" falsevalue="" truevalue=" -R" label="Samtools: ignore RG tags" />
+                <param type="integer" name="samtools_q" value="0"                     label="Samtools: skip alignments with mapQ smaller than INT [0]" />
+                <param type="integer" name="samtools_Q" value="13"                    label="Samtools: skip bases with baseQ/BAQ smaller than INT [13]" />
+                
+                <param type="integer" name="samtools_e" value="20"                    label="Samtools: Phred-scaled gap extension seq error probability [20]" />
+                <param type="float"   name="samtools_F" value="0.002"                 label="Samtools: minimum fraction of gapped reads for candidates [0.002]" help="Alias: -F" />
+                <param type="integer" name="samtools_h" value="100"                   label="Samtools: coefficient for homopolymer errors [100]" />
+                <param type="boolean" name="samtools_I" falsevalue="" truevalue=" -I" label="Samtools: do not perform indel calling" />
+                <param type="integer" name="samtools_L" value="250"                   label="Samtools: max per-sample depth for INDEL calling [250]" />
+                <param type="integer" name="samtools_m" value="1"                     label="Samtools: minimum gapped reads for indel candidates [1]" help="Alias: -m" />
+                <param type="integer" name="samtools_o" value="40"                    label="Samtools: Phred-scaled gap open sequencing error probability [40]" />
+                <param type="boolean" name="samtools_p" falsevalue="" truevalue=" -p" label="Samtools: apply -m and -F per-sample to increase sensitivity" />
+                <param type="text"    name="samtools_P" value="all"                   label="Samtools: comma separated list of platforms for indels [all]" />
+            </when>
+        </conditional>
+    </inputs>
+    
+    <outputs>
+        <data format="mpileup" name="output" label="${tool.name} on ${', '.join([ str(a.hid)+': '+a.name for a in $alignments ])}" />
+    </outputs>
+    
+    <tests>
+        <test><!-- Use classical samtools -->
+            <param name="alignments" value="example.bam" ftype="bam" />
+            
+            <param name="source_select" value="history" />
+            <param name="reference_genome" value="example.fa" ftypet="fasta" />
+            
+            <param name="samtools_regions" value="entire_genome" />
+            
+            <param name="mpileup_parallelization_select" value="false" />
+            <param name="sort_mpileup" value="true" />
+            
+            <param name="parameters" value="default" />
+            
+            
+            <output name="output" file="example.mpileup" /> 
+        </test>
+        <test><!-- Use parallelized samtools - @todo replace with sambamba! -->
+            <param name="alignments" value="example.bam" ftype="bam" />
+            
+            <param name="source_select" value="history" />
+            <param name="reference_genome" value="example.fa" ftypet="fasta" />
+            
+            <param name="samtools_regions" value="entire_genome" />
+            
+            <param name="mpileup_parallelization_select" value="true" />
+            <param name="samtools_threads" value="2" />
+            <param name="sort_mpileup" value="true" />
+            
+            <param name="parameters" value="default" />
+            
+            
+            <output name="output" file="example.mpileup.parallel" />
+        </test>
+    </tests>
+    
+    <help>
+**Samtools mpileup (supporting parallelization)**
+
+SAM (Sequence Alignment/Map) format is a generic format for storing large nucleotide sequence alignments. SAM aims to be a format that:
+
+Is flexible enough to store all the alignment information generated by various alignment programs;
+Is simple enough to be easily generated by alignment programs or converted from existing alignment formats;
+Is compact in file size;
+Allows most of operations on the alignment to work on a stream without loading the whole alignment into memory;
+Allows the file to be indexed by genomic position to efficiently retrieve all reads aligning to a locus.
+SAM Tools provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
+
+SAMtools is hosted by SourceForge.net. The project page is http://samtools.sourceforge.net/. The source code releases are available from the download page. You can check out the most recent source code from the github project page with:
+git clone git://github.com/samtools/samtools.git 
+https://github.com/mydatascience/parallel-mpileup/
+
+Because samtools does not support parallization of the mpileup command, the project was forked to include paralellization support:
+
+
+However, since the project seems to lack support and contains fatal bugs this project was forked at:
+https://github.com/yhoogstrate/parallel-mpileup/
+
+
+**Input formats**
+
+Satmools accepts sequencing alignments in the same, either SAM or BAM format (http://samtools.sourceforge.net/). The alignment files have to be linked to a reference genome by galaxy. This is indicated under every history item with e.g.: *"database: hg19"* for a link to hg19, or *"database: ?"* if the link is missing.
+
+**Installation**
+
+The installation is fully automatic.
+
+**License**
+
+* parallel-mpileup: MIT License (https://github.com/yhoogstrate/parallel-mpileup/blob/master/samtools-0.1.19/COPYING)
+* samtool: MIT License
+
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands) on behalf of the Translational
+Research IT (TraIT) project:
+
+http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
+
+More tools by the Translational Research IT (TraIT) project can be found
+in the following toolsheds:
+
+http://toolshed.g2.bx.psu.edu/
+
+http://testtoolshed.g2.bx.psu.edu/
+</help>
+    <citations>
+        <citation type="bibtex">
+           @unpublished{samtools_parallel_mpileup,
+              author       = {Youri Hoogstrate}, 
+              title        = { Samtools parallel-mpileup, fork of classical samtools },
+              year         = 2014,
+              url          = { https://github.com/yhoogstrate/parallel-mpileup }
+            }
+        </citation>
+        <citation type="bibtex">
+            @misc{SAM_def,
+            title={Definition of SAM/BAM format},
+            url = {https://samtools.github.io/hts-specs/SAMv1.pdf},}
+        </citation>
+        <citation type="bibtex">
+            @misc{SamTools_github,
+            title={SAMTools GitHub page},
+            url = {https://github.com/samtools/samtools},}
+        </citation>
+    </citations>
+</tool>
