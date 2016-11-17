@@ -33,4 +33,4 @@ Maintainance
 The galaxy repository is maintained by Youri Hoogstrate and was written for an ELIXIR/EGA project.
 
 Bugs and other contributions to the galaxy wrapper are more than welcome at:
-https://github.com/ErasmusMC-Bioinformatics/ega_client_galaxy_wrapper
+https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc
