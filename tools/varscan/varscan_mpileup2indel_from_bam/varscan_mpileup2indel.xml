@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="varscan_mpileup2indel" name="VarScan2 Call INDELs from a mpileup file" version="2.3.6.a">
+    <description>VarScan2 INDEL detection; directly from a *.mpileup file.</description>
+    
+    <requirements>
+        <requirement type="package" version="2.3.6">varscan</requirement>
+    </requirements>
+    
+    <version_command>java -jar $JAVA_JAR_PATH/VarScan.v2.3.6.jar 2>&amp;1 | head -n 1</version_command>
+    
+    <command>
+        cat $mpileup_input | java
+             -Xmx64G
+             -jar \$JAVA_JAR_PATH/VarScan.v2.3.6.jar
+                 mpileup2indel
+         
+        #if $extended_parameters.parameters == "extended"
+             --min-coverage     $extended_parameters.varscan_min_coverage
+             --min-reads2       $extended_parameters.varscan_min_reads2
+             --min-avg-qual     $extended_parameters.varscan_min_avg_qual
+             --min-var-freq     $extended_parameters.varscan_min_var_freq
+             --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
+             --p-value          $extended_parameters.varscan_p_value
+                                $extended_parameters.varscan_strand_filter 
+                                $extended_parameters.varscan_variants 
+        #end if
+        
+        #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
+         --output-vcf 1 
+        #end if
+        
+         2> stderr.txt 
+         > $snv_output ;
+         cat stderr.txt
+    </command>
+    
+    <inputs>
+        <param format="pileup" name="mpileup_input" type="data" label="Alignment file" help="Mapped reads in mpileup format."/><!-- datatype "mpileup" does not exist.. it seems to be common to use pileup instead? -->
+        
+        <conditional name="extended_parameters">
+            <param name="parameters" type="select" label="VarScan parameters" help="For more advanced VarScan settings.">
+                <option value="default">Default settings</option>
+                <option value="extended">Extended settings</option>
+            </param>
+            <when value="default">
+            </when>
+            <when value="extended">
+                <param type="integer" name="varscan_min_coverage"     value="8"       label="VarScan: Minimum read depth at a position to make a call [8]" />
+                <param type="integer" name="varscan_min_reads2"	      value="2"       label="VarScan: PMinimum supporting reads at a position to call variants [2]" />
+                <param type="integer" name="varscan_min_avg_qual"     value="15"      label="VarScan: Minimum base quality at a position to count a read [15]" />
+                <param type="float"   name="varscan_min_var_freq"     value="0.01"    label="VarScan: minimum fraction of gapped reads for candidates [0.002]" help="Alias: -F" />
+                <param type="float"   name="varscan_min_freq_for_hom" value="0.75"    label="VarScan: Minimum frequency to call homozygote [0.75]" />
+                <param type="float"   name="varscan_p_value"          value="0.99"    label="VarScan: Default p-value threshold for calling variants [99e-02]" />
+                <param type="boolean" name="varscan_strand_filter"    falsevalue=" --strand_filter 0" truevalue=" --strand_filter 1" checked="true"  label="VarScan: Ignore variants with >90% support on one strand [1]" />
+                <param type="boolean" name="varscan_variants"         falsevalue=" --variants 0"      truevalue=" --variants 1"      checked="false" label="VarScan: Report only variant (SNP/indel) positions [0]" />
+            </when>
+        </conditional>
+        
+        <param name="varscan_output" type="select" label="Output format">
+            <option value="vcf">VCF</option>
+            <option value="tabular">tabular</option>
+        </param>
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="snv_output" label="${tool.name} on ${mpileup_input.hid}: ${mpileup_input.name}">
+            <change_format>
+                <when input="varscan_output" value="vcf" format="vcf" />
+            </change_format>
+        </data>
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="mpileup_input" value="example.mpileup" ftype="pileup" />
+            <param name="parameters" value="default" />
+            <param name="varscan_output_vcf" value="1" />
+            
+            <output name="snv_output" file="example.vcf" />
+        </test>
+    </tests>
+    
+    <help>
+**VarScan 2.3.6**
+
+VarScan is a platform-independent mutation caller for targeted, exome, and whole-genome resequencing data generated on Illumina, SOLiD, Life/PGM, Roche/454, and similar instruments. The newest version, VarScan 2, is written in Java, so it runs on most operating systems.
+http://dx.doi.org/10.1101/gr.129684.111
+http://www.ncbi.nlm.nih.gov/pubmed/19542151
+
+*VarScan* requires mpileup formatted input files, which are generally derived from BAM files. Since mpileup files can become humongous, the interim step of storing it is bypassed. Thus, in this wrapper one or multiple BAM/SAM files go in, get processed into a mpileup file and get directly linked to VarScan.
+The samtools package is not able to parallelize the mpileup generation which make it a very slow process.
+Other people were aware of this and have written a version that can do parallelization:
+https://github.com/mydatascience/parallel-mpileup
+
+Consequently, when a BAM files gets processed by this wrapper, it's processed by *parallel-mpileup* before its send to VarScan.
+
+.. _VarScan: http://varscan.sourceforge.net/
+
+**Input formats**
+
+VarScan2 accepts sequencing alignments in the same, either SAM or BAM format (http://samtools.sourceforge.net/). The alignment files have to be linked to a reference genome by galaxy. This is indicated under every history item with e.g.: *"database: hg19"* for a link to hg19, or *"database: ?"* if the link is missing.
+
+**Installation**
+
+Make sure your reference genomes are properly annotated in "tool-data/all_fasta.loc", and linked to the names of the reference used for alignment.
+
+**License**
+
+* VarScan2.3.6: Non-Profit Open Software License 3.0 (Non-Profit OSL 3.0)
+* parallel-mpileup: MIT License (https://github.com/mydatascience/parallel-mpileup/blob/master/samtools-0.1.19/COPYING)
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands) on behalf of the Translational
+Research IT (TraIT) project:
+
+http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
+
+More tools by the Translational Research IT (TraIT) project can be found
+in the following toolsheds:
+
+http://toolshed.g2.bx.psu.edu/
+
+http://testtoolshed.g2.bx.psu.edu/
+</help>
+    <citations>
+        <citation type="doi">10.1101/gr.129684.111</citation>
+    </citations>
+</tool>
