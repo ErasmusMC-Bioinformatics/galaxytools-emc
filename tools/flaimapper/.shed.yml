@@ -1,38 +1,10 @@
 categories:
-- RNA
 - SAM
-- Sequence Analysis
-- Text Manipulation
-description: |
-  FlaiMapper: computational annotation of small ncRNA derived fragments using RNA-seq high throughput data
+- RNA
+description: FlaiMapper: computational annotation of small ncRNA derived fragments in small RNA-seq high throughput data 
 long_description: |
-  Motivation: Recent discoveries show that most types of small
-  non-coding RNAs (sncRNAs) such as miRNAs, snoRNAs and tRNAs get
-  further processed into putatively active smaller RNA species. Their
-  roles, genetic profiles and underlying processing mechanisms are only
-  partially understood. To find their quantities and characteristics, a
-  proper annotation is essential. Here we present FlaiMapper, a method
-  that extracts and annotates the locations of sncRNA-derived RNAs
-  (sncdRNAs). These sncdRNAs are often detected in sequencing data and
-  observed as fragments of their precursor sncRNA. Using small RNA-seq
-  read alignments, FlaiMapper is able to annotate fragments primarily by
-  peak-detection on the start and end position densities followed by
-  filtering and a reconstruction process.
-  
-  Results: To assess performance of FlaiMapper, we used independent
-  publicly available small RNA-seq data. We were able to detect
-  fragments representing putative sncdRNAs from nearly all types of
-  sncRNA, including 97:8% of the annotated miRNAs in miRBase that have
-  supporting reads. Comparison of FlaiMapper-predicted boundaries of
-  miRNAs with miRBase entries demonstrated that 89% of the start and
-  54% of the end positions are identical. Additional benchmarking
-  showed that FlaiMapper is superior in performance compared to existing
-  software. Further analysis indicated a variety of characteristics in
-  the fragments, including sequence motifs and relations with RNA
-  interacting factors. These characteristics set a good basis for
-  further research on sncdRNAs.
+  FlaiMapper: computational annotation of small ncRNA derived fragments in small RNA-seq high throughput data 
 name: flaimapper
 owner: yhoogstrate
-homepage_url: https://github.com/yhoogstrate/flaimapper
-remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/flaimapper_galaxy_wrapper
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/flaimapper
 type: unrestricted
