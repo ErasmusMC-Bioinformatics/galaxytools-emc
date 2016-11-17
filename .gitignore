@@ -67,3 +67,5 @@ target/
 
 tool_test_output.html
 tool_test_output.json
+tool_test_output.*
+*.cip
