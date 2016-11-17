@@ -1,7 +1,7 @@
 categories:
 - SAM
 - RNA
-description: FlaiMapper: computational annotation of small ncRNA derived fragments in small RNA-seq high throughput data 
+description: "FlaiMapper: computational annotation of small ncRNA derived fragments in small RNA-seq high throughput data"
 long_description: |
   FlaiMapper: computational annotation of small ncRNA derived fragments in small RNA-seq high throughput data 
 name: flaimapper
