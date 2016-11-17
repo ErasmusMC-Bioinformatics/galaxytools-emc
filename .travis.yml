@@ -10,7 +10,7 @@ env:
   - CHUNK=3
 
 before_install:
-  - export GALAXY_REPO=https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc
+  - export GALAXY_REPO=https://github.com/galaxyproject/galaxy
   - export GALAXY_RELEASE=release_16.07
   - export PLANEMO_CONDA_PREFIX="$HOME/conda"
 
