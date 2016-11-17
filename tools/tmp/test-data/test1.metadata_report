@@ -1,0 +1,7 @@
+dbkey: hg19
+data_lines: 4
+comment_lines: 3
+columns: 3
+column_types: str,str,str
+column_names: __ob____cb__
+delimiter: __tc__
