@@ -2,7 +2,7 @@
     <description>Debugging utility: show all metadata of a history item</description>
     <command><![CDATA[
         #for $metadata_element, $metadata_value in $input.metadata.items()
-            echo "$metadata_element: $metadata_value" >> $output ; 
+            echo '$metadata_element: $metadata_value' >> '${output}' ; 
         #end for
     ]]></command>
     <inputs>
