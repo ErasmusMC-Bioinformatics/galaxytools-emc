@@ -1,0 +1,25 @@
+<tool id="dr_disco_extract" name="Dr. Disco (dr-disco extract)" version="0.1.0.g0">
+    <description>Fixes chimeric BAM alignment produced by RNA-STAR</description>
+    <requirements>
+        <requirement type="package" version="0.1.0">dr-disco</requirement>
+    </requirements>
+    <version_command>dr-disco --version | head -n 1</version_command>
+    <command><![CDATA[
+    ]]></command>
+    <inputs>
+        <param name="star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR)" />
+        <param name="region1" type="text" value="chr21:" label="region1" />
+        <param name="region1" type="text" value="chr21:" label="region2" />
+    </inputs>
+    <outputs>
+        <data name="output" format="bam" label="${tool.name} on ${star_discordant_alignment}" />
+    </outputs>
+    <tests>
+    </tests>
+    
+    <help>
+    </help>
+    
+    <citations>
+    </citations>
+</tool>

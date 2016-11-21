@@ -1,0 +1,23 @@
+<tool id="dr_disco_intronic" name="Dr. Disco (dr-disco intronic)" version="0.1.0.g0">
+    <description>Detects and interprets intronic and exonic break points in RNA-seq (total-RNA protocol)</description>
+    <requirements>
+        <requirement type="package" version="0.1.0">dr-disco</requirement>
+    </requirements>
+    <version_command>dr-disco --version | head -n 1</version_command>
+    <command><![CDATA[
+    ]]></command>
+    <inputs>
+        <param name="fixed_star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
+    </inputs>
+    <outputs>
+        <data name="output" format="txt" label="${tool.name} on ${fixed_star_discordant_alignment}" />
+    </outputs>
+    <tests>
+    </tests>
+    
+    <help>
+    </help>
+    
+    <citations>
+    </citations>
+</tool>
