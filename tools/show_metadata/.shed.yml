@@ -5,5 +5,5 @@ long_description: |
   Debug utility: shows all metadata of a history item
 name: show_metadata
 owner: yhoogstrate
-remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/show_metadata_galaxy_wrapper
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/show_metadata
 type: unrestricted
