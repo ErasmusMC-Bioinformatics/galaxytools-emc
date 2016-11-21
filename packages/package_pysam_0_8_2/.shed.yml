@@ -5,12 +5,12 @@ description: Contains a tool dependency definition that downloads and compiles t
 long_description: |
   Pysam is a python module for reading and manipulating Samfiles.
   It's a lightweight wrapper of the samtools C-API.
-  
+
   https://github.com/pysam-developers/pysam
   https://pypi.python.org/pypi/pysam
 
 name: package_pysam_0_8_2
 owner: yhoogstrate
 homepage_url: https://github.com/pysam-developers/pysam
-remote_repository_url: https://bitbucket.org/EMCbioinf/galaxy-tool-shed-tools/raw/master/package_pysam_0_8_2
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/packages/package_pysam_0_8_2
 type: tool_dependency_definition
