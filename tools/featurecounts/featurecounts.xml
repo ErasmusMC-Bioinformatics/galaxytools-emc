@@ -228,7 +228,7 @@
         <test>
             <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
             <param name="source_select" value="history" />
-            <param name="format" value="tabdel_with_gene_length" />
+            <param name="format" value="tabdel_default" />
             <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
             <output name="output" file="output__tabdel_with_gene_length.tab" lines_diff="2"/><!-- First header line contains temporary files -->
             <output name="output_summary" file="output_summary.tab"/>
