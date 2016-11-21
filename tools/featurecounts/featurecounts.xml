@@ -65,7 +65,7 @@
                 #set $columns = [str(i+7) for i, alignment in enumerate($alignments)]
                 #set $columns =",".join($columns)
 
-                #if $format.value in ["tabdel_with_gene_length", "tabdel_short", "tabdel_full"]
+                #if $format.value in ["tabdel_default", "tabdel_short", "tabdel_full"]
                     ## Separate the comments from the table
                     && grep "^#" $output > comments.txt
                     && grep -v "^#" $output > body.txt
@@ -81,7 +81,7 @@
                     #end for
 
                     ## Set the right columns for the tabular formats
-                    #if $format.value == "tabdel_with_gene_length"
+                    #if $format.value == "tabdel_default"
                         && cut -f 1,$columns body.txt > expression_matrix.txt
 
                         ## Paste doesn't allow a non ordered list of columns: -f 1,7,8,6 will only return columns 1,7 and 8
