@@ -1,1 +1,0 @@
-../../tools/ega_download_streamer/README.rst
