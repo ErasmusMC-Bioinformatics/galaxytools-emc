@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="flaimapper" name="FlaiMapper" version="2.3.4-0">
+    <description>detects small ncRNA derived fragments in small RNA-Seq data</description>
+    <requirements>
+        <requirement type="package" version="2.3.4">flaimapper</requirement>
+    </requirements>
+    
+    <version_command>flaimapper --version 2&gt;&amp;1 | head -n 1</version_command>
+    
+    <command detect_errors="exit_code"><![CDATA[
+        flaimapper
+            -v
+            -f '${output_select.output_format}'
+            -o '${output}'
+
+            #if $output_select.output_format == '1':
+                #if $output_select.fasta:
+                    -r '${output_select.fasta}'
+                #end if
+            #else
+                --offset5p ${output_select.offset5p}
+                --offset3p ${output_select.offset3p}
+            #end if
+
+            #if $parameters:
+                -p '${parameters}'
+            #end if
+
+            '${alignment}'
+    ]]></command>
+    
+    <inputs>
+        <param name="alignment" type="data" format="bam" multiple="false"
+               label="Alignment file"
+               help="Aligned small RNA-Seq reads must be single end and should not be fragmented in the library preparation" />
+        
+        <conditional name="output_select">
+            <param name="output_format" type="select" label="Output format" argument="-f">
+                <option value="1">Tabular</option>
+                <option value="2">GTF</option>
+            </param>
+            
+            <when value="1">
+                <param name="fasta" type="data" format="fasta" optional="true"
+                       label="(Optional) Genome reference in FASTA format that corresponds to the reference genome or RNA database" help="By selecting this file, sequences will be provided in the corresponding column in the output file" argument="-r" />
+            </when>
+            
+            <when value="2">
+                <param name="offset5p" type="integer" value="4"
+                       label="5' offset added to the exon-type GTF entry"
+                       help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to use an offset." argument="--offset5p" />
+                <param name="offset3p" type="integer" value="4"
+                       label="3' offset added to the exon-type GTF entry"
+                       help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to use an offset." argument="--offset3p" />
+            </when>
+        </conditional>
+        
+        <param name="parameters" type="data" format="txt,tabular" optional="true"
+               label="(Optional) Custom parameters file" help="" argument="-p" />
+        
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="output"
+              label="${tool.name} on $on_string">
+            <change_format>
+                <when input="output_select.output_format" value="1" format="tabular" />
+                <when input="output_select.output_format" value="2" format="gtf" />
+            </change_format>
+        </data>
+    </outputs>
+    
+    <tests>
+        <!-- tabular -->
+        <test><!-- Testing "ncRNAdb09 alignment"-type analysis -->
+            <param name="alignment" value="snord81.bam" ftype="bam" />
+            <param name="fasta" value="snord81.fa" ftype="fasta" />
+            <param name="output_format" value="1" />
+            
+            <output name="output" file="snord81.flaimapper.txt" />
+        </test>
+        <test>
+            <param name="alignment" value="snord81.bam" ftype="bam" />
+            <param name="output_format" value="1" />
+            
+            <output name="output" file="snord81.flaimapper.no-seq.txt" />
+        </test>
+        <test><!-- Testing "Full genome alignment"-type analysis -->
+            <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
+            <param name="fasta" value="test_genomic_all_chromosomes.fa" ftype="fasta" />
+            <param name="output_format" value="1" />
+            
+            <output name="output" file="test_genomic_flaimapper_output.txt" />
+        </test>
+        <test>
+            <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
+            <param name="output_format" value="1" />
+            
+            <output name="output" file="test_genomic_flaimapper_output.no-seq.txt" />
+        </test>
+        
+        <!-- GTF -->
+        <test><!-- Testing "ncRNAdb09 alignment"-type analysis -->
+            <param name="alignment" value="snord81.bam" ftype="bam" />
+            <param name="output_format" value="2" />
+            
+            <output name="output" file="snord81.flaimapper.gtf" />
+        </test>
+        <test><!-- Testing "Full genome alignment"-type analysis -->
+            <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
+            <param name="output_format" value="2" />
+            
+            <output name="output" file="test_genomic_flaimapper_output.gtf" />
+        </test>
+        
+        <!-- test custom parameters -->
+        <test>
+            <param name="alignment" value="snord81.bam" ftype="bam" />
+            <param name="output_format" value="2" />
+            <param name="offset5p" value="5" />
+            <param name="offset3p" value="5" />
+            
+            <output name="output" file="snord81.flaimapper.offsets_5_5.gtf" />
+        </test>
+        <test>
+            <param name="alignment" value="snord81.bam" ftype="bam" />
+            <param name="output_format" value="2" />
+            <param name="parameters" value="filter-parameters.duck.15.txt"/>
+            
+            <output name="output" file="snord81.flaimapper.duck-15.gtf" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+FlaiMapper wrapper for Galaxy
+=============================
+
+Fragment Location Annotation Identification Mapper
+
+FlaiMapper: computational annotation of small ncRNA-derived fragments using RNA-seq high-throughput data.
+
+
+Input
+-----
+
+Alignment
+*********
+
+This file has to contain aligned single end reads from a small RNA-Seq experiment, provided in the BAM format.
+
+Prior to running FlaiMapper, it is common to align sequencing reads to either:
+
+- mature ncRNA sequences
+- all chromosomes
+
+Example- and reference data
+***************************
+
+The reference sequence should be provided in FASTA format.
+
+You can access **ncRNAdb09** FASTA file at the following URL:
+https://raw.githubusercontent.com/yhoogstrate/flaimapper/master/share/annotations/ncRNA_annotation/ncrnadb09.fa *(reference file)*
+
+If you want to test FlaiMapper with example data you can obtain several
+alignment files from the following directory tree:
+
+https://github.com/yhoogstrate/flaimapper/tree/master/share/small_RNA-seq_alignments
+
+More details are given in the manual at the following website:
+
+https://github.com/yhoogstrate/flaimapper
+    ]]></help>
+    
+    <citations>
+        <citation type="doi">10.1093/bioinformatics/btu696</citation>
+    </citations>
+</tool>
