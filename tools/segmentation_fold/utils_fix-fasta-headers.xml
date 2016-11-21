@@ -40,12 +40,12 @@
 
     <tests>
         <test>
-            <param name="fasta_input" value="test_22.fa" format="fasta" />
+            <param name="fasta_input" value="test_22.fa" ftype="fasta" />
             
             <output name="fasta_output" file="test_22.fixed.fa" />
         </test>
         <test>
-            <param name="fasta_input" value="test_23.fa" format="fasta" />
+            <param name="fasta_input" value="test_23.fa" ftype="fasta" />
             
             <output name="fasta_output" file="test_23.fixed.fa" />
         </test>

@@ -72,7 +72,7 @@
 
     <tests>
         <test>
-            <param name="fasta_input" value="FindBoxes.genome.fa" format="fasta" />
+            <param name="fasta_input" value="FindBoxes.genome.fa" ftype="fasta" />
             <param name="box1" value="NRUGAUG" />
             <param name="box2" value="CUGA" />
             <param name="forward" value="--forward" />

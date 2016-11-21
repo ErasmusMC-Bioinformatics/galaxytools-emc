@@ -45,7 +45,7 @@
                 type="boolean"
                 truevalue="true"
                 falsevalue="false"
-                selected="false"
+                checked="false"
                 label="Use segment definition from history" />
 
             <when value="false" />
