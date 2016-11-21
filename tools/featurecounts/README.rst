@@ -1,9 +1,3 @@
-Deprecated
-==========
-IUC has a maintained repository of featureCounts with SubRead as bioconda dependency:
-
-https://github.com/galaxyproject/tools-iuc/tree/master/tools/featurecounts
-
 FeatureCounts wrapper for Galaxy
 ================================
 
