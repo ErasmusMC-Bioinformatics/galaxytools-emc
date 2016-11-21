@@ -1,9 +1,12 @@
-<tool id="dr_disco_fix" name="Dr. Disco (dr-disco fix)" version="0.1.0.g0">
+<tool id="dr_disco_fix" name="Dr. Disco (dr-disco fix)" version="@TOOL_VERSION@-g0">
     <description>Fixes chimeric BAM alignment produced by RNA-STAR</description>
-    <requirements>
-        <requirement type="package" version="0.1.0">dr-disco</requirement>
-    </requirements>
-    <version_command>dr-disco --version | head -n 1</version_command>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements" />
+    <expand macro="version_command"/>
+    
     <command><![CDATA[
     ]]></command>
     <inputs>
@@ -18,6 +21,5 @@
     <help>
     </help>
     
-    <citations>
-    </citations>
+     <expand macro="citations"/>
 </tool>
