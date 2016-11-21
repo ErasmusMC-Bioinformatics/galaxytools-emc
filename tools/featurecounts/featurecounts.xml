@@ -1,0 +1,314 @@
+<tool id="featurecounts" name="featureCounts" version="1.4.6.p5">
+    <description>Measure gene expression in RNA-Seq experiments from SAM or BAM files.</description>
+    <requirements>
+        <requirement type="package" version="1.4.6.p5">featurecounts</requirement>
+        <requirement type="package" version="1.4.6p5">subread</requirement><!-- conda equivalent -->
+    </requirements>
+    <stdio>
+        <!-- Anything other than zero is an error -->
+        <exit_code range="1:" />
+        <exit_code range=":-1" />
+    </stdio>
+    <version_command>featureCounts -v 2&gt;&amp;1 | grep .</version_command>
+    <command><![CDATA[
+        ## Check 01: do the alignments have a dbkey and is the option set to using it?
+        #if $reference_gene_sets_source.source_select == "attribute" and len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) != 1
+            echo "Invalid number of dbkeys are found: ${ len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) }, while only one should be used. Make sure that the alignments are done on the same reference genome and that 'tool-data/gene_sets.loc' is configured properly!" >&2
+        #else
+            ## Check 02: are all alignments from the same type (bam || sam)
+            #if len({ alignment.extension:True for alignment in $alignments }.keys()) != 1
+                echo "Either all files must be SAM or all files must be BAM, no mixture is allowed." >&2
+            #else
+                featureCounts
+                    -a
+                    #if $reference_gene_sets_source.source_select == "indexed_filtered"
+                        "$reference_gene_sets_source.reference_gene_sets"
+                    #else if $reference_gene_sets_source.source_select == "indexed_all"
+                        "$reference_gene_sets_source.reference_gene_sets"
+                    #else if $reference_gene_sets_source.source_select == "history"
+                        "$reference_gene_sets_source.reference_gene_sets"
+                    #else
+                        #*
+                            This is a workaround to obtain the "genome.fa" file that
+                            corresponds to the dbkey of the alignments.
+                            Because this file is "calculated" during run-time, it can
+                            be used in a workflow.
+                        *#
+                        "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'gene_sets' ].get_fields() )[0][2] }"
+                    #end if
+
+                    -o "${output}"
+                    -T \${GALAXY_SLOTS:-2}
+
+                    #if $extended_parameters.parameters == "extended"
+                        -t $extended_parameters.gff_feature_type
+                        -g $extended_parameters.gff_feature_attribute
+                        $extended_parameters.summarization_level
+                        $extended_parameters.contribute_to_multiple_features
+                        $extended_parameters.protocol
+                        $extended_parameters.multimapping_counts
+                        -Q $extended_parameters.mapping_quality
+                        $extended_parameters.fragment_counting
+                        $extended_parameters.check_distance
+                        -d $extended_parameters.minimum_fragment_length
+                        -D $extended_parameters.maximum_fragment_length
+                        $extended_parameters.only_both_ends
+                        $extended_parameters.exclude_chimerics
+                    #end if
+
+                    #for $alignment in $alignments
+                         ${alignment}
+                    #end for
+
+                    2>&1
+
+                #set $columns = [str(i+7) for i, alignment in enumerate($alignments)]
+                #set $columns =",".join($columns)
+
+                #if $format.value in ["tabdel_default", "tabdel_short", "tabdel_full"]
+                    ## Separate the comments from the table
+                    && grep "^#" $output > comments.txt
+                    && grep -v "^#" $output > body.txt
+                    && sed -i.bak '0,/Geneid/ s/Geneid/#Geneid/' body.txt
+                    
+                    ## For every alignment, replace the filename for: "hid: sample name"
+                    #for $alignment in $alignments
+                        #set $alignment_escaped = str($alignment).replace('/', '\/').replace('.', '\.')
+                        #set $alignment_name_escaped = str(alignment.hid)+": "+str($alignment.name).replace('\t',' ').replace('\\','\\\\').replace("'","\\'").replace('/','\/')
+
+                        && sed -i.bak -e '1 s/$alignment_escaped/${alignment_name_escaped}/g' body.txt
+                        && sed -i.bak -e '1 s/$alignment_escaped/${alignment_name_escaped}/g' $output".summary"
+                    #end for
+
+                    ## Set the right columns for the tabular formats
+                    #if $format.value == "tabdel_default"
+                        && cut -f 1,$columns body.txt > expression_matrix.txt
+
+                        ## Paste doesn't allow a non ordered list of columns: -f 1,7,8,6 will only return columns 1,7 and 8
+                        ## Thus the gene length column has to be done separately
+                        && cut -f 6 body.txt > gene_lengths.txt
+                        && paste expression_matrix.txt gene_lengths.txt > expression_matrix.txt.bak
+                        && mv -f expression_matrix.txt.bak expression_matrix.txt
+                    #elif $format.value == "tabdel_short"
+                        && cut -f 1,$columns body.txt > expression_matrix.txt
+                    #elif $format.value == "tabdel_full"
+                        && mv -f body.txt expression_matrix.txt
+                    #end if
+                    
+                    ## Glue the comment line(s) and the table back together
+                    && cat comments.txt expression_matrix.txt > $output
+
+                #elif $format.value == "bed"
+                    && $__tool_directory__/featurecounts2bed.sh -f "$output" > tmp.txt
+                    && mv -f tmp.txt $output
+                #end if
+                
+                && mv $output".summary" $output_summary
+            #end if
+        #end if
+    ]]></command>
+    <inputs>
+        <param name="alignments" type="data" format="bam,sam" label="Alignment file" help="The input alignment file(s) where the gene expression has to be counted. The file can have a SAM or BAM format; but ALL files in the series must be in THE SAME format." multiple="true" />
+
+        <!-- Find out how to access the the GTF/GFF file(s) -->
+        <conditional name="reference_gene_sets_source">
+            <param name="source_select" type="select" label="GFF/GTF Source">
+                <option value="indexed_filtered">Use a built-in index (which fits your reference)</option>
+                <option value="history">Use reference from the history</option>
+                <option value="indexed_all">Use a built-in index (entire list) - avoid this option if possible; only useful if you design a workflow</option>
+                <option value="attribute">Use a built-in index based on the 'metadata.dbkey' attribute; ideal in workflows</option>
+            </param>
+            <when value="indexed_filtered">
+                <param name="reference_gene_sets" type="select" label="Reference Gene Sets used during alignment (GFF/GTF)" >
+                    <options from_data_table="gene_sets"><!-- replaces 'from_file="gene_sets"' - more strict -->
+                        <column name="name"  index="0"/>
+                        <column name="dbkey" index="1"/>
+                        <column name="value" index="2"/>
+                        <filter type="data_meta" ref="alignments" multiple="false" key="dbkey" column="1" />
+                        <validator type="no_options" message="No indexes are available for the selected input dataset" />
+                    </options>
+                </param>
+            </when>
+            <when value="history">
+                <param name="reference_gene_sets" format="gff" type="data" label="Gene annotation file" help="The program assumes that the provided annotation file is in GTF format. Make sure that the gene annotation file corresponds to the same reference genome as used for the alignment." />
+            </when>
+            <when value="indexed_all">
+                <param name="reference_gene_sets" type="select" label="Reference Gene Sets used during alignment (GFF/GTF)" >
+                    <options from_data_table="gene_sets"><!-- replaces 'from_file="gene_sets"' - more strict -->
+                        <column name="name"  index="0"/>
+                        <column name="dbkey" index="1"/>
+                        <column name="value" index="2"/>
+                        <validator type="no_options" message="No indexes are available for the selected input dataset" />
+                    </options>
+                </param>
+            </when>
+            <when value="attribute">
+                <!-- Do nothing, determine GTF/GFF file at runtime -->
+            </when>
+        </conditional>
+        <param name="format" type="select" label="Output format">
+            <option value="tabdel_default">Gene-ID "\t" read-count "\t" gene-length</option>
+            <option value="tabdel_short" selected="true">Gene-ID "\t" read-count</option>
+            <option value="bed">BED format (line per exon): chr "\t" start "\t" stop "\t" description "\t" read-count</option>
+            <option value="tabdel_full">featureCounts 1.4.0+ default (full: includes regions provided by the GTF file)</option>
+        </param>
+        <conditional name="extended_parameters">
+            <param name="parameters" type="select" label="featureCounts parameters" help="For more advanced featureCounts settings.">
+                <option value="default">Default settings</option>
+                <option value="extended">Extended settings</option>
+            </param>
+            <when value="default">
+            </when>
+            <when value="extended">
+                <param name="gff_feature_type" type="text" value="exon"
+                    label="GFF feature type filter"
+                    help="Specify the feature type. Only rows which have the matched matched feature type in the provided GTF annotation file will be included for read counting. `exon' by default." />
+
+                <param name="gff_feature_attribute" type="text" value="gene_id"
+                    label="GFF gene identifier"
+                    help="Specify the attribute type used to group features (eg. exons) into meta-features (eg. genes), when GTF annotation is provided. `gene_id' by default. This attribute type is usually the gene identifier. This argument is useful for the meta-feature level summarization." />
+
+                <param name ="contribute_to_multiple_features" type="boolean" truevalue=" -O" falsevalue=""
+                    label="Allow read to contribute to multiple features"
+                    help="If specified, reads (or fragments if -p is specified) will be allowed to be assigned to more than one matched meta- feature (or matched feature if -f is specified)" />
+
+                <param name="protocol" type="select" label="Strand specific protocol"
+                    help="Indicate if strand-specific read counting should be performed.">
+                    <option value=" -s 0" selected="true">Unstranded</option>
+                    <option value=" -s 1">Stranded (forwards)</option>
+                    <option value=" -s 2">Stranded (reverse)</option>
+                </param>
+
+                <param name="multimapping_counts" type="boolean" truevalue=" -M" falsevalue=""
+                    label="Count multi-mapping reads/fragments"
+                    help="If specified, multi-mapping reads/fragments will be counted (ie. a multi-mapping read will be counted up to N times if it has N reported mapping locations). The program uses the `NH' tag to find multi-mapping reads." />
+
+                <param name="mapping_quality" type="integer" value="12" label="Minimum read quality"
+                    help="The minimum mapping quality score a read must satisfy in order to be counted. For paired-end reads, at least one end should satisfy this criteria. 12 by default." />
+
+                <param name="fragment_counting" type="boolean" truevalue=" -p" falsevalue="" checked="true"
+                    label="PE: Count fragments instead of reads"
+                    help="Paired-end specific: If specified, fragments (or templates) will be counted instead of reads." />
+
+                <param name="check_distance" type="boolean" truevalue=" -P" falsevalue=""
+                    label="PE: Check paired-end distance"
+                    help="Paired-end specific: If specified, paired-end distance will be checked when assigning fragments to meta-features or features. This option is only applicable when -p (Count fragments instead of reads) is specified. The distance thresholds should be specified using -d and -D (minimum and maximum fragment/template length) options." />
+
+                <param name="minimum_fragment_length" type="integer" value="50" label="PE: Minimum fragment/template length." />
+                <param name="maximum_fragment_length" type="integer" value="600" label="PE: Maximum fragment/template length." />
+
+                <param name="only_both_ends" type="boolean" truevalue=" -B" falsevalue=""
+                    label="PE: only allow fragments with both reads aligned"
+                    help="Paired-end specific: If specified, only fragments that have both ends successfully aligned will be considered for summarization. This option is only applicable for paired-end reads." />
+
+                <param name="exclude_chimerics" type="boolean" truevalue=" -C" falsevalue="" checked="true"
+                    label="PE: Exclude chimeric fragments"
+                    help="Paired-end specific: If specified, the chimeric fragments (those fragments that have their two ends aligned to different chromosomes) will NOT be included for summarization. This option is only applicable for paired-end read data." />
+
+                <param name="summarization_level" type="boolean" truevalue=" -f" falsevalue=""
+                    label="On feature level"
+                    help="If specified, read summarization will be performed at the feature level. By default (-f is not specified), the read summarization is performed at the meta-feature level." />
+
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data format="tabular" name="output" label="${tool.name} on ${', '.join([ str(a.hid)+': '+a.name for a in $alignments ])}" />
+        <data format="tabular" name="output_summary" label="${tool.name} on ${', '.join([ str(a.hid)+': '+a.name for a in $alignments ])} summary" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
+            <param name="source_select" value="history" />
+            <param name="format" value="tabdel_short" />
+            <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
+            <output name="output" file="output__short.tab" lines_diff="2"/><!-- First header line contains temporary files -->
+            <output name="output_summary" file="output_summary.tab"/>
+        </test>
+        <test>
+            <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
+            <param name="source_select" value="history" />
+            <param name="format" value="tabdel_default" />
+            <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
+            <output name="output" file="output__tabdel_with_gene_length.tab" lines_diff="2"/><!-- First header line contains temporary files -->
+            <output name="output_summary" file="output_summary.tab"/>
+        </test>
+        <test>
+            <param name="alignments" value="featureCounts_input1.bam,featureCounts_input2.bam" ftype="bam" />
+            <param name="source_select" value="history" />
+            <param name="format" value="tabdel_full" />
+            <param name="reference_gene_sets" value="featureCounts_guide.gff" ftype="gff" />
+            <output name="output" file="output__full.tab" lines_diff="2"/><!-- First header line contains temporary files -->
+            <output name="output_summary" file="output_summary.tab"/>
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+featureCounts
+#############
+
+Overview
+--------
+FeatureCounts is a light-weight read counting program written entirely in the C programming language. It can be used to count both gDNA-seq and RNA-seq reads for genomic features in in SAM/BAM files.
+It has a variety of advanced parameters but its major strength is its outstanding performance: analysis of a 10GB SE BAM file takes about 7 minutes on a single average CPU (Homo Sapiens genome) [1].
+
+Input formats
+-------------
+Alignments should be provided in either:
+
+- SAM format, http://samtools.sourceforge.net/samtools.shtml#5
+- BAM format
+
+Gene regions should be provided in the GFF/GTF format:
+
+- http://genome.ucsc.edu/FAQ/FAQformat.html#format3
+- http://www.ensembl.org/info/website/upload/gff.html
+
+Installation
+------------
+
+1. Make sure you have proper GFF/GTF files (corresponding to your reference genome used for the aligment) uploaded to your history.
+
+2. Make sure that your gene_sets.loc is configured properly as data table. This is generally done by copying the right information into: tool_data_table_conf.xml. More info at:  https://wiki.galaxyproject.org/Admin/Tools/Data%20Tables
+
+License
+-------
+
+**featureCounts / subread package**:
+
+- GNU General Public License version 3.0 (GPLv3)
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands) on behalf of the Translational
+Research IT (TraIT) project:
+
+http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
+
+More tools by the Translational Research IT (TraIT) project can be found
+in the following toolsheds:
+
+- http://toolshed.g2.bx.psu.edu/
+- http://testtoolshed.g2.bx.psu.edu/
+
+References
+----------
+**featureCounts: an efficient general purpose program for assigning sequence reads to genomic features.**
+
+*Liao Y1, Smyth GK, Shi W.* - Bioinformatics. 2014 Apr 1;30(7):923-30.
+
+- http://www.ncbi.nlm.nih.gov/pubmed/24227677
+- http://dx.doi.org/10.1093/bioinformatics/btt656
+
+
+Acknowledgements
+----------------
+
+I would like to thank Marius van den Beek and Bjoern Gruening for their contribution to this galaxy wrapper.
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1093/bioinformatics/btt656</citation>
+    </citations>
+</tool>
