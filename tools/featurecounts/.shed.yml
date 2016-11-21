@@ -8,5 +8,5 @@ long_description: |
 name: featurecounts
 owner: yhoogstrate
 homepage_url: http://bioinf.wehi.edu.au/featureCounts
-remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/featurecounts_galaxy_wrapper
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/featurecounts
 type: unrestricted
