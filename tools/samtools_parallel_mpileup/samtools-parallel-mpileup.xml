@@ -191,7 +191,7 @@
             <param name="alignments" value="example.bam" ftype="bam" />
             
             <param name="source_select" value="history" />
-            <param name="reference_genome" value="example.fa" ftypet="fasta" />
+            <param name="reference_genome" value="example.fa" ftype="fasta" />
             
             <param name="samtools_regions" value="entire_genome" />
             
@@ -207,7 +207,7 @@
             <param name="alignments" value="example.bam" ftype="bam" />
             
             <param name="source_select" value="history" />
-            <param name="reference_genome" value="example.fa" ftypet="fasta" />
+            <param name="reference_genome" value="example.fa" ftype="fasta" />
             
             <param name="samtools_regions" value="entire_genome" />
             
