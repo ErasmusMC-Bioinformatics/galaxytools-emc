@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="voom_transform" name="Voom transform" version="3.29.0-0">
+    <description>transform count data to fit linear modelling</description>
+    <requirements>
+        <requirement type="package" version="3.29.0">bioconductor-limma</requirement>
+        <requirement type="package" version="1.20.0">r-getopt</requirement>
+    </requirements>
+    
+    <version_command>echo $(R --version | grep -i version | head -n 1)", Limma: "$(R --vanilla --slave -e "library(limma) ; cat(sessionInfo()\$otherPkgs\$limma\$Version)")</version_command>
+    
+    <command detect_errors="exit_code"><![CDATA[
+        Rscript
+            '${__tool_directory__}/voom_transform.R'
+            -e '${input_select.expression_matrix}'
+            -t '${output_matrix}'
+    ]]></command>
+    
+    <inputs>
+        <conditional name="input_select">
+            <param name="input_format" type="select" label="Output format" argument="-f">
+                <option value="1">Single expression matrix (header + multi column)</option>
+                <!-- <option value="2">Count files (no header + 1 sample per file)</option>-->
+            </param>
+            
+            <when value="1">
+                <param name="expression_matrix" type="data" format="txt,tabular" />
+            </when>
+            <!-- 
+            <when value="2">
+                repeat / input type = multiple
+            </when>
+             -->
+        </conditional>
+        
+        <!-- normalization param
+        -->
+        
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="output_matrix"
+              label="${tool.name} on $on_string" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="input_format" value="1" />
+            <param name="expression_matrix" value="em.txt" />
+             
+            <output name="output_matrix" value="em_transformed.txt" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+    ]]></help>
+    
+    <citations>
+    </citations>
+</tool>

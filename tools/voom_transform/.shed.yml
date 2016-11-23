@@ -1,0 +1,11 @@
+categories:
+- Statistics
+- RNA
+- Micro-array Analysis
+description: "Voom: Transform count data to fit linear modelling."
+long_description: |
+  Voom: Transform count data to log2-counts per million (logCPM), estimate the mean-variance relationship and use this to compute appropriate observational-level weights.
+name: voom_transform
+owner: yhoogstrate
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/voom_transform
+type: unrestricted
