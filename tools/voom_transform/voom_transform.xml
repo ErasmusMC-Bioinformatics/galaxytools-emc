@@ -10,9 +10,17 @@
     
     <command detect_errors="exit_code"><![CDATA[
         Rscript
+            #if str($include_rdata) == 'true'
+                --save
+            #end if
             '${__tool_directory__}/voom_transform.R'
             -e '${input_select.expression_matrix}'
             -t '${output_matrix}'
+        
+        #if str($include_rdata) == 'true'
+            ; cp '.RData' '$output_rdata'
+        #end if
+    
     ]]></command>
     
     <inputs>
@@ -32,14 +40,20 @@
              -->
         </conditional>
         
+        <param name="include_rdata" type="boolean" truevalue="true" falsevalue="" label="Save RData object" />
+        
         <!-- normalization param
         -->
         
     </inputs>
     
     <outputs>
-        <data format="tabular" name="output_matrix"
+        <data name="output_matrix" format="tabular"
               label="${tool.name} on $on_string" />
+
+        <data name="output_rdata" format="RData" label="${tool.name} on $on_string (RData)">
+            <filter>str(include_rdata) in ['true', true]</filter>
+        </data>
     </outputs>
     
     <tests>
