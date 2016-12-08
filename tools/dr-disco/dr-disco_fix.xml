@@ -10,7 +10,7 @@
     <command><![CDATA[
     ]]></command>
     <inputs>
-        <param name="star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR)" />
+        <param name="star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR" />
     </inputs>
     <outputs>
         <data name="output" format="bam" label="${tool.name} on ${star_discordant_alignment}" />
