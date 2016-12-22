@@ -1,0 +1,26 @@
+<tool id="show_metadata" name="Show Metadata" version="1.0.0">
+    <description>Debugging utility: show all metadata of a history item</description>
+    <command><![CDATA[
+        #for $metadata_element, $metadata_value in $input.metadata.items()
+            echo '$metadata_element: $metadata_value' >> '${output}' ; 
+        #end for
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" label="File to scan for all metadata" />
+    </inputs>
+    <outputs>
+        <data format="txt" name="output" label="${tool.name} on ${input.name}" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="test1.tabular" ftype="tabular" dbkey="hg19" />
+            <output name="output" file="test1.metadata_report"/>
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+        ** What it does? **
+        
+        Shows all the metadata elements of a history item.
+    ]]></help>
+</tool>
