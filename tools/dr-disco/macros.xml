@@ -1,12 +1,12 @@
 <macros>
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="0.1.0">bedtools</requirement>
+            <requirement type="package" version="0.2.0">dr-disco</requirement>
             <yield/>
         </requirements>
     </xml>
     
-    <token name="@TOOL_VERSION@">0.1.0</token>
+    <token name="@TOOL_VERSION@">0.2.0</token>
 
     <xml name="version_command">
         <version_command>dr-disco --version | head -n 1</version_command>
@@ -18,7 +18,7 @@
         <citation type="bibtex">
            @unpublished{dr_disco,
               author = {Youri Hoogstrate},
-              title  = {Dr. Disco},
+              title  = {Dr. Disco: detecting genomic breakpoints of TMPRSS2-ERG in prostate cancer using RNA-Seq data only},
               url    = {https://github.com/yhoogstrate/dr-disco}
             }
         </citation>
