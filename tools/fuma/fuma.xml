@@ -24,9 +24,9 @@
             #set $links = $links + [ $sample_name + ":" + str("ga_") + str($i) ]
         #end for
         
-        #set $gene_annotations_str = " ".join(gene_annotations)
-        #set $samples_str = " ".join(samples)
-        #set $links_str = " ".join(links)
+        #set $gene_annotations_str = "'"+"' '".join(gene_annotations)+"''
+        #set $samples_str = "'"+"' '".join(samples)+"'"
+        #set $links_str = "'"+"' '".join(links)+"'"
         
         fuma 
           -m
@@ -48,12 +48,12 @@
         #else
           -f $params.output_format.value
         #end if
-          -o $fuma_overview ; 
+          -o '${fuma_overview'}
         
         
         #if $params.output_format.value == "list_boolean"
-            fuma-list-to-boolean-list -o tmp.txt $fuma_overview ;
-            mv tmp.txt $fuma_overview
+            && fuma-list-to-boolean-list -o tmp.txt '${fuma_overview}'
+            && mv tmp.txt '${fuma_overview}'
         #end if
     ]]></command>
     
