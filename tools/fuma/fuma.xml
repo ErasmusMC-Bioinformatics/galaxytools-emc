@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="fuma" name="FuMa" version="3.0.0-g0">
+<tool id="fuma" name="FuMa" version="3.0.3-g0">
     <description>match detected fusion genes based on gene names (in particular for RNA-Seq)</description>
     
     <requirements>
-        <requirement type="package" version="2.7">python</requirement>
-        <requirement type="package" version="3.0.0">fuma</requirement>
+        <requirement type="package" version="3.0.3">fuma</requirement>
     </requirements>
     
     <version_command>fuma --version 2>&amp;1 | head -n 1</version_command><!-- -V also works, but is not GNU standard -->
