@@ -24,7 +24,7 @@
             #set $links = $links + [ $sample_name + ":" + str("ga_") + str($i) ]
         #end for
         
-        #set $gene_annotations_str = "'"+"' '".join(gene_annotations)+"''
+        #set $gene_annotations_str = "'"+"' '".join(gene_annotations)+"'"
         #set $samples_str = "'"+"' '".join(samples)+"'"
         #set $links_str = "'"+"' '".join(links)+"'"
         
@@ -48,7 +48,7 @@
         #else
           -f $params.output_format.value
         #end if
-          -o '${fuma_overview'}
+          -o '${fuma_overview}'
         
         
         #if $params.output_format.value == "list_boolean"
@@ -126,27 +126,70 @@
     </outputs>
     
     <tests>
+        <!-- Large tests, take long
         <test>
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
-                <param name="datasets_0|format" value="chimerascan" />
-                <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
-                <param name="datasets_1|format" value="defuse" />
-                <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_2|sample" value="edgren_fusion-map.txt" ftype="tabular" />
-                <param name="datasets_2|format" value="fusionmap" />
-                <param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_3|sample" value="edgren_true_positives.txt" ftype="tabular" />
-                <param name="datasets_3|format" value="fusionmap" />
-                <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
+            <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
+            <param name="datasets_0|format" value="chimerascan" />
+            <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
+            <param name="datasets_1|format" value="defuse" />
+            <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_2|sample" value="edgren_fusion-map.txt" ftype="tabular" />
+            <param name="datasets_2|format" value="fusionmap" />
+            <param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_3|sample" value="edgren_true_positives.txt" ftype="tabular" />
+            <param name="datasets_3|format" value="fusionmap" />
+            <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            
+            <param name="settingsType" value="full" />
+            
+            <param name="matching_method" value="subset" />
+            <param name="strand_specific_matching" value=" - - strand-specific-matching" />
+            <param name="acceptor_donor_order_specific_matchig" value=" - -acceptor-donor-order-specific-matching" />
+            <param name="long_gene_size" value="200000" />
+            <param name="output_format" value="list_boolean" />
+            
+            <output name="fuma_overview" file="edgren_test_01_specifc_matching_output.txt" />
+        </test>
+        <test>
+            <param name="datasets_0|sample" value="edgren_fusion-map.txt" ftype="tabular" />
+            <param name="datasets_0|format" value="fusionmap" />
+            <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_1|sample" value="edgren_true_positives.txt" ftype="tabular" />
+            <param name="datasets_1|format" value="fusionmap" />
+            <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
+            <param name="datasets_0|format" value="chimerascan" />
+            <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            
+            <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
+            <param name="datasets_1|format" value="defuse" />
+            <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+            
+            <param name="settingsType" value="full" />
+            
+            <param name="matching_method" value="subset" />
+            <param name="strand_specific_matching" value="False" />
+            <param name="acceptor_donor_order_specific_matchig" value="False" />
+            <param name="long_gene_size" value="200000" />
+            <param name="output_format" value="list_boolean" />
+            
+            <output name="fuma_overview" file="edgren_test_02_unspecifc_matching_output.txt" />
+        </test>
+        -->
+        <test>
+            <param name="datasets_0|sample" value="edgren_fusion-map.txt" ftype="tabular" />
+            <param name="datasets_0|format" value="fusionmap" />
+            <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_1|sample" value="edgren_true_positives.txt" ftype="tabular" />
+            <param name="datasets_1|format" value="fusionmap" />
+            <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             
             <param name="settingsType" value="full" />
             
@@ -156,29 +199,16 @@
             <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
             
-            <output name="fuma_overview" file="edgren_test_01_specifc_matching_output.txt" />
+            <output name="fuma_overview" file="edgren_test_03_specific_matching_output.txt" />
         </test>
         <test>
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
-                <param name="datasets_0|format" value="chimerascan" />
-                <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
-                <param name="datasets_1|format" value="defuse" />
-                <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_2|sample" value="edgren_fusion-map.txt" ftype="tabular" />
-                <param name="datasets_2|format" value="fusionmap" />
-                <param name="datasets_2|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
-            <!-- <repeat name="datasets"> -->
-                <param name="datasets_3|sample" value="edgren_true_positives.txt" ftype="tabular" />
-                <param name="datasets_3|format" value="fusionmap" />
-                <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            <!-- </repeat> -->
+            <param name="datasets_0|sample" value="edgren_fusion-map.txt" ftype="tabular" />
+            <param name="datasets_0|format" value="fusionmap" />
+            <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
+
+            <param name="datasets_1|sample" value="edgren_true_positives.txt" ftype="tabular" />
+            <param name="datasets_1|format" value="fusionmap" />
+            <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
             
             <param name="settingsType" value="full" />
             
@@ -188,7 +218,7 @@
             <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
             
-            <output name="fuma_overview" file="edgren_test_02_unspecifc_matching_output.txt" />
+            <output name="fuma_overview" file="edgren_test_04_unspecific_matching_output.txt" />
         </test>
     </tests>
     
