@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tool id="fuma" name="FuMa" version="3.0.5-g0">
     <description>match detected fusion genes based on gene names (in particular for RNA-Seq)</description>
-    
+
     <requirements>
         <requirement type="package" version="3.0.5">fuma</requirement>
     </requirements>
-    
+
     <version_command>fuma --version 2>&amp;1 | head -n 1</version_command><!-- -V also works, but is not GNU standard -->
-    
+
     <command><![CDATA[
         #import pipes
         
@@ -93,7 +93,9 @@
                 <param name="long_gene_size" type="hidden" value="200000" />
             </when>
             <when value="full">
-                <param name="matching_method" type="select" label="Matching method: technique used to match fusion genes based on annotated gene sets" help="Overlap is the most sensitive but also more sensitive for long gene artefacts; subset is the recommended technique and EGM is conservative">
+                <param name="matching_method" type="select" label="Matching method: technique used to match fusion genes based on annotated gene sets"
+                       help="Overlap is the most sensitive but also more sensitive for long gene artefacts; subset is the recommended technique and EGM is conservative"
+                       argument="-m">
                     <option value="overlap">Overlap</option>
                     <option value="subset" selected="True">Subset</option>
                     <option value="egm">Exact Geneset Matching (EGM)</option>
@@ -110,7 +112,9 @@
                     label="Consider fusion genes distinct when the donor and acceptor sites are swapped (A,B) != (B,A)"
                     help="This settings is not recommended when fusion genes detected in DNA-Seq are used" />
                 
-                <param name="long_gene_size" type="integer" min="0" value="200000" label="Long gene size" help="Gene-name based matching is more sensitive to long genes. This is the gene size used to mark fusion genes spanning a 'long gene' as reported the output. Use 0 to disable this feature (--long-gene-size)" />
+                <param name="long_gene_size" type="integer" min="0" value="200000" label="Long gene size"
+                       help="Gene-name based matching is more sensitive to long genes. This is the gene size used to mark fusion genes spanning a 'long gene' as reported the output. Use 0 to disable this feature"
+                       argument="--long-gene-size" />
                 
                 <param name="output_format" type="select" label="Output format">
                     <option value="list_boolean" selected="true">List (Boolean)</option>
