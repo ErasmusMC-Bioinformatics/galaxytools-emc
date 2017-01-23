@@ -20,5 +20,5 @@ long_description: |
 name: package_fuma_2_10_1
 owner: yhoogstrate
 homepage_url: https://github.com/yhoogstrate/fuma
-remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/fuma_galaxy_wrapper
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/packages/package_fuma_2_10_1
 type: tool_dependency_definition
