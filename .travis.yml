@@ -21,7 +21,7 @@ install:
   - conda create -y -q -c bioconda --name iuc_conda samtools=0.1.19 bcftools
   - . activate iuc_conda
   - planemo --version
-  - conda --version
+  - conda config --show ; conda --version
   - git diff --quiet "$TRAVIS_COMMIT_RANGE" -- ; GIT_DIFF_EXIT_CODE=$?
   - |
     if [ "$GIT_DIFF_EXIT_CODE" -gt 1 ] ; then
