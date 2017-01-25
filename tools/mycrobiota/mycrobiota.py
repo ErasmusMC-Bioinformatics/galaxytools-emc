@@ -226,6 +226,8 @@ def correct_replicates(infile, outdir, replicate_suffix, negative_control=''):
         # if normal control sample was present, correct file with that
         if negative_control:
             correct_negative_control('shared_dereplicated.tsv', outdir, negative_control)
+        else:
+            os.rename('shared_dereplicated.tsv', 'shared_corrected.tsv')
 
 
 def correct_negative_control(infile, outdir, negative_control):
@@ -240,9 +242,10 @@ def correct_negative_control(infile, outdir, negative_control):
     """
 
     # calculate correction factor (3 * stdev(normal_control))
-    with open(outdir+'/'+infile) as f:
+    with open(os.path.join(outdir, infile)) as f:
         shared_file = csv.reader(f, delimiter='\t')
         corrected_lines = [next(shared_file)]  # header
+        correction = 1
 
         # per level in the shared file (unique, 0.03, ..) calculate correction factor
         peek = next(shared_file)
@@ -268,7 +271,7 @@ def correct_negative_control(infile, outdir, negative_control):
                 corrected_lines.append(line[0:3] + map(lambda x: int(round(x/correction)), map(int, line[3:])))
 
     # output corrected shared file
-    write_output(outdir, "shared_correcter.tsv", corrected_lines)
+    write_output(outdir, "shared_corrected.tsv", corrected_lines)
 
 
 def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir, with_otu):
