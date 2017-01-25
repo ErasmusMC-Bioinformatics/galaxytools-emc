@@ -1,0 +1,9 @@
+name: mycrobiota
+owner: erasmus-medical-center
+categories:
+    - Metagenomics
+description: tools for 16S microbial analysis
+long_description: |
+    supporting tools for the EMC's mothur-based MYcrobiota workflow
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/mycrobiota
+type: unrestricted
