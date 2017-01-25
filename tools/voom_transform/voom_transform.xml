@@ -25,7 +25,7 @@
     
     <inputs>
         <conditional name="input_select">
-            <param name="input_format" type="select" label="Output format" argument="-f">
+            <param name="input_format" type="select" label="Output format">
                 <option value="1">Single expression matrix (header + multi column)</option>
                 <!-- <option value="2">Count files (no header + 1 sample per file)</option>-->
             </param>
