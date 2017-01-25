@@ -1,0 +1,51 @@
+Linux version
+
+Using ReadLine
+
+Running 64Bit Version
+
+mothur v.1.36.1
+Last updated: 7/27/2015
+
+by
+Patrick D. Schloss
+
+Department of Microbiology & Immunology
+University of Michigan
+pschloss@umich.edu
+http://www.mothur.org
+
+When using, please cite:
+Schloss, P.D., et al., Introducing mothur: Open-source, platform-independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol, 2009. 75(23):7537-41.
+
+Distributed under the GNU General Public License
+
+Type 'help()' for information on the commands that are available
+
+Type 'quit()' to exit program
+Interactive Mode
+
+
+mothur > summary.seqs(fasta=fasta.dat,name=name.dat,processors=1)
+
+Using 1 processors.
+
+		Start	End	NBases	Ambigs	Polymer	NumSeqs
+Minimum:	2943	11738	249	0	4	1
+2.5%-tile:	2943	11738	250	0	4	14
+25%-tile:	2943	11738	255	0	5	135
+Median: 	2943	11738	256	0	5	269
+75%-tile:	2943	11738	256	0	5	403
+97.5%-tile:	2943	11738	258	0	5	524
+Maximum:	2943	11738	260	0	6	537
+Mean:	2943	11738	255.723	0	4.94786
+# of unique seqs:	158
+total # of seqs:	537
+
+Output File Names: 
+fasta.summary
+
+It took 0 secs to summarize 537 sequences.
+quit
+
+mothur > quit
