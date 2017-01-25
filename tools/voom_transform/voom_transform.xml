@@ -18,7 +18,7 @@
             -t '${output_matrix}'
         
         #if str($include_rdata) == 'true'
-            ; cp '.RData' '$output_rdata'
+            && cp '.RData' '$output_rdata'
         #end if
     
     ]]></command>
