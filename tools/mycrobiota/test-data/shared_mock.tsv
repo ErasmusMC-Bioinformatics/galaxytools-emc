@@ -1,0 +1,19 @@
+label	Group	numOtus	Otu0001	Otu0002	Otu0003	Otu0004	Otu0005
+unique	sample1_replicate1	5	15	4	9	2	1
+unique	sample1_replicate2	5	11	8	12	0	7
+unique	sample1_replicate3	5	5	4	3	3	13
+unique	sample2_replicate1	5	21	0	13	2	1
+unique	sample2_replicate2	5	5	4	3	2	0
+unique	sample2_replicate3	5	10	4	3	2	0
+unique	negative-control_replicate1	1	0	1	2	5	1
+unique	negative-control_replicate2	2	1	4	1	0	1
+unique	negative-control_replicate3	1	3	2	1	2	1
+0.03	sample1_replicate1	4	14	20	25	3
+0.03	sample1_replicate2	4	24	22	13	9
+0.03	sample1_replicate3	4	18	9	24	7
+0.03	sample2_replicate1	4	27	17	17	0
+0.03	sample2_replicate2	4	26	13	18	1
+0.03	sample2_replicate3	4	44	15	10	9
+0.03	negative-control_replicate1	1	0	2	2	1
+0.03	negative-control_replicate2	4	0	1	1	3
+0.03	negative-control_replicate3	2	2	3	0	1

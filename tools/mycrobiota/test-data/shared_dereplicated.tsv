@@ -1,0 +1,7 @@
+label	Group	numOtus	Otu0001	Otu0002	Otu0003	Otu0004	Otu0005
+unique	sample1	5	10	5	8	0	7
+unique	sample2	5	12	0	6	2	0
+unique	negative-control	1	0	2	1	0	1
+0.03	sample1	4	19	17	21	6
+0.03	sample2	4	32	15	15	0
+0.03	negative-control	1	0	2	0	2
