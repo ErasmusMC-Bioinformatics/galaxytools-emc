@@ -11,4 +11,4 @@ Please sign off by admins only
   - [ ] Test files are appropriate
 * [ ] `<command/>`: file names are escaped
 * [ ] Tool requires version/build increase
-* [ ] Toolshed user `erasmusmc` has access to associated toolshed repo(s)
+* [ ] Toolshed user `erasmus-medical-center` has access to associated toolshed repo(s)
