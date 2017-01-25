@@ -1,0 +1,39 @@
+<tool id="dr_disco_intronic" name="Dr. Disco (intronic)" version="@TOOL_VERSION@-g0">
+    <description>Detects break-points in RNA-seq</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements"/>
+    <expand macro="version_command"/>
+    
+    <command><![CDATA[
+        ## old thing that evolved as such - depending on what the future will bring leave it out or include it...
+        touch empty.txt &&
+        
+        dr-disco
+            intronic
+                -m '${min_e_score}'
+                '${output}'
+                empty.txt
+                '${star_discordant_alignment_fixed}'
+    ]]></command>
+    <inputs>
+        <param name="star_discordant_alignment_fixed" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
+        <param name="min_e_score" type="integer" value="8" min="0"
+            label="Minimal score to initiate pulling sub-graphs"
+            help="Larger numbers boost performance but result in suboptimal results. Values of 8 and below are considered to be very safe (this corresponds to initiate merging already from clusters that consist of 2 or 3 reads)." />
+    </inputs>
+    
+    <outputs>
+        <data name="output" format="tabular" label="${tool.name} on ${$star_discordant_alignment_fixed.name}" />
+    </outputs>
+    
+    <tests>
+    </tests>
+    
+    <help>
+    </help>
+    
+     <expand macro="citations"/>
+</tool>

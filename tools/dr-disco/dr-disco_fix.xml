@@ -1,0 +1,26 @@
+<tool id="dr_disco_fix" name="Dr. Disco (fix)" version="@TOOL_VERSION@-g0">
+    <description>Fixes and annotates chimeric alignments</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements" />
+    <expand macro="version_command" />
+    
+    <command><![CDATA[
+        dr-disco fix '${output}' '${star_discordant_alignment}'
+    ]]></command>
+    <inputs>
+        <param name="star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR" />
+    </inputs>
+    <outputs>
+        <data name="output" format="bam" label="${tool.name} on ${star_discordant_alignment}" />
+    </outputs>
+    <tests>
+    </tests>
+    
+    <help>
+    </help>
+    
+     <expand macro="citations"/>
+</tool>

@@ -1,0 +1,11 @@
+categories:
+- Sequence Analysis
+- Transcriptomics
+description: |
+  Dr. Disco: fusion gene breakpoint detection in total RNA-seq data 
+long_description: |
+  Detects and classifies exon-to-exon and genomic breakpoints of fusion genes in total RNA-seq data using a Graph data structure.
+name: dr_disco
+owner: yhoogstrate
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/dr-disco
+type: unrestricted
