@@ -7,32 +7,47 @@
         <requirement type="package" version="2.7">krona</requirement>
     </requirements>
     <command detect_errors="aggressive"><![CDATA[
-        ## create symlinks to input files for nicer display names in output
-        #for $tax in $taxonomy:
-            ln -s '$tax' '$tax.name' &&
-        #end for
+        ## create symlinks to taxonomy files for nicer display names in output
+        #if $input.haveshared == 'no':
+            #for $tax in $input.taxonomy:
+                ln -s '$tax' '$tax.name' &&
+            #end for
+        #end if
 
         python '$__tool_directory__/mycrobiota.py'
-            #if $shared_file:
+            #if $input.haveshared == 'yes':
                 --command create_krona_plot_multisample
-                --shared_file '$shared_file'
-                --level '$level'
+                --shared_file '$input.shared_file'
+                --level '$input.level'
+                --taxonomy $input.taxonomy
             #else:
                 --command create_krona_plot
+                #for $tax in $input.taxonomy:
+                    --taxonomy '$tax.name'
+                #end for
             #end if
-            #for $tax in $taxonomy:
-                --taxonomy '$tax.name'
-            #end for
             ${with_otu}
     ]]></command>
     <inputs>
-        <param argument="--taxonomy" type="data" multiple="true" format="mothur.ref.taxonomy,mothur.seq.taxonomy" label="Select mothur taxonomy file" help=""/>
-        <param argument="--shared_file" type="data" optional="true" format="mothur.shared" label="Supply a mothur shared file" help=""/>
-        <param argument="--level" type="select" label="label - pick (one) OTU Label" optional="true" help="Only if a shared file was supplied">
-            <options>
-                <filter type="data_meta" ref="shared_file" key="labels"/>
-            </options>
-        </param>
+        <conditional name="input">
+            <param name="haveshared" type="select" label="Would you like to supply a mothur shared file?"
+                help="This will create a multisample plot. If you select 'no', you can still create a multisample plot by providing a taxonomy file per sample">
+                <option value="no">no</option>
+                <option value="yes">yes</option>
+            </param>
+            <when value="no">
+                <param argument="--taxonomy" type="data" multiple="true" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select mothur taxonomy file" help=""/>
+            </when>
+            <when value="yes">
+                <param argument="--taxonomy" type="data" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select mothur taxonomy file" help=""/>
+                <param argument="--shared_file" type="data" optional="true" format="mothur.shared" label="Supply a mothur shared file" help=""/>
+                <param argument="--level" type="select" label="label - pick (one) OTU Label">
+                    <options>
+                        <filter type="data_meta" ref="shared_file" key="labels"/>
+                    </options>
+                </param>
+            </when>
+        </conditional>
         <param argument="--with_otu" type="boolean" checked="false" truevalue="--with-otu" falsevalue="" label="differentiate between different OTUs of same taxonomy?" help=""/>
     </inputs>
     <outputs>
@@ -40,6 +55,7 @@
     </outputs>
     <tests>
         <test> <!-- test single sample -->
+            <param name="haveshared" value="no"/>
             <param name="taxonomy" value="multisample.taxonomy"/>
             <param name="with_otu" value="--with-otu"/>
             <output name="krona_plot">
@@ -54,6 +70,7 @@
             </output>
         </test>
         <test> <!-- test multi samples (multiple single-sample taxonomy files) -->
+            <param name="haveshared" value="no"/>
             <param name="taxonomy" value="multisample.taxonomy,krona.test1.mothur.cons.taxonomy"/>
             <param name="with_otu" value=""/>
             <output name="krona_plot">
@@ -67,7 +84,8 @@
                 </assert_contents>
             </output>
         </test>
-        <test> <!-- test multi sample (multisample taxonomy file with shared file) -->
+        <test> <!-- test multi sample (single multisample taxonomy file with shared file) -->
+            <param name="haveshared" value="yes"/>
             <param name="taxonomy" value="multisample.taxonomy"/>
             <param name="shared_file" ftype="mothur.shared" value="example.mothur.shared"/>
             <param name="with_otu" value="--with-otu"/>
