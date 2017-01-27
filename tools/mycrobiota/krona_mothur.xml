@@ -18,7 +18,11 @@
             #if $input.haveshared == 'yes':
                 --command create_krona_plot_multisample
                 --shared_file '$input.shared_file'
-                --level '$input.level'
+                #if $input.level == 'None':
+                    --level '$input.taxonomy.name'
+                #else:
+                    --level '$input.level'
+                #end if
                 --taxonomy $input.taxonomy
             #else:
                 --command create_krona_plot
@@ -32,8 +36,8 @@
         <conditional name="input">
             <param name="haveshared" type="select" label="Would you like to supply a mothur shared file?"
                 help="This will create a multisample plot. If you select 'no', you can still create a multisample plot by providing a taxonomy file per sample">
-                <option value="no">no</option>
-                <option value="yes">yes</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
             </param>
             <when value="no">
                 <param argument="--taxonomy" type="data" multiple="true" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select mothur taxonomy file" help=""/>
@@ -41,7 +45,7 @@
             <when value="yes">
                 <param argument="--taxonomy" type="data" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select mothur taxonomy file" help=""/>
                 <param argument="--shared_file" type="data" optional="true" format="mothur.shared" label="Supply a mothur shared file" help=""/>
-                <param argument="--level" type="select" label="label - pick (one) OTU Label">
+                <param argument="--level" type="select" optional="true" label="label - pick (one) OTU Label" help="leave blank for collections, will try to determine level from element names">
                     <options>
                         <filter type="data_meta" ref="shared_file" key="labels"/>
                     </options>

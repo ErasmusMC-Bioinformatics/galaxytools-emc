@@ -286,7 +286,9 @@ def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir, wit
     :return:
     """
 
-    taxonomies = [taxonomy_file[0]]
+    os.link(taxonomy_file[0], 'all-samples.tsv')
+    taxonomies = ['all-samples.tsv']
+
     # create taxonomy file per sample
     with open(taxonomy_file[0], 'r') as tax, open(shared_file[0]) as sh:
         taxonomy = csv.reader(tax, delimiter='\t')
