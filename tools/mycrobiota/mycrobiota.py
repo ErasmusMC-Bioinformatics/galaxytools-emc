@@ -1,5 +1,5 @@
-import os
-import argparse
+import os, sys
+import argparse, requests, time
 import csv
 from subprocess import call
 
@@ -11,6 +11,8 @@ def main():
     parser.add_argument('-ct', '--count_table', action='append', help="mothur count table")
     parser.add_argument('-t', '--taxonomy', action='append', help="mothur taxonomy file")
     parser.add_argument('-s', '--shared_file', action='append', help="mothur shared file")
+    parser.add_argument('-otu', '--otutable', action='append', help="mothur OTU table")
+    parser.add_argument('-f', '--fasta', action='append', help="fasta")
     parser.add_argument('-sl', '--summary_log', action='append', help="mothur summary log file")
     parser.add_argument('-o', '--outfile', help="output file")
     parser.add_argument('-od', '--outdir', help="output directory", default="")
@@ -47,8 +49,40 @@ def main():
     elif args.command == 'make_multi_otutable':
         make_multi_otutable(args.taxonomy, args.shared_file, args.level, args.outdir)
 
+    elif args.command == 'otutable_add_blast_links':
+        otutable_add_blast_links(args.otutable, args.fasta)
+
     else:
         print("unknown command. exiting")
+
+
+
+def make_url(seq, baseurl):
+    return baseurl+"?DATABASE=nr&PERC_IDENT=97&EXCLUDE_SEQ_UNCULT=on&HITLIST_SIZE=10&FILTER=L&FILTER=m&FILTER=R&EXPECT=10&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&CMD=Put&QUERY="+seq.lower()
+
+def make_RIDlink(RID, baseurl):
+    return "<a target=\"_blank\" href=\""+baseurl+"?CMD=Get&RID="+RID+"\">view results</a>"
+
+def make_rerun_link(seq, baseurl):
+    return "<a target=\"_blank\" href=\""+baseurl+"?DATABASE=nr&EXCLUDE_SEQ_UNCULT=yes&FILTER=L&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&CMD=Web&QUERY="+seq.lower()+"\">send to BLAST</a>"
+
+
+def otutable_add_blast_links(otutable, otureps):
+    baseurl="http://www.ncbi.nlm.nih.gov/blast/Blast.cgi"
+
+    # for each fasta sequence create blast search
+    with open(otureps[0], "r") as reps:
+        sequences = [line.rstrip('\n').replace('-','') for line in reps if '>' not in line]
+
+    # Add RID link and rerun link to table
+    with open(otutable[0],"r") as otuf, open("otutable_with_blast.tsv","w+") as outfile:
+        linenum=-1
+        for line in otuf:
+           if linenum == -1:
+               outfile.write( line.rstrip()+"\tBLAST\n" )
+           else:
+               outfile.write( line.rstrip() +"\t" + make_rerun_link(sequences[linenum], baseurl)+"\n" )
+           linenum +=1
 
 
 def summarylog_total(infile):
