@@ -44,6 +44,9 @@ def main():
     elif args.command == 'correct_replicates':
         correct_replicates(args.shared_file, args.outdir, args.replicate_suffix, args.negative_control)
 
+    elif args.command == 'shared_to_otutable':
+        shared_to_otutable(args.taxonomy, args.shared_file, args.level, args.outdir)
+
     else:
         print("unknown command. exiting")
 
@@ -195,6 +198,7 @@ def correct_replicates(infile, outdir, replicate_suffix, negative_control=''):
     with open(infile[0], 'rb') as f:
         shared_file = csv.reader(f, delimiter='\t')
         out_lines = [next(shared_file)]  # header
+        nc_stdevs = []
 
         # load all replicates of a sample (this assumes them to be in order in the file)
         peek = next(shared_file)
@@ -211,6 +215,10 @@ def correct_replicates(infile, outdir, replicate_suffix, negative_control=''):
 
             # calculate mean counts across replicates or set to zero if any of replicates had count zero
             averages = []
+            stdevs = []
+            if negative_control and replicates[0][1].startswith(negative_control):
+                stdevs.append(replicates[0][0])  # add label to line
+
             for col in range(3, len(replicates[0])):
                 counts = map(int, column(replicates, col))
                 if 0 in counts:
@@ -218,19 +226,66 @@ def correct_replicates(infile, outdir, replicate_suffix, negative_control=''):
                 else:
                     averages.append(int(round(mean(counts))))
 
+                # calculate normal control correction factor
+                corr_factor = 0
+                if negative_control and replicates[0][1].startswith(negative_control):
+                    if 0 not in counts:
+                        corr_factor = 3 * stdev(counts)
+                    print replicates[0][0] + ': ' + replicates[0][1]
+                    print counts
+                    print corr_factor
+                    stdevs.append(corr_factor)
+
+            if stdevs:
+                nc_stdevs.append(stdevs)
+
             # output single row per sample with corrected counts
             out_lines.append([replicates[0][0]] + [sample] + [replicates[0][2]] + averages)
 
+        print nc_stdevs
         write_output(outdir, 'shared_dereplicated.tsv', out_lines)
 
         # if normal control sample was present, correct file with that
         if negative_control:
-            correct_negative_control('shared_dereplicated.tsv', outdir, negative_control)
+            # correct_negative_control('shared_dereplicated.tsv', outdir, negative_control)
+            correct_negative_control('shared_dereplicated.tsv', outdir, negative_control, nc_stdevs)
         else:
             os.rename('shared_dereplicated.tsv', 'shared_corrected.tsv')
 
 
-def correct_negative_control(infile, outdir, negative_control):
+def correct_negative_control(infile, outdir, negative_control, stdevs):
+    with open(os.path.join(outdir, infile)) as f:
+        shared_file = csv.reader(f, delimiter='\t')
+        corrected_lines = [next(shared_file)]  # header
+
+        # per level in the shared file (unique, 0.03, ..), and per otu, calculate correction factor
+        peek = next(shared_file)
+        while peek:
+            if peek[1] != negative_control:
+                for level in stdevs:
+                    if level[0] == peek[0]:
+                        print peek
+                        print level
+                        # subtract correction factor from counts
+                        corr_line = peek[0:3]
+                        for i in range(3, len(peek)):
+                            corr_line.append(int( max(0, int(peek[i]) - level[i-2])))
+
+                        corrected_lines.append(corr_line)
+                        print corr_line
+
+            # get next line
+            try:
+                peek = next(shared_file)
+            except StopIteration:
+                peek = False
+                break
+
+        # output corrected shared file
+        write_output(outdir, "shared_corrected.tsv", corrected_lines)
+
+
+def correct_negative_control2(infile, outdir, negative_control):
     """
     If a negative control sample was added, correct the OTU counts in a shared file. Subtract 3 times the standard
     deviation of normal control sample counts from all counts in file.
@@ -247,7 +302,7 @@ def correct_negative_control(infile, outdir, negative_control):
         corrected_lines = [next(shared_file)]  # header
         correction = 1
 
-        # per level in the shared file (unique, 0.03, ..) calculate correction factor
+        # per level in the shared file (unique, 0.03, ..), and per otu, calculate correction factor
         peek = next(shared_file)
         while peek:
             level_lines = []
@@ -268,10 +323,58 @@ def correct_negative_control(infile, outdir, negative_control):
 
             # apply correction to samples
             for line in level_lines:
-                corrected_lines.append(line[0:3] + map(lambda x: int(round(x/correction)), map(int, line[3:])))
+                corrected_lines.append(line[0:3] + map(lambda x: int(round(x-correction)), map(int, line[3:])))
 
     # output corrected shared file
     write_output(outdir, "shared_corrected.tsv", corrected_lines)
+
+
+def shared_to_otutable(taxonomy_file, shared_file, level, outdir):
+    """
+    Create an otu table from shared file and taxonomy file
+
+    example output:
+
+    OTU    sample1 sample2 .. sampleX Kingdom  Phylum        Class       Order         Family         Genus
+    Otu001 13      8       .. 91      Bacteria Bacteroidetes Bacteroidia Bacteroidales Prevotellaceae Prevotella
+    ...
+
+    :param taxonomy_file:
+    :param shared_file:
+    :param level:
+
+    :return:
+    """
+
+    outlines = []
+    samples = []
+    # create multisample taxonomy from counts in shared file
+    with open(taxonomy_file[0], 'r') as tax, open(shared_file[0]) as sh:
+        taxonomy = csv.reader(tax, delimiter='\t')
+        shared = csv.reader(sh, delimiter='\t')
+        shared_header = next(shared)
+
+        # get all taxonomies
+        taxonomies = []
+        for j, t in enumerate(taxonomy):
+            taxonomies.append(t[2].split(';'))
+
+        for i, row in enumerate(shared):
+            tax.seek(0)  # make sure to start at beginning of file each time
+            if row[0] == level:
+                samples.append(row[1])
+                outlines.append(row[1:])
+
+        transposed = map(list, zip(*outlines))
+
+        header = ["OTU"] + samples + ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus"]
+        print header
+        writelines = [header]
+        writelines = [a+b for a, b in zip(transposed, taxonomies)]
+
+        #print writelines
+        # output corrected shared file
+        write_output(outdir, "shared_with_taxonomy.tsv", writelines)
 
 
 def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir, with_otu):
