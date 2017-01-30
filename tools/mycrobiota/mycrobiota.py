@@ -44,8 +44,8 @@ def main():
     elif args.command == 'correct_replicates':
         correct_replicates(args.shared_file, args.outdir, args.replicate_suffix, args.negative_control)
 
-    elif args.command == 'shared_to_otutable':
-        shared_to_otutable(args.taxonomy, args.shared_file, args.level, args.outdir)
+    elif args.command == 'make_multi_otutable':
+        make_multi_otutable(args.taxonomy, args.shared_file, args.level, args.outdir)
 
     else:
         print("unknown command. exiting")
@@ -329,7 +329,7 @@ def correct_negative_control2(infile, outdir, negative_control):
     write_output(outdir, "shared_corrected.tsv", corrected_lines)
 
 
-def shared_to_otutable(taxonomy_file, shared_file, level, outdir):
+def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
     """
     Create an otu table from shared file and taxonomy file
 
@@ -353,28 +353,27 @@ def shared_to_otutable(taxonomy_file, shared_file, level, outdir):
         taxonomy = csv.reader(tax, delimiter='\t')
         shared = csv.reader(sh, delimiter='\t')
         shared_header = next(shared)
+        outlines.append (shared_header[3:])
 
         # get all taxonomies
         taxonomies = []
         for j, t in enumerate(taxonomy):
-            taxonomies.append(t[2].split(';'))
+            if j > 0:
+                taxonomies.append(filter(None, [x.split('(')[0] for x in t[2].split(';')]))
 
         for i, row in enumerate(shared):
             tax.seek(0)  # make sure to start at beginning of file each time
             if row[0] == level:
                 samples.append(row[1])
-                outlines.append(row[1:])
+                outlines.append(row[2:])
 
         transposed = map(list, zip(*outlines))
-
         header = ["OTU"] + samples + ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus"]
-        print header
-        writelines = [header]
-        writelines = [a+b for a, b in zip(transposed, taxonomies)]
 
-        #print writelines
+        writelines = [header] + [a+b for a, b in zip(transposed, taxonomies)]
+
         # output corrected shared file
-        write_output(outdir, "shared_with_taxonomy.tsv", writelines)
+        write_output(outdir, "multi_otutable.tsv", writelines)
 
 
 def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir, with_otu):
