@@ -30,7 +30,7 @@
             <param name="shared" value="shared_mock.tsv" ftype="mothur.shared"/>
             <param name="replicate_suffix" value="_replicate"/>
             <param name="negative_control" value="negative-control"/>
-            <output name="corrected_out" md5="f25c4381bac9bee3de0e119f57743202" ftype="mothur.shared"/>
+            <output name="corrected_out" md5="02848b930f6501e54f1dc812d0e13c66" ftype="mothur.shared"/>
         </test>
     </tests>
     <help><![CDATA[
