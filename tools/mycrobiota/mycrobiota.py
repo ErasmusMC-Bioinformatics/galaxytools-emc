@@ -56,12 +56,13 @@ def main():
         print("unknown command. exiting")
 
 
-
 def make_url(seq, baseurl):
     return baseurl+"?DATABASE=nr&PERC_IDENT=97&EXCLUDE_SEQ_UNCULT=on&HITLIST_SIZE=10&FILTER=L&FILTER=m&FILTER=R&EXPECT=10&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&CMD=Put&QUERY="+seq.lower()
 
+
 def make_RIDlink(RID, baseurl):
     return "<a target=\"_blank\" href=\""+baseurl+"?CMD=Get&RID="+RID+"\">view results</a>"
+
 
 def make_rerun_link(seq, baseurl):
     return "<a target=\"_blank\" href=\""+baseurl+"?DATABASE=nr&EXCLUDE_SEQ_UNCULT=yes&FILTER=L&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&CMD=Web&QUERY="+seq.lower()+"\">send to BLAST</a>"
