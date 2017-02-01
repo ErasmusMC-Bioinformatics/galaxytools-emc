@@ -447,6 +447,10 @@ def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir, wit
                         t[1] = row[j+3]
                         out_table.writerow(t + [shared_header[j+3]])
 
+    # if one one sample in the shared file, don't create "allsamples" plot
+    if len(taxonomies) == 2:
+        taxonomies = taxonomies[1:]
+
     # make krona plot
     create_krona_plot(taxonomies, outdir, with_otu)
 
@@ -472,7 +476,7 @@ def create_krona_plot(taxonomy_files, outdir, with_otu):
             for row in taxonomy:
                 out_rows.append(filter(None, [row[1]] + row[2].rstrip(";\n").split(';') + [row[0] if with_otu else None]))
 
-        outfile = os.path.join(outdir, tax.split("/")[-1])
+        outfile = os.path.join(outdir, tax.split("/")[-1]+"krona")
         krona_input_files.append(outfile)
 
         with open(outfile, 'w+') as f2:
