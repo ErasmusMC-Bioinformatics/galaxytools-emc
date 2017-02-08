@@ -51,8 +51,17 @@
             </param>
             <when value="false" />
             <when value="true">
-                <param name="sample_geneids" type="data" format="tabular" label="Select Read-count dataset that contains a column for GeneIDs" help="from featureCounts/DEXSeq-count/HTSeq-count, etc." />
-                <param name="column_geneids" numerical="false" use_header_names="true" label="Select GeneID column" type="data_column" data_ref="sample_geneids" multiple="false">
+                <param name="sample_geneids" type="data" format="tabular"
+                       label="Select Read-count dataset that contains a column for GeneIDs"
+                       help="from featureCounts/DEXSeq-count/HTSeq-count, etc." />
+
+                <param name="column_geneids"
+                       numerical="false"
+                       use_header_names="true"
+                       label="Select GeneID column"
+                       type="data_column"
+                       data_ref="sample_geneids"
+                       multiple="false">
                     <validator type="no_options" message="Please select at least one column." />
                 </param>
             </when>
@@ -61,7 +70,13 @@
         <repeat name="samples" title="Expression Table" help="E.g. a earlier concatenated table, or a HT-seq, featureCounts or DESeq-count result.">
             <param name="sample" type="data" format="tabular" label="Read-count dataset that belongs to a pair" help="from featureCounts/DEXSeq-count/HTSeq-count, etc." />
             <!-- select columns  -->
-            <param name="column_index" numerical="false" use_header_names="true" label="Select columns that are associated with this factor level" type="data_column" data_ref="sample" multiple="true" size="120" display="checkboxes">
+            <param name="column_index"
+                   numerical="false"
+                   use_header_names="true"
+                   label="Select columns that are associated with this factor level"
+                   type="data_column"
+                   data_ref="sample"
+                   multiple="true">
                 <validator type="no_options" message="Please select at least one column." />
             </param>
         </repeat>
