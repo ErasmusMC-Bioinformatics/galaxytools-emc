@@ -63,7 +63,7 @@
             <param name="name" type="text" value="FactorName" label="Specify a name for the factor / condition" help="e.g. 'Tumor vs. Normal', 'Timepoint' or 'DiseaseState'. Field must be non-numerical, preferably only letters!!" />
             <repeat name="rep_factorLevel" title="Factor level" min="1">
                 <param name="factorLevel" type="text" value="FactorLevel" label="Specify a condition" help="e.g. Tumor or Normal; Treated, untreaded or placebo. Field must be non-numerical, preferably only letters!!" />
-                <param name="factorIndex" numerical="false" use_header_names="true" label="Select columns that are associated with this factor level" type="data_column" data_ref="expression_matrix" multiple="true" size="120" display="checkboxes">
+                <param name="factorIndex" numerical="false" use_header_names="true" label="Select columns that are associated with this factor level" type="data_column" data_ref="expression_matrix" multiple="true">
                     <validator type="no_options" message="Please select at least one column." />
                 </param>
             </repeat>
@@ -79,7 +79,7 @@
                 <repeat name="blocking_repeat" title="Blocking condition" min="1">
                     <param name="blocking_name" type="text" value="" label="Specify a name for a blocking condition" help="e.g.'Patients' or 'Batches'" />
                     <repeat name="block" title="Block" min="2">
-                        <param name="block_index" label="Select columns that are associated with this factor level" type="data_column" data_ref="expression_matrix" numerical="True" multiple="true" use_header_names="true" size="120" display="checkboxes">
+                        <param name="block_index" label="Select columns that are associated with this factor level" type="data_column" data_ref="expression_matrix" numerical="True" multiple="true" use_header_names="true">
                             <validator type="no_options" message="Please select at least one column." />
                         </param>
                     </repeat>
