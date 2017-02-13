@@ -95,8 +95,10 @@
             </when>
         </conditional>
         
-        <param name="remove_comment_lines" type="boolean" label="Automatically remove 'comment' lines starting with a '#'" truevale="true" falsevalue="false" selected="true" help="Some tools (incl. featureCounts) include comment lines that are not neccesairy for downstream analyis. By enabling this function, these lines will be removed." />
-        
+        <param name="remove_comment_lines" type="boolean" truevalue="true" falsevalue="false" checked="true"
+               label="Automatically remove 'comment' lines starting with a '#'"
+               help="Some tools (incl. featureCounts) include comment lines that are not neccesairy for downstream analyis. By enabling this function, these lines will be removed." />
+
     </inputs>
     
     <outputs>
