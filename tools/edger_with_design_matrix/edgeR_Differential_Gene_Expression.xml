@@ -7,7 +7,7 @@
     </macros>
     
     <requirements>
-        <requirement type="package" version="3.11.0">edger</requirement>
+        <requirement type="package" version="3.12.1">bioconductor-edger</requirement>
     </requirements>
     
     <stdio>
