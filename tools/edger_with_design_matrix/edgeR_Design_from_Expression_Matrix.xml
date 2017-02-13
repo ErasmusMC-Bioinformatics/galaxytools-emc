@@ -7,11 +7,11 @@
     </macros>
     
     <requirements>
-        <requirement type="package" version="1.0.0">design_matrix_creator</requirement>
+        <requirement type="package" version="2.7">python</requirement>
     </requirements>
     
     <command>
-        design_matrix_creator
+        python '${__tool_directory__}/bin/design_matrix_creator'
             -c $expression_matrix
             
             #set $unique_columns = []
@@ -57,7 +57,7 @@
     </command>
     
     <inputs>
-        <param format="tabular" name="expression_matrix" type="data" label="Expression matrix (read counts)" help="You can create a count matrix with the tool" />
+        <param name="expression_matrix" format="tabular" type="data" label="Expression matrix (read counts)" help="You can create a count matrix with the tool" />
         
         <repeat name="treatments" title="Factor/Condition" min="1">
             <param name="name" type="text" value="FactorName" label="Specify a name for the factor / condition" help="e.g. 'Tumor vs. Normal', 'Timepoint' or 'DiseaseState'. Field must be non-numerical, preferably only letters!!" />
@@ -96,20 +96,19 @@
         <test>
             <param name="expression_matrix" value="GSE51403/GSE51403_expression_matrix_full.txt" />
             
-            <!-- <repeat name="treatments"> -->
-                <param name="treatments_0|name" value="Treatment" />
-                <!-- <repeat name="rep_factorLevel"> -->
-                    <param name="treatments_0|rep_factorLevel_0|factorLevel" value="Control" />
-                    <param name="treatments_0|rep_factorLevel_0|factorIndex" value="2,3,4,5,6,7,8" />
-                <!-- </repeat> -->
-                <!-- <repeat name="rep_factorLevel"> -->
-                    <param name="treatments_0|rep_factorLevel_1|factorLevel" value="E2" />
-                    <param name="treatments_0|rep_factorLevel_1|factorIndex" value="9,10,11,12,13,14,15" />
-                <!-- </repeat> -->
-            <!-- </repeat> -->
+            <repeat name="treatments">
+                <repeat name="rep_factorLevel">
+                    <param name="factorLevel" value="Control" />
+                    <param name="factorIndex" value="2,3,4,5,6,7,8" />
+                </repeat>
+                <repeat name="rep_factorLevel">
+                    <param name="factorLevel" value="E2" />
+                    <param name="factorIndex" value="9,10,11,12,13,14,15" />
+                </repeat>
+            </repeat>
             
             <conditional name="choose_blocking">
-                <param value="false" />
+                <param name="choice" value="false" />
             </conditional>
             
             <output name="design_matrix" file="GSE51403/GSE51403_design_matrix_full_depth.txt" />
