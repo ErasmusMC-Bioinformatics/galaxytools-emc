@@ -1,0 +1,9 @@
+sample-name	Condition	Batch
+C1	C	1
+C2	C	1
+C3	C	2
+C4	C	2
+E1	E	1
+E2	E	1
+E3	E	2
+E4	E	2

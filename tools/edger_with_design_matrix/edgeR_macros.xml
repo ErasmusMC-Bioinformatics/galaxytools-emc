@@ -1,0 +1,16 @@
+<macros>
+    <token name="@CONTACT@">Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands)
+
+I would like to thank Hina Riaz - Naz Khan for her helpful contribution.</token>
+    
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1093/bioinformatics/btp616</citation>
+            <citation type="doi">10.1093/bioinformatics/btt688</citation>
+        </citations>
+    </xml>
+</macros>

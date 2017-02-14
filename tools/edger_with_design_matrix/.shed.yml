@@ -1,0 +1,17 @@
+categories:
+- RNA
+- Statistics
+- Transcriptomics
+description: Modular EdgeR implementation using Design matrices
+long_description: |
+  EdgeR: Differential expression analysis of RNA-seq expression profiles with biological replication.
+  
+  This wrapper allows the user to:
+  1) Create a design matrix upon the gene-count files from your history (featureCounts; HT-Seq count)
+  2) Define your contrast and run EdgeR
+
+name: edger_with_design_matrix
+owner: yhoogstrate
+homepage_url: http://www.bioconductor.org/packages/release/bioc/html/edgeR.html
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/edger_with_design_matrix
+type: unrestricted

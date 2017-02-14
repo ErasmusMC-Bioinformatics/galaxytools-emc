@@ -1,0 +1,10 @@
+chr1	example	exon	1000	1100	.	.	.	gene_id "GENE01";
+chr1	example	exon	2000	2100	.	.	.	gene_id "GENE02";
+chr2	example	exon	1000	1100	.	.	.	gene_id "GENE03";
+chr2	example	exon	2000	2100	.	.	.	gene_id "GENE04";
+chr3	example	exon	1000	1100	.	.	.	gene_id "GENE05";
+chr3	example	exon	2000	2100	.	.	.	gene_id "GENE06";
+chrX	example	exon	1000	1100	.	.	.	gene_id "GENE07";
+chrX	example	exon	2000	2100	.	.	.	gene_id "GENE08";
+chrMt	example	exon	1000	1100	.	.	.	gene_id "GENE09";
+chrMt	example	exon	2000	2100	.	.	.	gene_id "GENE10";

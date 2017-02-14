@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="design_from_expression_matrix" name="edgeR: Design- from Expression matrix" version="1.0.0.a">
+    <description>Create design- from an expression matrix</description>
+    
+    <macros>
+        <import>edgeR_macros.xml</import>
+    </macros>
+    
+    <requirements>
+        <requirement type="package" version="2.7">python</requirement>
+    </requirements>
+    
+    <command>
+        python '${__tool_directory__}/bin/design_matrix_creator'
+            -c $expression_matrix
+            
+            #set $unique_columns = []
+            #for $factor in $treatments:
+                #for $level in $factor.rep_factorLevel:
+                    #for $val in $level.factorIndex.value:
+                        #if str($val) not in $unique_columns:
+                            #set $unique_columns = $unique_columns + [str($val)]
+                        #end if
+                    #end for
+                #end for
+            #end for
+            
+            #set $unique_columns = " ".join(unique_columns)
+            -s $unique_columns
+            
+            -t
+            #for $factor in $treatments:
+                #set $factor_str = str($factor.name).encode('base64').replace('\n','')
+                
+                #for $level in $factor.rep_factorLevel:
+                    #set $factor_str = $factor_str+":"+str($level.factorLevel).encode('base64').replace('\n','')+":"+",".join([str(x).strip() for x in $level.factorIndex.value])
+                #end for
+                
+                $factor_str
+            #end for
+            
+            #if $choose_blocking.choice == "true"
+                -b
+                #for blocking in $choose_blocking.blocking_repeat:
+                    #set $blocking_str = str($blocking.blocking_name).encode('base64').replace('\n','')
+                    
+                    #for $block_iter in $blocking.block:
+                        #set $block_str = ",".join([str(x).strip() for x in $block_iter.block_index.value])
+                        #set $blocking_str = $blocking_str+":"+$block_str
+                    #end for
+                    
+                    $blocking_str
+                #end for
+            #end if
+            
+             -o $design_matrix
+    </command>
+    
+    <inputs>
+        <param name="expression_matrix" format="tabular" type="data" label="Expression matrix (read counts)" help="You can create a count matrix with the tool" />
+        
+        <repeat name="treatments" title="Factor/Condition" min="1">
+            <param name="name" type="text" value="FactorName" label="Specify a name for the factor / condition" help="e.g. 'Tumor vs. Normal', 'Timepoint' or 'DiseaseState'. Field must be non-numerical, preferably only letters!!" />
+            <repeat name="rep_factorLevel" title="Factor level" min="1">
+                <param name="factorLevel" type="text" value="FactorLevel" label="Specify a condition" help="e.g. Tumor or Normal; Treated, untreaded or placebo. Field must be non-numerical, preferably only letters!!" />
+                <param name="factorIndex" numerical="false" use_header_names="true" label="Select columns that are associated with this factor level" type="data_column" data_ref="expression_matrix" multiple="true">
+                    <validator type="no_options" message="Please select at least one column." />
+                </param>
+            </repeat>
+        </repeat>
+        
+        <conditional name="choose_blocking">
+            <param name="choice" type="select" label="Define blocking (paired or grouped samples)" help="e.g. to remove batch effects" >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </param>
+            <when value="false" />
+            <when value="true">
+                <repeat name="blocking_repeat" title="Blocking condition" min="1">
+                    <param name="blocking_name" type="text" value="" label="Specify a name for a blocking condition" help="e.g.'Patients' or 'Batches'" />
+                    <repeat name="block" title="Block" min="2">
+                        <param name="block_index" label="Select columns that are associated with this factor level" type="data_column" data_ref="expression_matrix" numerical="True" multiple="true" use_header_names="true">
+                            <validator type="no_options" message="Please select at least one column." />
+                        </param>
+                    </repeat>
+                </repeat>
+            </when>
+        </conditional>
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="design_matrix" label="Design matrix" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="expression_matrix" value="GSE51403/GSE51403_expression_matrix_full.txt" />
+            
+            <repeat name="treatments">
+                <repeat name="rep_factorLevel">
+                    <param name="factorLevel" value="Control" />
+                    <param name="factorIndex" value="2,3,4,5,6,7,8" />
+                </repeat>
+                <repeat name="rep_factorLevel">
+                    <param name="factorLevel" value="E2" />
+                    <param name="factorIndex" value="9,10,11,12,13,14,15" />
+                </repeat>
+            </repeat>
+            
+            <conditional name="choose_blocking">
+                <param name="choice" value="false" />
+            </conditional>
+            
+            <output name="design_matrix" file="GSE51403/GSE51403_design_matrix_full_depth.txt" />
+        </test>
+    </tests>
+    
+    <help>
+edgeR: Design- from Expression matrix
+#####################################
+
+Overview
+--------
+
+Create a design matrix by selecting the desired patients from an expression matrix.
+
+Input
+-----
+
+@CONTACT@
+    </help>
+    
+    <expand macro="citations" />
+</tool>

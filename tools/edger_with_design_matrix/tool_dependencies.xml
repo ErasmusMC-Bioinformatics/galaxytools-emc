@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="edger" version="3.11.0">
+        <repository name="package_r_edger_3_11_0" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="design_matrix_creator" version="1.0.0">
+        <install version="1.0">
+            <actions>
+                <action type="shell_command">mkdir $INSTALL_DIR/bin ; cp $REPOSITORY_INSTALL_DIR/bin/design_matrix_creator $INSTALL_DIR/bin/design_matrix_creator</action>
+                <action type="chmod">
+                    <file mode="755">$INSTALL_DIR/bin/design_matrix_creator</file>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+                </action>
+            </actions>
+        </install>
+    </package>
+    
+    <package name="edger_dge_table_to_bedgraph" version="1.0.0">
+        <install version="1.0">
+            <actions>
+                <action type="shell_command">mkdir $INSTALL_DIR/bin ; cp $REPOSITORY_INSTALL_DIR/bin/edger_dge_table_to_bedgraph $INSTALL_DIR/bin/edger_dge_table_to_bedgraph</action>
+                <action type="chmod">
+                    <file mode="755">$INSTALL_DIR/bin/edger_dge_table_to_bedgraph</file>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+                </action>
+            </actions>
+        </install>
+    </package>
+</tool_dependency>
