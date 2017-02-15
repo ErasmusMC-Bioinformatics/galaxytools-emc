@@ -6,31 +6,34 @@
         <requirement type="package" version="2.4.2">varscan</requirement>
     </requirements>
     
-    <version_command>varscan 2>&amp;1 | head -n 1</version_command>
+    <version_command>varscan 2&gt;&amp;1 | head -n 1</version_command>
     
-    <command>
+    <command detect_errors="exit_code"><![CDATA[
         varscan mpileup2indel
 
-        #if $extended_parameters.parameters == "extended"
-             --min-coverage     $extended_parameters.varscan_min_coverage
-             --min-reads2       $extended_parameters.varscan_min_reads2
-             --min-avg-qual     $extended_parameters.varscan_min_avg_qual
-             --min-var-freq     $extended_parameters.varscan_min_var_freq
-             --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
-             --p-value          $extended_parameters.varscan_p_value
-                                $extended_parameters.varscan_strand_filter 
-                                $extended_parameters.varscan_variants 
-        #end if
-        
-        #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
-         --output-vcf 1 
-        #end if
-        
-        > '${snv_output'}
-    </command>
+        '${mpileup_input}'
+
+            #if $extended_parameters.parameters == "extended"
+                 --min-coverage     $extended_parameters.varscan_min_coverage
+                 --min-reads2       $extended_parameters.varscan_min_reads2
+                 --min-avg-qual     $extended_parameters.varscan_min_avg_qual
+                 --min-var-freq     $extended_parameters.varscan_min_var_freq
+                 --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
+                 --p-value          $extended_parameters.varscan_p_value
+                                    $extended_parameters.varscan_strand_filter 
+                                    $extended_parameters.varscan_variants 
+            #end if
+
+            #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
+                --output-vcf 1 
+            #end if
+
+            > '${snv_output}'
+    ]]></command>
     
     <inputs>
-        <param format="pileup" name="mpileup_input" type="data" label="Alignment file" help="Mapped reads in mpileup format."/><!-- datatype "mpileup" does not exist.. it seems to be common to use pileup instead? -->
+        <param name="mpileup_input" format="pileup" type="data" label="Alignment file"
+               help="Mapped reads in mpileup format."/>
         
         <conditional name="extended_parameters">
             <param name="parameters" type="select" label="VarScan parameters" help="For more advanced VarScan settings.">

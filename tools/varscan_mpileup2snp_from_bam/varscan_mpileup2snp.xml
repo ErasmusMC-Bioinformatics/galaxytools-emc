@@ -28,7 +28,7 @@
                 --output-vcf 1 
             #end if
             
-            > $snv_output 
+            > '${snv_output}'
     ]]></command>
     
     <inputs>
@@ -95,7 +95,7 @@
     </tests>
     
     <help>
-**VarScan 2.3.6**
+**VarScan 2.4.2**
 
 VarScan is a platform-independent mutation caller for targeted, exome, and whole-genome resequencing data generated on Illumina, SOLiD, Life/PGM, Roche/454, and similar instruments. The newest version, VarScan 2, is written in Java, so it runs on most operating systems.
 http://dx.doi.org/10.1101/gr.129684.111
@@ -105,8 +105,6 @@ http://www.ncbi.nlm.nih.gov/pubmed/19542151
 The samtools package is not able to parallelize the mpileup generation which make it a very slow process.
 Other people were aware of this and have written a version that can do parallelization:
 https://github.com/mydatascience/parallel-mpileup
-
-Consequently, when a BAM files gets processed by this wrapper, it's processed by *parallel-mpileup* before its send to VarScan.
 
 .. _VarScan: http://varscan.sourceforge.net/
 
