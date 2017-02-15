@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool id="varscan_mpileup2indel_from_bam" name="VarScan2 Call INDELs from BAM" version="2.4.2.a">
+    <description>VarScan2 INDEL detection; directly reading *.bam file(s) &amp; using parallel mpileup generation, to avoid unnecessairy I/O overhead and increase performance.</description>
+    
+    <requirements>
+        <requirement type="package" version="2.4.2">varscan</requirement>
+        <requirement type="package" version="0.6.5">sambamba</requirement>
+    </requirements>
+    
+    <version_command>varscan 2&gt;&amp;1 | head -n 1</version_command>
+    
+    <command detect_errors="exit_code"><![CDATA[
+        #for $alignment in $alignments
+            ln -f -s '${alignment.metadata.bam_index}' '${alignment}.bai' &&
+        #end for
+
+        sambamba mpileup
+            -t \${GALAXY_SLOTS:-4}
+            
+            #for $alignment in $alignments
+                 '${alignment}'
+            #end for
+            
+            --samtools
+            -f 
+                #if $reference_genome_source.source_select == "indexed_filtered"
+                    '$reference_genome_source.reference_genome'
+                #else if $reference_genome_source.source_select == "indexed_all"
+                    '$reference_genome_source.reference_genome'
+                #else if $reference_genome_source.source_select == "history"
+                    '$reference_genome_source.reference_genome'
+                #else
+                    <!--
+                        This is a workaround to obtain the "genome.fa" file that
+                        corresponds to the dbkey of the alignments.
+                        Because this file is "calculated" during run-time, it can
+                        be used in a workflow.
+                    -->
+                    "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'all_fasta' ].get_fields() )[0][-1] }"
+                #end if
+        
+        #if $extended_parameters_regions.samtools_regions == "region"
+             -r '${extended_parameters_regions.samtools_r}'
+        #elif $extended_parameters_regions.samtools_regions == "regions_file_pos" or $extended_parameters_regions.samtools_regions == "regions_file_bed"
+             -l '${extended_parameters_regions.sambamba_l}'
+        #end if
+        
+        #if $extended_parameters.parameters == "extended"
+            $extended_parameters.samtools_6
+            $extended_parameters.samtools_A
+            $extended_parameters.samtools_B
+             -C $extended_parameters.samtools_C
+             -d $extended_parameters.samtools_d
+            $extended_parameters.samtools_E
+             -M $extended_parameters.samtools_M
+            $extended_parameters.samtools_R
+             -q $extended_parameters.samtools_q
+             -Q $extended_parameters.samtools_Q
+            
+             -e $extended_parameters.samtools_e
+             -F $extended_parameters.samtools_F
+             -h $extended_parameters.samtools_h
+            $extended_parameters.samtools_I
+             -L $extended_parameters.samtools_L
+             -m $extended_parameters.samtools_m
+             -o $extended_parameters.samtools_o
+            $extended_parameters.samtools_p
+             -P $extended_parameters.samtools_P
+        #end if
+        
+        #for $alignment in $alignments
+             '${alignment}'
+        #end for
+
+        | varscan mpileup2indel
+         
+        #if $extended_parameters.parameters == "extended"
+                 --min-coverage     $extended_parameters.varscan_min_coverage
+                 --min-reads2       $extended_parameters.varscan_min_reads2
+                 --min-avg-qual     $extended_parameters.varscan_min_avg_qual
+                 --min-var-freq     $extended_parameters.varscan_min_var_freq
+                 --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
+                 --p-value          $extended_parameters.varscan_p_value
+                                    $extended_parameters.varscan_strand_filter 
+                                    $extended_parameters.varscan_variants 
+        #end if
+        
+        #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
+            --output-vcf 1 
+        #end if
+        
+         > '${snv_output}'
+         
+    ]]></command>
+    
+    <inputs>
+        <param format="bam,sam" multiple="true" name="alignments" type="data" label="Alignment file(s)" help="Mapped reads in BAM or SAM format."/>
+        
+        <!-- Find out how to access the reference genome from the BAM file(s) -->
+        <conditional name="reference_genome_source">
+            <param name="source_select" type="select" label="Fasta Source">
+                <option value="indexed_filtered">Use a built-in index (which fits your reference)</option>
+                <option value="history">Use reference from the history</option>
+                <option value="indexed_all">Use a built-in index (entire list) - avoid this option if possible; only useful if you design a workflow</option>
+                <option value="attribute">Use a built-in index based on the 'metadata.dbkey' attribute; ideal in workflows</option>
+            </param>
+            <when value="history">
+                <param name="reference_genome" format="fasta" type="data" label="Reference Genome used during alignment (FASTA)" help="Reference genome (genome.fa) that corresponds to the *.bam file." />
+            </when>
+            <when value="indexed_filtered">
+                <param name="reference_genome" type="select" label="Reference Genome used during alignment (FASTA)" >
+                    <options from_data_table="all_fasta">
+                        <column name="name"  index="2"/>
+                        <column name="dbkey" index="1"/>
+                        <column name="value" index="3"/><!-- Value is the path of the fasta file -->
+                        <filter type="data_meta" ref="alignments" multiple="false" key="dbkey" column="1" />
+                        <validator type="no_options" message="No indexes are available for the selected input dataset" />
+                    </options>
+                </param>
+            </when>
+            <when value="indexed_all">
+                <param name="reference_genome" type="select" label="Reference Genome used during alignment (FASTA)" >
+                    <options from_data_table="all_fasta">
+                        <column name="name"  index="2"/>
+                        <column name="dbkey" index="1"/>
+                        <column name="value" index="3"/><!-- Value is the path of the fasta file -->
+                        <validator type="no_options" message="No indexes are available for the selected input dataset" />
+                    </options>
+                </param>
+            </when>
+            <when value="attribute" />
+        </conditional>
+        
+        <conditional name="extended_parameters_regions">
+            <param name="samtools_regions" type="select" label="Region specific parameters" help="Let samtools target specific genomic locations.">
+                <option value="entire_genome">Entire genome</option>
+                <option value="region">Specific region</option>
+                <option value="regions_file_pos">Specific positions (file); list of positions</option>
+                <option value="regions_file_bed">Specific regions (file); list of regions in BED</option>
+            </param>
+            <when value="entire_genome" />
+            <when value="region">
+                <param type="text" name="samtools_r" label="Samtools: region in which pileup is generated" help="e.g. chrX or chr:pos or chr:start-end" />
+            </when>
+            <when value="regions_file_pos">
+                <param type="data" name="samtools_l" format="tabular" label="Samtools: list of positions (chr pos)" />
+            </when>
+            <when value="regions_file_bed">
+                <param type="data" name="samtools_l" format="bed"     label="Samtools: specific regions (BED)" />
+            </when>
+        </conditional>
+        
+        <conditional name="extended_parameters">
+            <param name="parameters" type="select" label="Advanced parameters" help="For more advanced VarScan and samtools settings.">
+                <option value="default">Default settings</option>
+                <option value="extended">Extended settings</option>
+            </param>
+            <when value="default" />
+            <when value="extended">
+                <param type="boolean" name="samtools_6" falsevalue="" truevalue=" -6" label="Samtools: assume the quality is in the Illumina-1.3+ encoding" />
+                <param type="boolean" name="samtools_A" falsevalue="" truevalue=" -A" label="Samtools: count anomalous read pairs" />
+                <param type="boolean" name="samtools_B" falsevalue="" truevalue=" -B" label="Samtools: disable BAQ computation" />
+                <param type="integer" name="samtools_C" value="0"                     label="Samtools: parameter for adjusting mapQ; 0 to disable [0]" />
+                <param type="integer" name="samtools_d" value="250"                   label="Samtools: max per-BAM depth to avoid excessive memory usage [250]" />
+                <param type="boolean" name="samtools_E" falsevalue="" truevalue=" -E" label="Samtools: recalculate extended BAQ on the fly thus ignoring existing BQs" />
+                <param type="integer" name="samtools_M" value="60"                    label="cap mapping quality at INT [60]" />
+                <param type="boolean" name="samtools_R" falsevalue="" truevalue=" -R" label="Samtools: ignore RG tags" />
+                <param type="integer" name="samtools_q" value="0"                     label="Samtools: skip alignments with mapQ smaller than INT [0]" />
+                <param type="integer" name="samtools_Q" value="13"                    label="Samtools: skip bases with baseQ/BAQ smaller than INT [13]" />
+                
+                <param type="integer" name="samtools_e" value="20"                    label="Samtools: Phred-scaled gap extension seq error probability [20]" />
+                <param type="float"   name="samtools_F" value="0.002"                 label="Samtools: minimum fraction of gapped reads for candidates [0.002]" help="Alias: -F" />
+                <param type="integer" name="samtools_h" value="100"                   label="Samtools: coefficient for homopolymer errors [100]" />
+                <param type="boolean" name="samtools_I" falsevalue="" truevalue=" -I" label="Samtools: do not perform indel calling" />
+                <param type="integer" name="samtools_L" value="250"                   label="Samtools: max per-sample depth for INDEL calling [250]" />
+                <param type="integer" name="samtools_m" value="1"                     label="Samtools: minimum gapped reads for indel candidates [1]" help="Alias: -m" />
+                <param type="integer" name="samtools_o" value="40"                    label="Samtools: Phred-scaled gap open sequencing error probability [40]" />
+                <param type="boolean" name="samtools_p" falsevalue="" truevalue=" -p" label="Samtools: apply -m and -F per-sample to increase sensitivity" />
+                <param type="text"    name="samtools_P" value="all"                   label="Samtools: comma separated list of platforms for indels [all]" />
+                
+                <param type="integer" name="varscan_min_coverage"     value="8"       label="VarScan: Minimum read depth at a position to make a call [8]" />
+                <param type="integer" name="varscan_min_reads2"	      value="2"       label="VarScan: PMinimum supporting reads at a position to call variants [2]" />
+                <param type="integer" name="varscan_min_avg_qual"     value="15"      label="VarScan: Minimum base quality at a position to count a read [15]" />
+                <param type="float"   name="varscan_min_var_freq"     value="0.01"    label="VarScan: minimum fraction of gapped reads for candidates [0.002]" help="Alias: -F" />
+                <param type="float"   name="varscan_min_freq_for_hom" value="0.75"    label="VarScan: Minimum frequency to call homozygote [0.75]" />
+                <param type="float"   name="varscan_p_value"          value="0.99"    label="VarScan: Default p-value threshold for calling variants [99e-02]" />
+                <param type="boolean" name="varscan_strand_filter"    falsevalue=" --strand_filter 0" truevalue=" --strand_filter 1" checked="true"  label="VarScan: Ignore variants with >90% support on one strand [1]" />
+                <param type="boolean" name="varscan_variants"         falsevalue=" --variants 0"      truevalue=" --variants 1"      checked="false" label="VarScan: Report only variant (SNP/indel) positions [0]" />
+            </when>
+        </conditional>
+        
+        <param name="varscan_output" type="select" label="Output format">
+            <option value="vcf">VCF</option>
+            <option value="tabular">tabular</option>
+        </param>
+    </inputs>
+    
+    <outputs>
+        <data format="tabular" name="snv_output" label="${tool.name} on ${', '.join([ str(a.hid)+': '+a.name for a in $alignments ])}">
+            <change_format>
+                <when input="varscan_output" value="vcf" format="vcf" />
+            </change_format>
+        </data>
+    </outputs>
+    
+    <tests>
+        <test><!-- Use classical samtools -->
+            <param name="alignments" value="example.bam" ftype="bam" />
+            
+            <param name="source_select" value="history" />
+            <param name="reference_genome" value="example.fa" ftype="fasta" />
+
+            <param name="samtools_regions" value="entire_genome" />
+            
+            <param name="mpileup_parallelization_select" value="false" />
+            <param name="sort_mpileup" value="true" />
+            
+            <param name="parameters" value="default" />
+            <param name="varscan_output_vcf" value="1" />
+            
+            
+            <output name="snv_output" file="example.2.vcf" />
+        </test>
+    </tests>
+    
+    <help>
+**VarScan 2.4.2**
+
+VarScan is a platform-independent mutation caller for targeted, exome, and whole-genome resequencing data generated on Illumina, SOLiD, Life/PGM, Roche/454, and similar instruments. The newest version, VarScan 2, is written in Java, so it runs on most operating systems.
+http://dx.doi.org/10.1101/gr.129684.111
+http://www.ncbi.nlm.nih.gov/pubmed/19542151
+
+*VarScan* requires mpileup formatted input files, which are generally derived from BAM files. Since mpileup files can become humongous, the interim step of storing it is bypassed. Thus, in this wrapper one or multiple BAM/SAM files go in, get processed into a mpileup file and get directly linked to VarScan.
+The samtools package is not able to parallelize the mpileup generation which make it a very slow process.
+Other people were aware of this and have written a version that can do parallelization:
+https://github.com/mydatascience/parallel-mpileup
+
+Consequently, when a BAM files gets processed by this wrapper, it's processed by *parallel-mpileup* before its send to VarScan.
+
+.. _VarScan: http://varscan.sourceforge.net/
+
+**Input formats**
+
+VarScan2 accepts sequencing alignments in the same, either SAM or BAM format (http://samtools.sourceforge.net/). The alignment files have to be linked to a reference genome by galaxy. This is indicated under every history item with e.g.: *"database: hg19"* for a link to hg19, or *"database: ?"* if the link is missing.
+
+**License**
+
+* VarScan 2.4.2: Non-Profit Open Software License 3.0 (Non-Profit OSL 3.0)
+
+
+Contact
+-------
+
+The tool wrapper has been written by Youri Hoogstrate from the Erasmus
+Medical Center (Rotterdam, Netherlands).
+    </help>
+    <citations>
+        <citation type="doi">10.1101/gr.129684.111</citation>
+    </citations>
+</tool>
