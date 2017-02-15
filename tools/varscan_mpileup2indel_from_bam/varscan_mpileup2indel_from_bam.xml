@@ -24,11 +24,11 @@
             --samtools
             -f 
                 #if $reference_genome_source.source_select == "indexed_filtered"
-                    "$reference_genome_source.reference_genome"
+                    '$reference_genome_source.reference_genome'
                 #else if $reference_genome_source.source_select == "indexed_all"
-                    "$reference_genome_source.reference_genome"
+                    '$reference_genome_source.reference_genome'
                 #else if $reference_genome_source.source_select == "history"
-                    "$reference_genome_source.reference_genome"
+                    '$reference_genome_source.reference_genome'
                 #else
                     <!--
                         This is a workaround to obtain the "genome.fa" file that
@@ -40,9 +40,9 @@
                 #end if
         
         #if $extended_parameters_regions.samtools_regions == "region"
-             -r $extended_parameters_regions.samtools_r
+             -r '${extended_parameters_regions.samtools_r}'
         #elif $extended_parameters_regions.samtools_regions == "regions_file_pos" or $extended_parameters_regions.samtools_regions == "regions_file_bed"
-             -l $extended_parameters_regions.samtools_l
+             -l '${extended_parameters_regions.sambamba_l}'
         #end if
         
         #if $extended_parameters.parameters == "extended"
@@ -86,10 +86,10 @@
         #end if
         
         #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
-         --output-vcf 1 
+            --output-vcf 1 
         #end if
         
-         > $snv_output
+         > '${snv_output}'
          
     ]]></command>
     
@@ -224,7 +224,7 @@
     </tests>
     
     <help>
-**VarScan 2.3.6**
+**VarScan 2.4.2**
 
 VarScan is a platform-independent mutation caller for targeted, exome, and whole-genome resequencing data generated on Illumina, SOLiD, Life/PGM, Roche/454, and similar instruments. The newest version, VarScan 2, is written in Java, so it runs on most operating systems.
 http://dx.doi.org/10.1101/gr.129684.111
@@ -243,31 +243,16 @@ Consequently, when a BAM files gets processed by this wrapper, it's processed by
 
 VarScan2 accepts sequencing alignments in the same, either SAM or BAM format (http://samtools.sourceforge.net/). The alignment files have to be linked to a reference genome by galaxy. This is indicated under every history item with e.g.: *"database: hg19"* for a link to hg19, or *"database: ?"* if the link is missing.
 
-**Installation**
-
-Make sure your reference genomes are properly annotated in "tool-data/all_fasta.loc", and linked to the names of the reference used for alignment.
-
 **License**
 
-* VarScan2.3.6: Non-Profit Open Software License 3.0 (Non-Profit OSL 3.0)
-* parallel-mpileup: MIT License (https://github.com/mydatascience/parallel-mpileup/blob/master/samtools-0.1.19/COPYING)
+* VarScan 2.4.2: Non-Profit Open Software License 3.0 (Non-Profit OSL 3.0)
 
 
 Contact
 -------
 
 The tool wrapper has been written by Youri Hoogstrate from the Erasmus
-Medical Center (Rotterdam, Netherlands) on behalf of the Translational
-Research IT (TraIT) project:
-
-http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
-
-More tools by the Translational Research IT (TraIT) project can be found
-in the following toolsheds:
-
-http://toolshed.g2.bx.psu.edu/
-
-http://testtoolshed.g2.bx.psu.edu/
+Medical Center (Rotterdam, Netherlands).
     </help>
     <citations>
         <citation type="doi">10.1101/gr.129684.111</citation>

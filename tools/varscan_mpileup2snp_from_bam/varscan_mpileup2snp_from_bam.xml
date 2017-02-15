@@ -24,11 +24,11 @@
             --samtools
                 -f
                 #if $reference_genome_source.source_select == "indexed_filtered"
-                    "$reference_genome_source.reference_genome"
+                    '$reference_genome_source.reference_genome'
                 #else if $reference_genome_source.source_select == "indexed_all"
-                    "$reference_genome_source.reference_genome"
+                    '$reference_genome_source.reference_genome'
                 #else if $reference_genome_source.source_select == "history"
-                    "$reference_genome_source.reference_genome"
+                    '$reference_genome_source.reference_genome'
                 #else
                     <!--
                         This is a workaround to obtain the "genome.fa" file that
@@ -40,9 +40,9 @@
                 #end if
 
                 #if $extended_parameters_regions.sambamba_regions == "region"
-                     -r $extended_parameters_regions.sambamba_r
+                     -r '${extended_parameters_regions.sambamba_r}'
                 #elif $extended_parameters_regions.sambamba_regions == "regions_file_pos" or $extended_parameters_regions.sambamba_regions == "regions_file_bed"
-                     -l $extended_parameters_regions.sambamba_l
+                     -l '${extended_parameters_regions.sambamba_l}'
                 #end if
 
                 #if $extended_parameters.parameters == "extended"
@@ -81,7 +81,7 @@
                 #end if
             
                 #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
-                 --output-vcf 1 
+                    --output-vcf 1 
                 #end if
             
                 > '$snv_output'
