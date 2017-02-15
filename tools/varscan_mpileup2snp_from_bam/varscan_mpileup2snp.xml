@@ -1,38 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="varscan_mpileup2snp" name="VarScan2 Call SNPs from a mpileup file" version="2.3.6.a">
+<tool id="varscan_mpileup2snp" name="VarScan2 Call SNPs from a mpileup file" version="2.4.2.a">
     <description>VarScan2 SNP/SNV detection; directly from a *.mpileup file.</description>
     
     <requirements>
-        <requirement type="package" version="2.3.6">varscan</requirement>
+        <requirement type="package" version="2.4.2">varscan</requirement>
     </requirements>
     
-    <version_command>java -jar $JAVA_JAR_PATH/VarScan.v2.3.6.jar 2>&amp;1 | head -n 1</version_command>
+    <version_command>varscan 2&gt;&amp;1 | head -n 1</version_command>
     
-    <command>
-        cat $mpileup_input | java
-             -Xmx64G
-             -jar \$JAVA_JAR_PATH/VarScan.v2.3.6.jar
-                 mpileup2snp
-         
-        #if $extended_parameters.parameters == "extended"
-             --min-coverage     $extended_parameters.varscan_min_coverage
-             --min-reads2       $extended_parameters.varscan_min_reads2
-             --min-avg-qual     $extended_parameters.varscan_min_avg_qual
-             --min-var-freq     $extended_parameters.varscan_min_var_freq
-             --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
-             --p-value          $extended_parameters.varscan_p_value
-                                $extended_parameters.varscan_strand_filter 
-                                $extended_parameters.varscan_variants 
-        #end if
-        
-        #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
-         --output-vcf 1 
-        #end if
-        
-         2> stderr.txt 
-          > $snv_output ;
-         cat stderr.txt
-    </command>
+    <command detect_errors="exit_code"><![CDATA[
+        varscan mpileup2snp
+            
+            '${mpileup_input}'
+            
+            #if $extended_parameters.parameters == "extended"
+                 --min-coverage     $extended_parameters.varscan_min_coverage
+                 --min-reads2       $extended_parameters.varscan_min_reads2
+                 --min-avg-qual     $extended_parameters.varscan_min_avg_qual
+                 --min-var-freq     $extended_parameters.varscan_min_var_freq
+                 --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
+                 --p-value          $extended_parameters.varscan_p_value
+                                    $extended_parameters.varscan_strand_filter 
+                                    $extended_parameters.varscan_variants 
+            #end if
+            
+            #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
+                --output-vcf 1 
+            #end if
+            
+            > $snv_output 
+    ]]></command>
     
     <inputs>
         <param format="pileup" name="mpileup_input" type="data" label="Alignment file" help="Mapped reads in mpileup format."/><!-- datatype "mpileup" does not exist.. it seems to be common to use pileup instead? -->
@@ -78,6 +75,23 @@
             
             <output name="snv_output" file="hg19_mutant.vcf" />
         </test>
+        <test>
+            <param name="mpileup_input" value="hg19_mutant.mpileup" dbkey="hg19" ftype="pileup" />
+            <param name="parameters" value="extended" />
+            
+             <param name="varscan_min_coverage" value="8" />
+             <param name="varscan_min_reads2" value="2" />
+             <param name="varscan_min_avg_qual" value="15" />
+             <param name="varscan_min_var_freq" value="0.01" />
+             <param name="varscan_min_freq_for_hom" value="0.75" />
+             <param name="varscan_p_value" value="0.99" />
+             <param name="varscan_strand_filter" value=" --strand_filter 1"  />
+             <param name="varscan_variants" value=" --variants 0" />
+            
+            <param name="varscan_output_vcf" value="1" />
+            
+            <output name="snv_output" file="hg19_mutant.2.vcf" />
+        </test>
     </tests>
     
     <help>
@@ -100,32 +114,6 @@ Consequently, when a BAM files gets processed by this wrapper, it's processed by
 
 VarScan2 accepts sequencing alignments in the same, either SAM or BAM format (http://samtools.sourceforge.net/). The alignment files have to be linked to a reference genome by galaxy. This is indicated under every history item with e.g.: *"database: hg19"* for a link to hg19, or *"database: ?"* if the link is missing.
 
-**Installation**
-
-Make sure your reference genomes are properly annotated in "tool-data/all_fasta.loc", and linked to the names of the reference used for alignment.
-
-**License**
-
-* VarScan2.3.6: Non-Profit Open Software License 3.0 (Non-Profit OSL 3.0)
-* parallel-mpileup: MIT License (https://github.com/mydatascience/parallel-mpileup/blob/master/samtools-0.1.19/COPYING)
-
-Contact
--------
-
-The tool wrapper has been written by Youri Hoogstrate from the Erasmus
-Medical Center (Rotterdam, Netherlands) on behalf of the Translational
-Research IT (TraIT) project:
-
-http://www.ctmm.nl/en/programmas/infrastructuren/traitprojecttranslationeleresearch
-
-More tools by the Translational Research IT (TraIT) project can be found
-in the following toolsheds:
-
-http://toolshed.dtls.nl/
-
-http://toolshed.g2.bx.psu.edu/
-
-http://testtoolshed.g2.bx.psu.edu/
 </help>
     <citations>
         <citation type="doi">10.1101/gr.129684.111</citation>
