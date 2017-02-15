@@ -10,95 +10,85 @@
     <version_command>varscan 2&gt;&amp;1 | head -n 1</version_command>
     
     <command detect_errors="exit_code"><![CDATA[
-        #if $reference_genome_source.source_select == "attribute" and len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) != 1
-            echo "Invalid number of dbkeys are found: ${ len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) }, while only one should be used. Make sure that the alignments are done on the same reference genome and that 'tool-data/all_fasta.loc' is configured properly!" >&2
-        #else
-            #import os.path
+        echo 'a' >> $snv_output &&
+        
+        #for $alignment in $alignments
+            ln -f -s '${alignment.metadata.bam_index}' '${alignment}.bai' &&
+        #end for
+        
+        sambamba mpileup
+            -t \${GALAXY_SLOTS:-4}
+            
             #for $alignment in $alignments
-                <!-- @todo use the existence of $alignment.metadata.bam_index or $alignment.metadata['bam_index'] -->
-                #if not os.path.isfile(str($alignment)+".bai")
-                    sambamba index $alignment &&
-                #end if
+                 '${alignment}'
             #end for
             
-            sambamba mpileup
-                -t \${GALAXY_SLOTS:-4}
-                
-                #for $alignment in $alignments
-                     '${alignment}'
-                #end for
-                
-                --samtools
-                    #if $reference_genome_source.source_select == "indexed_filtered"
-                        "$reference_genome_source.reference_genome"
-                    #else if $reference_genome_source.source_select == "indexed_all"
-                        "$reference_genome_source.reference_genome"
-                    #else if $reference_genome_source.source_select == "history"
-                        "$reference_genome_source.reference_genome"
-                    #else
-                        <!--
-                            This is a workaround to obtain the "genome.fa" file that
-                            corresponds to the dbkey of the alignments.
-                            Because this file is "calculated" during run-time, it can
-                            be used in a workflow.
-                        -->
-                        "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'all_fasta' ].get_fields() )[0][-1] }"
-                    #end if
-            
-            #if $extended_parameters_regions.sambamba_regions == "region"
-                 -r $extended_parameters_regions.sambamba_r
-            #elif $extended_parameters_regions.sambamba_regions == "regions_file_pos" or $extended_parameters_regions.sambamba_regions == "regions_file_bed"
-                 -l $extended_parameters_regions.sambamba_l
-            #end if
-            
-            #if $extended_parameters.parameters == "extended"
-                $extended_parameters.sambamba_6
-                $extended_parameters.sambamba_A
-                $extended_parameters.sambamba_B
-                 -C $extended_parameters.sambamba_C
-                 -d $extended_parameters.sambamba_d
-                $extended_parameters.sambamba_E
-                 -M $extended_parameters.sambamba_M
-                $extended_parameters.sambamba_R
-                 -q $extended_parameters.sambamba_q
-                 -Q $extended_parameters.sambamba_Q
-                
-                 -e $extended_parameters.sambamba_e
-                 -F $extended_parameters.sambamba_F
-                 -h $extended_parameters.sambamba_h
-                $extended_parameters.sambamba_I
-                 -L $extended_parameters.sambamba_L
-                 -m $extended_parameters.sambamba_m
-                 -o $extended_parameters.sambamba_o
-                $extended_parameters.sambamba_p
-                 -P $extended_parameters.sambamba_P
-            #end if
-            > '$snv_output'
-            && cp '$snv_output' out.mpileuppp 
-            && ls -alsh .
+            --samtools
+                -f
+                #if $reference_genome_source.source_select == "indexed_filtered"
+                    "$reference_genome_source.reference_genome"
+                #else if $reference_genome_source.source_select == "indexed_all"
+                    "$reference_genome_source.reference_genome"
+                #else if $reference_genome_source.source_select == "history"
+                    "$reference_genome_source.reference_genome"
+                #else
+                    <!--
+                        This is a workaround to obtain the "genome.fa" file that
+                        corresponds to the dbkey of the alignments.
+                        Because this file is "calculated" during run-time, it can
+                        be used in a workflow.
+                    -->
+                    "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'all_fasta' ].get_fields() )[0][-1] }"
+                #end if
 
-        #end if
-    ]]></command>
-        <!--
+                #if $extended_parameters_regions.sambamba_regions == "region"
+                     -r $extended_parameters_regions.sambamba_r
+                #elif $extended_parameters_regions.sambamba_regions == "regions_file_pos" or $extended_parameters_regions.sambamba_regions == "regions_file_bed"
+                     -l $extended_parameters_regions.sambamba_l
+                #end if
+
+                #if $extended_parameters.parameters == "extended"
+                    $extended_parameters.sambamba_6
+                    $extended_parameters.sambamba_A
+                    $extended_parameters.sambamba_B
+                     -C $extended_parameters.sambamba_C
+                     -d $extended_parameters.sambamba_d
+                    $extended_parameters.sambamba_E
+                     -M $extended_parameters.sambamba_M
+                    $extended_parameters.sambamba_R
+                     -q $extended_parameters.sambamba_q
+                     -Q $extended_parameters.sambamba_Q
+
+                     -e $extended_parameters.sambamba_e
+                     -F $extended_parameters.sambamba_F
+                     -h $extended_parameters.sambamba_h
+                    $extended_parameters.sambamba_I
+                     -L $extended_parameters.sambamba_L
+                     -m $extended_parameters.sambamba_m
+                     -o $extended_parameters.sambamba_o
+                    $extended_parameters.sambamba_p
+                     -P $extended_parameters.sambamba_P
+                #end if
             | varscan mpileup2snp
              
-            #if $extended_parameters.parameters == "extended"
-                     - - min-coverage     $extended_parameters.varscan_min_coverage
-                     - - min-reads2       $extended_parameters.varscan_min_reads2
-                     - - min-avg-qual     $extended_parameters.varscan_min_avg_qual
-                     - - min-var-freq     $extended_parameters.varscan_min_var_freq
-                     - - min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
-                     - - p-value          $extended_parameters.varscan_p_value
+                #if $extended_parameters.parameters == "extended"
+                     --min-coverage     $extended_parameters.varscan_min_coverage
+                     --min-reads2       $extended_parameters.varscan_min_reads2
+                     --min-avg-qual     $extended_parameters.varscan_min_avg_qual
+                     --min-var-freq     $extended_parameters.varscan_min_var_freq
+                     --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
+                     --p-value          $extended_parameters.varscan_p_value
                                         $extended_parameters.varscan_strand_filter 
                                         $extended_parameters.varscan_variants 
-            #end if
+                #end if
             
-            #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
-             - - output-vcf 1 
-            #end if
+                #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
+                 --output-vcf 1 
+                #end if
             
-             > '$snv_output'
-         -->
+                > '$snv_output'
+    ]]></command>
+
     <inputs>
         <param format="bam,sam" multiple="true" name="alignments" type="data" label="Alignment file(s)" help="Mapped reads in BAM or SAM format."/>
         
@@ -214,7 +204,7 @@
             <param name="alignments" value="example.bam" ftype="bam" />
             
             <param name="source_select" value="history" />
-            <param name="reference_genome" value="example.fa" ftype="fasta" />
+            <param name="reference_genome" value="example.fa" />
             
             <param name="sambamba_regions" value="entire_genome" />
             
