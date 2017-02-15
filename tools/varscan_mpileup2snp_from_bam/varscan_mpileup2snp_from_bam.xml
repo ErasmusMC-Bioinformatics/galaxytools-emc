@@ -10,8 +10,6 @@
     <version_command>varscan 2&gt;&amp;1 | head -n 1</version_command>
     
     <command detect_errors="exit_code"><![CDATA[
-        echo 'a' >> $snv_output &&
-        
         #for $alignment in $alignments
             ln -f -s '${alignment.metadata.bam_index}' '${alignment}.bai' &&
         #end for

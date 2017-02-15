@@ -1,123 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="varscan_mpileup2indel_from_bam" name="VarScan2 Call INDELs from BAM" version="2.3.6.a">
+<tool id="varscan_mpileup2indel_from_bam" name="VarScan2 Call INDELs from BAM" version="2.4.2.a">
     <description>VarScan2 INDEL detection; directly reading *.bam file(s) &amp; using parallel mpileup generation, to avoid unnecessairy I/O overhead and increase performance.</description>
     
     <requirements>
-        <requirement type="package" version="0.1.19a">samtools_parallel_mpileup_0_1_19a</requirement>
-        <requirement type="package" version="0.1.19">samtools</requirement>
-        <requirement type="package" version="2.3.6">varscan</requirement>
+        <requirement type="package" version="2.4.2">varscan</requirement>
+        <requirement type="package" version="0.6.5">sambamba</requirement>
     </requirements>
     
-    <version_command>varscan 2>&amp;1 | head -n 1</version_command>
+    <version_command>varscan 2&gt;&amp;1 | head -n 1</version_command>
     
-    <command>
-        #if $reference_genome_source.source_select == "attribute" and len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) != 1
-            echo "Invalid number of dbkeys are found: ${ len({ alignment.metadata.dbkey:True for alignment in $alignments }.keys()) }, while only one should be used. Make sure that the alignments are done on the same reference genome and that 'tool-data/all_fasta.loc' is configured properly!" >&amp;2
-        #else
-            #import os.path
+    <command detect_errors="exit_code"><![CDATA[
+        #for $alignment in $alignments
+            ln -f -s '${alignment.metadata.bam_index}' '${alignment}.bai' &&
+        #end for
+
+        sambamba mpileup
+            -t \${GALAXY_SLOTS:-4}
+            
             #for $alignment in $alignments
-                <!-- @todo use the existence of $alignment.metadata.bam_index or $alignment.metadata['bam_index'] -->
-                #if not os.path.isfile(str($alignment)+".bai")
-                 echo "- Indexing alignment file: $alignment.name " ; 
-                 samtools index $alignment 2>&amp;1 ; 
+                 '${alignment}'
+            #end for
+            
+            --samtools
+            -f 
+                #if $reference_genome_source.source_select == "indexed_filtered"
+                    "$reference_genome_source.reference_genome"
+                #else if $reference_genome_source.source_select == "indexed_all"
+                    "$reference_genome_source.reference_genome"
+                #else if $reference_genome_source.source_select == "history"
+                    "$reference_genome_source.reference_genome"
                 #else
-                 echo "- Skiping indexing: $alignment.name " ; 
+                    <!--
+                        This is a workaround to obtain the "genome.fa" file that
+                        corresponds to the dbkey of the alignments.
+                        Because this file is "calculated" during run-time, it can
+                        be used in a workflow.
+                    -->
+                    "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'all_fasta' ].get_fields() )[0][-1] }"
                 #end if
-            #end for
-            
-            #if $mpileup_parallelization.mpileup_parallelization_select == "true"
-                samtools-parallel-mpileup mpileup
-                -t $mpileup_parallelization.samtools_threads
-            #else
-                samtools mpileup
-            #end if
-                -f 
-                    #if $reference_genome_source.source_select == "indexed_filtered"
-                        "$reference_genome_source.reference_genome"
-                    #else if $reference_genome_source.source_select == "indexed_all"
-                        "$reference_genome_source.reference_genome"
-                    #else if $reference_genome_source.source_select == "history"
-                        "$reference_genome_source.reference_genome"
-                    #else
-                        <!--
-                            This is a workaround to obtain the "genome.fa" file that
-                            corresponds to the dbkey of the alignments.
-                            Because this file is "calculated" during run-time, it can
-                            be used in a workflow.
-                        -->
-                        "${ filter( lambda x: str( x[0] ) == str( { alignment.metadata.dbkey:True for alignment in $alignments }.keys()[0] ), $__app__.tool_data_tables[ 'all_fasta' ].get_fields() )[0][-1] }"
-                    #end if
-            
-            #if $extended_parameters_regions.samtools_regions == "region"
-                 -r $extended_parameters_regions.samtools_r
-            #elif $extended_parameters_regions.samtools_regions == "regions_file_pos" or $extended_parameters_regions.samtools_regions == "regions_file_bed"
-                 -l $extended_parameters_regions.samtools_l
-            #end if
-            
-            #if $extended_parameters.parameters == "extended"
-                $extended_parameters.samtools_6
-                $extended_parameters.samtools_A
-                $extended_parameters.samtools_B
-                 -C $extended_parameters.samtools_C
-                 -d $extended_parameters.samtools_d
-                $extended_parameters.samtools_E
-                 -M $extended_parameters.samtools_M
-                $extended_parameters.samtools_R
-                 -q $extended_parameters.samtools_q
-                 -Q $extended_parameters.samtools_Q
-                
-                 -e $extended_parameters.samtools_e
-                 -F $extended_parameters.samtools_F
-                 -h $extended_parameters.samtools_h
-                $extended_parameters.samtools_I
-                 -L $extended_parameters.samtools_L
-                 -m $extended_parameters.samtools_m
-                 -o $extended_parameters.samtools_o
-                $extended_parameters.samtools_p
-                 -P $extended_parameters.samtools_P
-            #end if
-            
-            #for $alignment in $alignments
-                 ${alignment}
-            #end for
-             2>stderr_1.txt
-            
-            #if $mpileup_parallelization.mpileup_parallelization_select == "true"
-                #if $mpileup_parallelization.sort_mpileup
-                 | sort -k1,1V -k2,2g 
-                #end if
-            #end if
-            
-            varscan mpileup2indel
-             
-            #if $extended_parameters.parameters == "extended"
-                     --min-coverage     $extended_parameters.varscan_min_coverage
-                     --min-reads2       $extended_parameters.varscan_min_reads2
-                     --min-avg-qual     $extended_parameters.varscan_min_avg_qual
-                     --min-var-freq     $extended_parameters.varscan_min_var_freq
-                     --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
-                     --p-value          $extended_parameters.varscan_p_value
-                                        $extended_parameters.varscan_strand_filter 
-                                        $extended_parameters.varscan_variants 
-            #end if
-            
-            #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
-             --output-vcf 1 
-            #end if
-            
-             2>stderr_2.txt 
-             > $snv_output ;
-             
-             
-             echo "---------------[ mpileup generation ]---------------" ;
-             cat stderr_1.txt ;
-             echo "" ;
-             echo "---------------[ VarScan INDEL detect ]-------------" ;
-             cat stderr_2.txt ;
-             echo "" ;
-             echo "----------------------------------------------------" ;
+        
+        #if $extended_parameters_regions.samtools_regions == "region"
+             -r $extended_parameters_regions.samtools_r
+        #elif $extended_parameters_regions.samtools_regions == "regions_file_pos" or $extended_parameters_regions.samtools_regions == "regions_file_bed"
+             -l $extended_parameters_regions.samtools_l
         #end if
-    </command>
+        
+        #if $extended_parameters.parameters == "extended"
+            $extended_parameters.samtools_6
+            $extended_parameters.samtools_A
+            $extended_parameters.samtools_B
+             -C $extended_parameters.samtools_C
+             -d $extended_parameters.samtools_d
+            $extended_parameters.samtools_E
+             -M $extended_parameters.samtools_M
+            $extended_parameters.samtools_R
+             -q $extended_parameters.samtools_q
+             -Q $extended_parameters.samtools_Q
+            
+             -e $extended_parameters.samtools_e
+             -F $extended_parameters.samtools_F
+             -h $extended_parameters.samtools_h
+            $extended_parameters.samtools_I
+             -L $extended_parameters.samtools_L
+             -m $extended_parameters.samtools_m
+             -o $extended_parameters.samtools_o
+            $extended_parameters.samtools_p
+             -P $extended_parameters.samtools_P
+        #end if
+        
+        #for $alignment in $alignments
+             '${alignment}'
+        #end for
+
+        | varscan mpileup2indel
+         
+        #if $extended_parameters.parameters == "extended"
+                 --min-coverage     $extended_parameters.varscan_min_coverage
+                 --min-reads2       $extended_parameters.varscan_min_reads2
+                 --min-avg-qual     $extended_parameters.varscan_min_avg_qual
+                 --min-var-freq     $extended_parameters.varscan_min_var_freq
+                 --min-freq-for-hom $extended_parameters.varscan_min_freq_for_hom
+                 --p-value          $extended_parameters.varscan_p_value
+                                    $extended_parameters.varscan_strand_filter 
+                                    $extended_parameters.varscan_variants 
+        #end if
+        
+        #if $varscan_output == "vcf" or $varscan_output.value == "vcf"
+         --output-vcf 1 
+        #end if
+        
+         > $snv_output
+         
+    ]]></command>
     
     <inputs>
         <param format="bam,sam" multiple="true" name="alignments" type="data" label="Alignment file(s)" help="Mapped reads in BAM or SAM format."/>
@@ -173,18 +147,6 @@
             </when>
             <when value="regions_file_bed">
                 <param type="data" name="samtools_l" format="bed"     label="Samtools: specific regions (BED)" />
-            </when>
-        </conditional>
-        
-        <conditional name="mpileup_parallelization">
-            <param name="mpileup_parallelization_select" type="select" label="Use parallelization for the mpileup generation (experimental)" help="Especially if larger numbers of bam/sam files are processed, or the file infrastructure is optimized for IO-paralellization, this feature might improve performance.">
-                <option value="false" >False - uses classical samtools</option>
-                <option value="true">True - uses (experimental) samtools mpileup-parallel</option>
-            </param>
-            <when value="false" />
-            <when value="true">
-                <param type="integer" name="samtools_threads" value="2" min="1" label="Samtools: mpileup threads" />
-                <param type="boolean" name="sort_mpileup" truevalue="true" falsevalue="false" label="Sort mpileup file (SLOW)" help="Because parallelization may disrupt the outputs order, sorting can be conveniet for e.g. testing. Notice that this function has only use in a limited number of situations but consumes (much) resources. Only use it if it's really neccesairy." />
             </when>
         </conditional>
         
@@ -257,25 +219,7 @@
             <param name="varscan_output_vcf" value="1" />
             
             
-            <output name="snv_output" file="example.vcf" />
-        </test>
-        <test><!-- Use parallelized samtools -->
-            <param name="alignments" value="example.bam" ftype="bam" />
-            
-            <param name="source_select" value="history" />
-            <param name="reference_genome" value="example.fa" ftype="fasta" />
-            
-            <param name="samtools_regions" value="entire_genome" />
-            
-            <param name="mpileup_parallelization_select" value="true" />
-            <param name="samtools_threads" value="2" />
-            <param name="sort_mpileup" value="true" />
-            
-            <param name="parameters" value="default" />
-            <param name="varscan_output_vcf" value="1" />
-            
-            
-            <output name="snv_output" file="example.vcf" />
+            <output name="snv_output" file="example.2.vcf" />
         </test>
     </tests>
     
