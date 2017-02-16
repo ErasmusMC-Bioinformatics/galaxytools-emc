@@ -1,0 +1,13 @@
+categories:
+- Tool Dependency Packages
+description: RNA-Folding including predefined segments like K-turns and loop-E motifs
+long_description: |
+  Segmentation-fold is a bioinformatics application that predicts RNA 2D-structure with an extended version of the Zuker algorithm. This modification contains a new "structure element" named a segment and is capable of folding a pre-defined substructures with multiple canonical or non-canonical pairs.
+  
+  This allows folding of more complex structures like K-turns, which are also part of the implemented free energy table. These thermodynamic parameters (Gibbs free energy) have been estimated using an in silico approach.
+
+name: package_segmentation_fold_1_6_5
+owner: yhoogstrate
+homepage_url: https://github.com/yhoogstrate/segmentation-fold
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/packages/package_segmentation_fold_1_6_5
+type: tool_dependency_definition

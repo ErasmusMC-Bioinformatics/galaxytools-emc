@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="boost" version="1.57">
+        <repository name="package_boost_1_57" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="cmake" version="3.2.3">
+        <repository name="package_cmake_3_2_3" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="segmentation-fold" version="1.0.0">
+        <install version="1.0">
+            <actions>
+                <action type="shell_command">git clone https://github.com/yhoogstrate/segmentation-fold.git</action>
+                <action type="shell_command">git reset --hard 61db54315e45f2b96a241e319d99b119b26fa072</action>
+                    
+                <action type="set_environment_for_install">
+                    <repository name="package_boost_1_57" owner="iuc">
+                        <package name="boost" version="1.57" />
+                    </repository>
+                </action>
+                
+                <action type="set_environment_for_install">
+                    <repository name="package_cmake_3_2_3" owner="iuc">
+                        <package name="cmake" version="3.2.3" />
+                    </repository>
+                </action>
+                
+                <action type="shell_command"><![CDATA[
+                    cmake -DCMAKE_BUILD_TYPE=release -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR .  &&
+                    make                                                                    &&
+                    make install
+                ]]></action>
+                
+                <action type="set_environment">
+                     <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+                     <environment_variable name="SEGMENTATION_FOLD_DEFAULT_XML" action="set_to">$INSTALL_DIR/share/segmentation-fold/segments.xml</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+            Installation of segmentation-fold requires:
+             - git
+             - libboost                     (via toolshed)
+             - CMake                        (via toolshed)
+             - c++11 compiler: g++ or clang
+        </readme>
+    </package>
+</tool_dependency>
