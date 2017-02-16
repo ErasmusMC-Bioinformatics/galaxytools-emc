@@ -4,34 +4,27 @@
         <import>macros.xml</import>
     </macros>
     
-    <requirements>
-        <requirement type="package" version="1.6.5">segmentation-fold</requirement>
-    </requirements>
+    <expand macro="requirements" />
+    <expand macro="version_command" />
     
-    <expand macro="stdio" />
-    
-    <version_command>@VERSION_COMMAND_SMF@</version_command>
-    
-    <command><![CDATA[
+    <command detect_erros="aggressive"><![CDATA[
         segmentation-fold
             
             #if $input.method == "fasta"
-                -f $input.input_fasta
+                -f '${input.input_fasta}'
             #else
-                -s $input.input_sequence
+                -s '${input.input_sequence}'
             #end if
             
             -p $predict_segments
             -h $min_hairpin_size
             
-            #if $parameters.settings == "default"
-                -x "\$SEGMENTATION_FOLD_DEFAULT_XML"
-            #else
-                -x "${parameters.input_xml}"
+            #if $parameters.settings == "custom"
+                -x '${parameters.input_xml}'
             #end if
             
             -t \${GALAXY_SLOTS:-4}
-            > $output_dbn
+            > '${output_dbn}'
     ]]></command>
     
     <inputs>
@@ -41,15 +34,15 @@
                 <option value="text">As text</option>
             </param>
             <when value="fasta">
-                <param name="input_fasta" type="data" format="fasta" label="Fasta file with RNA-sequece (-f)" />
+                <param name="input_fasta" type="data" format="fasta" label="Fasta file with RNA-sequece" argument="-f" />
             </when>
             <when value="text"> 
-                <param name="input_sequence" type="text" label="RNA-sequece (-s)" />
+                <param name="input_sequence" type="text" label="RNA-sequence" argument="-s" />
             </when>
         </conditional>
         
-        <param name="predict_segments" type="boolean" truevalue="1" falsevalue="0" checked="true" label="Enable segment prediction functionality (-p)" />
-        <param name="min_hairpin_size" type="integer" min="1" value="3" label="Minimum hairpin size (-h)" />
+        <param name="predict_segments" type="boolean" truevalue="1" falsevalue="0" checked="true" label="Enable segment prediction functionality" argument="-p" />
+        <param name="min_hairpin_size" type="integer" min="1" value="3" label="Minimum hairpin size" argument="-h" />
         
         <conditional name="parameters">
             <param name="settings" type="select" label="Energy parameters">
@@ -58,7 +51,7 @@
             </param>
             <when value="default" />
             <when value="custom"> 
-                <param name="input_xml" type="data" format="xml" multiple="false" label="Use custom 'segments.xml'-syntaxed file (-x)" />
+                <param name="input_xml" type="data" format="xml" multiple="false" label="Use custom 'segments.xml'-syntaxed file" arugment="-x" />
             </when>
         </conditional>
     </inputs>
@@ -234,7 +227,7 @@ https://wiki.galaxyproject.org/Learn/Datatypes#Dbn
 
 **Authors**
 
-Youri Hoogstrate (yhoogstrate @ github)
+Youri Hoogstrate (GitHub: @yhoogstrate)
     ]]></help>
     
     <expand macro="citations" />
