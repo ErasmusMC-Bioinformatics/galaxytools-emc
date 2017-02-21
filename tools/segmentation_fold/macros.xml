@@ -1,5 +1,5 @@
 <macros>
-    <token name="@VERSION@">smf-v1.6-6_utils-v2.1.0</token>
+    <token name="@VERSION@">smf-v1.6-8_utils-v2.1.1</token>
 
     <xml name="stdio">
         <stdio>
