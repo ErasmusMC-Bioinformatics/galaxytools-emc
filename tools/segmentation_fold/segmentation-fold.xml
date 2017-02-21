@@ -51,7 +51,7 @@
             </param>
             <when value="default" />
             <when value="custom"> 
-                <param name="input_xml" type="data" format="xml" multiple="false" label="Use custom 'segments.xml'-syntaxed file" arugment="-x" />
+                <param name="input_xml" type="data" format="xml" multiple="false" label="Use custom 'segments.xml'-syntaxed file" argument="-x" />
             </when>
         </conditional>
     </inputs>
