@@ -8,7 +8,7 @@
     <expand macro="requirements" />
     <expand macro="version_command" />
     
-    <command detect_erros="aggressive"><![CDATA[
+    <command detect_errors="aggressive"><![CDATA[
         segmentation-fold-utils
             filter-annotated-entries
                 --regex '${regex.replace("'","\\'")}'
