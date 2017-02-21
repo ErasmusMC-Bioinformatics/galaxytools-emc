@@ -14,7 +14,7 @@
 
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="1.6.6">segmentation-fold</requirement><!-- includes smtf utils -->
+            <requirement type="package" version="1.6.8">segmentation-fold</requirement><!-- includes smtf utils -->
         </requirements>
     </xml>
     
