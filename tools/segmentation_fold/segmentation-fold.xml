@@ -17,7 +17,7 @@
             #end if
             
             -p $predict_segments
-            -h $min_hairpin_size
+            -H $min_hairpin_size
             
             #if $parameters.settings == "custom"
                 -x '${parameters.input_xml}'

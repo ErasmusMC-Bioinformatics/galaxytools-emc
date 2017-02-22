@@ -16,7 +16,7 @@
                 #if str($parameters.use_custom_xml) == "true"
                     "${parameters.input_xml}"
                 #else
-                    "\$SEGMENTATION_FOLD_DEFAULT_XML"
+                    "\$(segmentation-fold -X)"
                 #end if
                 
                 -p $precision

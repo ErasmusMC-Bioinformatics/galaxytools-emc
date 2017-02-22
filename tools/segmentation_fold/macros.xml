@@ -1,5 +1,5 @@
 <macros>
-    <token name="@VERSION@">smf-v1.6-8_utils-v2.1.1</token>
+    <token name="@VERSION@">smf-v1.7-0_utils-v2.1.1</token>
 
     <xml name="stdio">
         <stdio>
@@ -14,7 +14,7 @@
 
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="1.6.8">segmentation-fold</requirement><!-- includes smtf utils -->
+            <requirement type="package" version="1.7.0">segmentation-fold</requirement><!-- includes utils -->
         </requirements>
     </xml>
     
