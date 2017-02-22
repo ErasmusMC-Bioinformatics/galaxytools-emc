@@ -301,6 +301,9 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix, sample_copies
         for row in newshared3:
             del row[oscil_column]
 
+        print newshared3
+        newshared3 = [newshared3[0]] + sorted(newshared3[1:], key=lambda a_entry: a_entry[0])
+        print newshared3
         taxonomy_out = [['OTU', 'Size', 'Taxonomy']]+[row for row in taxonomy_file if row and row[0] != otu]
         write_output(outdir, 'taxonomy_corrected.tsv', taxonomy_out)
         write_output(outdir, 'shared_corrected.tsv', newshared3)
