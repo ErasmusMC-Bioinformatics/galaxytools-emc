@@ -1,6 +1,7 @@
 import os, sys
 import argparse, requests, time
 import csv
+import math
 from subprocess import call
 
 
@@ -9,6 +10,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--command', required=True, help="What action to perform")
     parser.add_argument('-ct', '--count_table', action='append', help="mothur count table")
+    parser.add_argument('-cp', '--copies', help="copies of NC for samples")
+    parser.add_argument('-nccp', '--nc_copies', help="copies of NC for itself")
     parser.add_argument('-t', '--taxonomy', action='append', help="mothur taxonomy file")
     parser.add_argument('-s', '--shared_file', action='append', help="mothur shared file")
     parser.add_argument('-otu', '--otutable', action='append', help="mothur OTU table")
@@ -18,6 +21,7 @@ def main():
     parser.add_argument('-od', '--outdir', help="output directory", default="")
     parser.add_argument('-lv', '--level', help="taxonomy level")
     parser.add_argument('-nc', '--negative_control', help="sample name of the negative control")
+    parser.add_argument('-ncs', '--negative_control_species', help="species name of the negative control", default="Oscillatoria")
     parser.add_argument('-r', '--replicate_suffix', help="suffix to identify replicates")
     parser.add_argument('-l', '--label', action='append', help="label for count table")
     parser.add_argument('--with-otu', dest='with_otu', action='store_true', default=False)
@@ -44,7 +48,8 @@ def main():
         create_krona_plot_multisample(args.taxonomy, args.shared_file, args.level, args.outdir, args.with_otu)
 
     elif args.command == 'correct_replicates':
-        correct_replicates(args.shared_file, args.outdir, args.replicate_suffix, args.negative_control)
+        correct_replicates(args.shared_file, args.taxonomy, args.outdir, args.replicate_suffix, args.copies,
+                           args.negative_control, args.nc_copies, args.negative_control_species)
 
     elif args.command == 'make_multi_otutable':
         make_multi_otutable(args.taxonomy, args.shared_file, args.level, args.outdir)
@@ -209,7 +214,7 @@ def stdev(data):
     c = mean(data)
     ss = sum((x-c)**2 for x in data)
     n = len(data)
-    return ss/(n-1)
+    return math.sqrt( ss/(n-1))
 
 
 def write_output(outdir, filename, outlines):
@@ -219,7 +224,89 @@ def write_output(outdir, filename, outlines):
             out_table.writerow(row)
 
 
-def correct_replicates(infile, outdir, replicate_suffix, negative_control=''):
+def correct_replicates(shared, taxonomy, outdir, replicate_suffix, sample_copies, negative_control='', nc_copies=-1, negative_control_species='Oscillatoria'):
+    with open(shared[0], 'rb') as f, open(taxonomy[0], 'rb') as f2:
+        shared_file = csv.reader(f, delimiter='\t')
+        taxonomy_file = csv.reader(f2, delimiter='\t')
+
+        # determine which OTU number is the control, Oscillatoria by default
+        # (Bacteria;Cyanobacteria;Cyanobacteria;SubsectionIII;FamilyI;Oscillatoria)
+        try:
+            line = next(taxonomy_file)
+            while negative_control_species not in line[2]:
+                line = next(taxonomy_file)
+            otu = line[0]
+        except StopIteration:
+            print("negative control species not found in taxonomy. Terminating.")
+            return 1
+
+        ''' Calculate Copies '''
+        # per replicate of sample and NC, determine correction factor, (number Oscillatoria seqs/known copies of it)
+        # correct all sequence counts with that
+        myshared = [row for row in shared_file if row]
+        newshared = [myshared[0]]
+        newshared2 = [myshared[0]]
+        newshared3 = [myshared[0]]
+        oscil_column = myshared[0].index(otu)
+
+        for row in myshared[1:]:
+            if row[1].startswith(negative_control):
+                copies = nc_copies
+            else:
+                copies = sample_copies
+
+            correction_factor = float(row[oscil_column]) / float(copies)
+
+            new_row = row[0:3]
+            for count in row[3:]:
+                new_row.append(float(count) / correction_factor)
+            newshared.append(new_row)
+
+        ''' Average copy counts across replicates  '''
+        levels = set([row[0] for row in newshared[1:]])
+        samples = set([row[1].split(replicate_suffix)[0] for row in newshared[1:]])
+
+        for level in levels:
+            for sample in samples:
+                neg = True if sample.startswith(negative_control) else False
+                replicates = [row for row in newshared if row[0] == level and row[1].startswith(sample)]
+                num_otus = int(replicates[0][2])+3
+                total = replicates[0][2]
+                avg = [level, sample, total]
+
+                for i in range(3, num_otus):
+                    counts = column(replicates, i)
+                    avg.append(mean(counts)) if 0 not in counts or neg else avg.append(0)
+
+                newshared2.append(avg)
+
+        ''' Correct for background '''
+        # for each otu, subtract 3 times the standard deviation of the negative control
+        for level in levels:
+            NC = [row for row in newshared if row[0] == level and row[1].startswith(negative_control)]
+            samples = [row for row in newshared2 if row[0] == level and not row[1].startswith(negative_control)]
+            num_otus = int(samples[0][2])+3
+
+            for i in range(3, num_otus):
+                m = mean(column(NC, i))
+                sd = stdev(column(NC, i))
+                corr = m + 3*sd
+
+                for s in samples:
+                    s[i] = max(0, int(round(s[i] - corr)))
+
+            newshared3 += samples
+
+        # remove Negative control species otu from table
+        for row in newshared3:
+            del row[oscil_column]
+
+        taxonomy_out = [['OTU', 'Size', 'Taxonomy']]+[row for row in taxonomy_file if row and row[0] != otu]
+        write_output(outdir, 'taxonomy_corrected.tsv', taxonomy_out)
+        write_output(outdir, 'shared_corrected.tsv', newshared3)
+
+
+def correct_replicates3(infile, taxonomy, outdir, replicate_suffix, negative_control=''):
     """
     Given a shared file, per sample, remove any OTUs not present in all replicates, and for those that remain, use
     average of counts of all replicates

@@ -20,7 +20,7 @@
         </param>
     </inputs>
     <outputs>
-        <data name="multi_otutable" format="mothur.shared" from_work_dir="multi_otutable.tsv" label="Multisample otutable on ${on_string}"/>
+        <data name="multi_otutable" format="tabular" from_work_dir="multi_otutable.tsv" label="Multisample otutable on ${on_string}"/>
     </outputs>
     <tests>
         <test>

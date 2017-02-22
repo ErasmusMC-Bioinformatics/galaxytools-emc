@@ -1,4 +1,4 @@
-<tool id="mycrobiota-correct-replicates" name="Correct counts" version="0.1">
+<tool id="mycrobiota-correct-replicates" name="Correct counts" version="0.4">
     <description>in a mothur shared file for replicates and negative controls</description>
     <macros>
         <import>macros.xml</import>
@@ -7,30 +7,34 @@
         python '$__tool_directory__/mycrobiota.py'
             --command correct_replicates
             --shared '$shared'
+            --taxonomy '$taxonomy'
             --replicate_suffix '$replicate_suffix'
-            #if $negative_control:
-                --negative_control '$negative_control'
-            #end if
+            --negative_control '$negative_control'
+            --nc_copies '$nc_copies'
+            --copies '$copies'
+            --negative_control_species '$negative_control_species'
     ]]></command>
     <inputs>
         <param argument="--shared" type="data" format="mothur.shared" label="Select shared file"/>
+        <param argument="--taxonomy" type="data" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select taxonomy file"/>
         <param argument="--replicate_suffix" type="text" size="100" value="_replicate" label="Suffix used to indicated replicates" help="e.g. _R if files are named [sample]_R1, [sample]_R2 etc"/>
         <param argument="--negative_control" type="text" optional="True" size="100" value="" label="sample name for your negative control (optional)" help="e.g. negative_control"/>
+        <param argument="--negative_control_species" type="text" optional="True" size="100" value="Oscillatoria" label="taxonomy of negative control" help="e.g. Oscillatoria"/>
+        <param argument="--nc_copies" type="integer" value="100" min="0" label="number of copies of control species in the negative control sample"/>
+        <param argument="--copies" type="integer" value="1000" min="0" label="number of copies of control species in the real samples"/>
     </inputs>
     <outputs>
-        <data name="corrected_out" format="mothur.shared" from_work_dir="shared_corrected.tsv" label="${tool.name} on ${on_string}"/>
+        <data name="corrected_out" format="mothur.shared" from_work_dir="shared_corrected.tsv" label="${tool.name} on ${on_string}: corrected shared file"/>
+        <data name="corrected_tax" format_source="taxonomy" from_work_dir="taxonomy_corrected.tsv" label="${tool.name} on ${on_string}: corrected taxonomy file"/>
     </outputs>
     <tests>
-        <test><!-- test only dereplicating -->
-            <param name="shared" value="shared_mock.tsv" ftype="mothur.shared"/>
+        <test>
+            <param name="shared" value="shared_tocorrect.tsv" ftype="mothur.shared"/>
+            <param name="taxonomy" value="otutable_tocorrect.taxonomy" ftype="mothur.cons.taxonomy"/>
             <param name="replicate_suffix" value="_replicate"/>
-            <output name="corrected_out" file="shared_dereplicated.tsv" ftype="mothur.shared"/>
-        </test>
-        <test><!-- test with also negative control correction -->
-            <param name="shared" value="shared_mock.tsv" ftype="mothur.shared"/>
-            <param name="replicate_suffix" value="_replicate"/>
-            <param name="negative_control" value="negative-control"/>
-            <output name="corrected_out" md5="02848b930f6501e54f1dc812d0e13c66" ftype="mothur.shared"/>
+            <param name="negative_control" value="NC"/>
+            <output name="corrected_out" md5="5732de8a9499bde393e9a85c54b19898" ftype="mothur.shared"/>
+            <output name="corrected_tax" md5="42f588cd4ff28920b99dd50eae74edc8" ftype="mothur.cons.taxonomy"/>
         </test>
     </tests>
     <help><![CDATA[
