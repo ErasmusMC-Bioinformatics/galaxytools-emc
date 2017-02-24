@@ -492,7 +492,7 @@ def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
             tax.seek(0)  # make sure to start at beginning of file each time
             if row[0] == level:
                 samples.append(row[1])
-                outlines.append(row[2:])
+                outlines.append(row[3:])
 
         transposed = map(list, zip(*outlines))
         header = ["OTU"] + samples + ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus"]
