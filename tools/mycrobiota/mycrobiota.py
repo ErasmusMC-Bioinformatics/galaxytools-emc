@@ -1,5 +1,5 @@
-import os, sys
-import argparse, requests, time
+import os
+import argparse
 import csv
 import math
 from subprocess import call
@@ -21,7 +21,8 @@ def main():
     parser.add_argument('-od', '--outdir', help="output directory", default="")
     parser.add_argument('-lv', '--level', help="taxonomy level")
     parser.add_argument('-nc', '--negative_control', help="sample name of the negative control")
-    parser.add_argument('-ncs', '--negative_control_species', help="species name of the negative control", default="Oscillatoria")
+    parser.add_argument('-ncs', '--negative_control_species', help="species name of the negative control",
+                        default="Oscillatoria")
     parser.add_argument('-r', '--replicate_suffix', help="suffix to identify replicates")
     parser.add_argument('-l', '--label', action='append', help="label for count table")
     parser.add_argument('--with-otu', dest='with_otu', action='store_true', default=False)
@@ -62,7 +63,9 @@ def main():
 
 
 def make_url(seq, baseurl):
-    return baseurl+"?DATABASE=nr&PERC_IDENT=97&EXCLUDE_SEQ_UNCULT=on&HITLIST_SIZE=10&FILTER=L&FILTER=m&FILTER=R&EXPECT=10&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&CMD=Put&QUERY="+seq.lower()
+    return baseurl+"?DATABASE=nr&PERC_IDENT=97&EXCLUDE_SEQ_UNCULT=on&HITLIST_SIZE=10&FILTER=L&FILTER=m&FILTER=R&" \
+                   "EXPECT=10&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&" \
+                   "CMD=Put&QUERY=" + seq.lower()
 
 
 def make_RIDlink(RID, baseurl):
@@ -70,25 +73,27 @@ def make_RIDlink(RID, baseurl):
 
 
 def make_rerun_link(seq, baseurl):
-    return "<a target=\"_blank\" href=\""+baseurl+"?DATABASE=nr&EXCLUDE_SEQ_UNCULT=yes&FILTER=L&FORMAT_TYPE=HTML&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&CMD=Web&QUERY="+seq.lower()+"\">send to BLAST</a>"
+    return "<a target=\"_blank\" href=\""+baseurl+"?DATABASE=nr&EXCLUDE_SEQ_UNCULT=yes&FILTER=L&FORMAT_TYPE=HTML" \
+                                                  "&PROGRAM=blastn&CLIENT=web&SERVICE=megablast&PAGE=Nucleotides&" \
+                                                  "CMD=Web&QUERY=" + seq.lower() + "\">send to BLAST</a>"
 
 
 def otutable_add_blast_links(otutable, otureps):
-    baseurl="http://www.ncbi.nlm.nih.gov/blast/Blast.cgi"
+    baseurl = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi"
 
     # for each fasta sequence create blast search
     with open(otureps[0], "r") as reps:
-        sequences = [line.rstrip('\n').replace('-','') for line in reps if '>' not in line]
+        sequences = [line.rstrip('\n').replace('-', '') for line in reps if '>' not in line]
 
     # Add RID link and rerun link to table
-    with open(otutable[0],"r") as otuf, open("otutable_with_blast.tsv","w+") as outfile:
-        linenum=-1
+    with open(otutable[0], "r") as otuf, open("otutable_with_blast.tsv", "w+") as outfile:
+        linenum = -1
         for line in otuf:
-           if linenum == -1:
-               outfile.write( line.rstrip()+"\tBLAST\n" )
-           else:
-               outfile.write( line.rstrip() +"\t" + make_rerun_link(sequences[linenum], baseurl)+"\n" )
-           linenum +=1
+            if linenum == -1:
+                outfile.write(line.rstrip()+"\tBLAST\n")
+            else:
+                outfile.write(line.rstrip() + "\t" + make_rerun_link(sequences[linenum], baseurl)+"\n")
+            linenum += 1
 
 
 def summarylog_total(infile):
@@ -214,7 +219,7 @@ def stdev(data):
     c = mean(data)
     ss = sum((x-c)**2 for x in data)
     n = len(data)
-    return math.sqrt( ss/(n-1))
+    return math.sqrt(ss/(n-1))
 
 
 def write_output(outdir, filename, outlines):
@@ -224,7 +229,8 @@ def write_output(outdir, filename, outlines):
             out_table.writerow(row)
 
 
-def correct_replicates(shared, taxonomy, outdir, replicate_suffix, sample_copies, negative_control='', nc_copies=-1, negative_control_species='Oscillatoria'):
+def correct_replicates(shared, taxonomy, outdir, replicate_suffix, sample_copies, negative_control='', nc_copies=-1,
+                       negative_control_species='Oscillatoria'):
     with open(shared[0], 'rb') as f, open(taxonomy[0], 'rb') as f2:
         shared_file = csv.reader(f, delimiter='\t')
         taxonomy_file = csv.reader(f2, delimiter='\t')
@@ -304,156 +310,12 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix, sample_copies
                 row[2] = int(row[2]) - 1
 
         # sort file or other mothur tools may segfault :/
-        newshared3 = [newshared3[0]] + sorted(newshared3[1:], key=lambda a_entry: a_entry[0] if a_entry[0] != 'unique' else 0)
+        newshared3 = [newshared3[0]] + sorted(newshared3[1:],
+                                              key=lambda a_entry: a_entry[0] if a_entry[0] != 'unique' else 0)
 
         taxonomy_out = [['OTU', 'Size', 'Taxonomy']]+[row for row in taxonomy_file if row and row[0] != otu]
         write_output(outdir, 'taxonomy_corrected.tsv', taxonomy_out)
         write_output(outdir, 'shared_corrected.tsv', newshared3)
-
-
-def correct_replicates3(infile, taxonomy, outdir, replicate_suffix, negative_control=''):
-    """
-    Given a shared file, per sample, remove any OTUs not present in all replicates, and for those that remain, use
-    average of counts of all replicates
-
-    :param infile:
-    :param outdir:
-    :param replicate_suffix:
-    :param negative_control:
-    :return:
-    """
-    with open(infile[0], 'rb') as f:
-        shared_file = csv.reader(f, delimiter='\t')
-        out_lines = [next(shared_file)]  # header
-        nc_stdevs = []
-
-        # load all replicates of a sample (this assumes them to be in order in the file)
-        peek = next(shared_file)
-        while peek:
-            replicates = []
-            sample = peek[1].split(replicate_suffix)[0]
-            while peek[1].split(replicate_suffix)[0] == sample:
-                replicates.append(peek)
-                try:
-                    peek = next(shared_file)
-                except StopIteration:
-                    peek = False
-                    break
-
-            # calculate mean counts across replicates or set to zero if any of replicates had count zero
-            averages = []
-            stdevs = []
-            if negative_control and replicates[0][1].startswith(negative_control):
-                stdevs.append(replicates[0][0])  # add label to line
-
-            for col in range(3, len(replicates[0])):
-                counts = map(int, column(replicates, col))
-                if 0 in counts:
-                    averages.append(0)
-                else:
-                    averages.append(int(round(mean(counts))))
-
-                # calculate normal control correction factor
-                corr_factor = 0
-                if negative_control and replicates[0][1].startswith(negative_control):
-                    if 0 not in counts:
-                        corr_factor = 3 * stdev(counts)
-                    print replicates[0][0] + ': ' + replicates[0][1]
-                    print counts
-                    print corr_factor
-                    stdevs.append(corr_factor)
-
-            if stdevs:
-                nc_stdevs.append(stdevs)
-
-            # output single row per sample with corrected counts
-            out_lines.append([replicates[0][0]] + [sample] + [replicates[0][2]] + averages)
-
-        print nc_stdevs
-        write_output(outdir, 'shared_dereplicated.tsv', out_lines)
-
-        # if normal control sample was present, correct file with that
-        if negative_control:
-            # correct_negative_control('shared_dereplicated.tsv', outdir, negative_control)
-            correct_negative_control('shared_dereplicated.tsv', outdir, negative_control, nc_stdevs)
-        else:
-            os.rename('shared_dereplicated.tsv', 'shared_corrected.tsv')
-
-
-def correct_negative_control(infile, outdir, negative_control, stdevs):
-    with open(os.path.join(outdir, infile)) as f:
-        shared_file = csv.reader(f, delimiter='\t')
-        corrected_lines = [next(shared_file)]  # header
-
-        # per level in the shared file (unique, 0.03, ..), and per otu, calculate correction factor
-        peek = next(shared_file)
-        while peek:
-            if peek[1] != negative_control:
-                for level in stdevs:
-                    if level[0] == peek[0]:
-                        print peek
-                        print level
-                        # subtract correction factor from counts
-                        corr_line = peek[0:3]
-                        for i in range(3, len(peek)):
-                            corr_line.append(int( max(0, int(peek[i]) - level[i-2])))
-
-                        corrected_lines.append(corr_line)
-                        print corr_line
-
-            # get next line
-            try:
-                peek = next(shared_file)
-            except StopIteration:
-                peek = False
-                break
-
-        # output corrected shared file
-        write_output(outdir, "shared_corrected.tsv", corrected_lines)
-
-
-def correct_negative_control2(infile, outdir, negative_control):
-    """
-    If a negative control sample was added, correct the OTU counts in a shared file. Subtract 3 times the standard
-    deviation of normal control sample counts from all counts in file.
-
-    :param infile: shared file
-    :param outdir: directory to output results
-    :param negative_control: name of the normal control sample
-    :return:
-    """
-
-    # calculate correction factor (3 * stdev(normal_control))
-    with open(os.path.join(outdir, infile)) as f:
-        shared_file = csv.reader(f, delimiter='\t')
-        corrected_lines = [next(shared_file)]  # header
-        correction = 1
-
-        # per level in the shared file (unique, 0.03, ..), and per otu, calculate correction factor
-        peek = next(shared_file)
-        while peek:
-            level_lines = []
-            level = peek[0]
-            while peek[0] == level:
-                sample = peek[1]
-                if sample == negative_control:
-                    correction = 3 * stdev(map(int, peek[3:]))
-                    print("correction factor: " + str(correction))
-                else:
-                    level_lines.append(peek)
-
-                try:
-                    peek = next(shared_file)
-                except StopIteration:
-                    peek = False
-                    break
-
-            # apply correction to samples
-            for line in level_lines:
-                corrected_lines.append(line[0:3] + map(lambda x: int(round(x-correction)), map(int, line[3:])))
-
-    # output corrected shared file
-    write_output(outdir, "shared_corrected.tsv", corrected_lines)
 
 
 def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
@@ -480,7 +342,7 @@ def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
         taxonomy = csv.reader(tax, delimiter='\t')
         shared = csv.reader(sh, delimiter='\t')
         shared_header = next(shared)
-        outlines.append (shared_header[3:])
+        outlines.append(shared_header[3:])
 
         # get all taxonomies
         taxonomies = []
@@ -566,7 +428,8 @@ def create_krona_plot(taxonomy_files, outdir, with_otu):
 
             next(taxonomy)  # skip header line
             for row in taxonomy:
-                out_rows.append(filter(None, [row[1]] + row[2].rstrip(";\n").split(';') + [row[0] if with_otu else None]))
+                out_rows.append(filter(None, [row[1]] + row[2].rstrip(";\n").split(';') +
+                                       [row[0] if with_otu else None]))
 
         outfile = os.path.join(outdir, tax.split("/")[-1]+"krona")
         krona_input_files.append(outfile)
