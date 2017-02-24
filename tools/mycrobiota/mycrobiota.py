@@ -497,7 +497,7 @@ def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
         transposed = map(list, zip(*outlines))
         header = ["OTU"] + samples + ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus"]
 
-        writelines = [header] + [a+b for a, b in zip(transposed, taxonomies)]
+        writelines = [header] + [a + b for a, b in zip(transposed, taxonomies) if a[1:] != ['0'] * len(a[1:])]
 
         # output corrected shared file
         write_output(outdir, "multi_otutable.tsv", writelines)
