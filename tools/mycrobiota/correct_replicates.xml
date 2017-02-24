@@ -1,4 +1,4 @@
-<tool id="mycrobiota-correct-replicates" name="Correct counts" version="0.5">
+<tool id="mycrobiota-correct-replicates" name="Correct counts" version="0.6">
     <description>in a mothur shared file for replicates and negative controls</description>
     <macros>
         <import>macros.xml</import>
@@ -33,7 +33,7 @@
             <param name="taxonomy" value="otutable_tocorrect.taxonomy" ftype="mothur.cons.taxonomy"/>
             <param name="replicate_suffix" value="_replicate"/>
             <param name="negative_control" value="NC"/>
-            <output name="corrected_out" md5="5732de8a9499bde393e9a85c54b19898" ftype="mothur.shared"/>
+            <output name="corrected_out" md5="a7bafe98a383b308b4f1f1681483091d" ftype="mothur.shared"/>
             <output name="corrected_tax" md5="9cc44bec811b868bde9acbe5d857e4c9" ftype="mothur.cons.taxonomy"/>
         </test>
     </tests>

@@ -298,8 +298,10 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix, sample_copies
             newshared3 += samples
 
         # remove Negative control species otu from table
-        for row in newshared3:
+        for i, row in enumerate(newshared3):
             del row[oscil_column]
+            if i > 0:
+                row[2] = int(row[2]) - 1
 
         # sort file or other mothur tools may segfault :/
         newshared3 = [newshared3[0]] + sorted(newshared3[1:], key=lambda a_entry: a_entry[0] if a_entry[0] != 'unique' else 0)
