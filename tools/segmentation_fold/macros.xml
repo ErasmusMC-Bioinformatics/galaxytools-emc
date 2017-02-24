@@ -1,0 +1,37 @@
+<macros>
+    <token name="@VERSION@">smf-v1.7-0_utils-v2.1.1</token>
+
+    <xml name="stdio">
+        <stdio>
+            <exit_code range="1:" />
+            <exit_code range=":-1" />
+        </stdio>
+    </xml>
+
+    <xml name="version_command">
+        <version_command>echo $(segmentation-fold --version | head -n 2 | tail -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')", "$(segmentation-fold-utils --version)</version_command>
+    </xml>
+
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="1.7.0">segmentation-fold</requirement><!-- includes utils -->
+        </requirements>
+    </xml>
+    
+    <xml name="citations">
+        <citations>
+            <citation type="bibtex">
+               @mastersthesis{mastersthesis,
+                  author       = {Youri Hoogstrate}, 
+                  title        = {An algorithm for predicting RNA 2D structures including K-turns},
+                  school       = {University of Technology Delft, Leiden University},
+                  year         = 2012,
+                  address      = {},
+                  month        = 11,
+                  note         = {Research assignment for Master Computer-science},
+                  url          = { https://yh-kt-fold.googlecode.com/files/Report.pdf }
+                }
+            </citation>
+        </citations>
+    </xml>
+</macros>

@@ -1,0 +1,106 @@
+<tool id="smf_utils_extract-boxed-sequences" name="extract-boxed-sequences" version="@VERSION@-1">
+    <description>Extracts boxed sequences from bed_input_file which has to be created with 'find-box', part of this utility</description>
+    
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements" />
+    <expand macro="version_command" />
+    
+    <command detect_errors="aggressive"><![CDATA[
+        segmentation-fold-utils
+            extract-boxed-sequences
+
+                --max-inner-dist $max_inner_dist
+                --bp-extension   $bp_extension
+                
+                '${fasta_input_file}'
+                '${bed_input_file}'
+                '${fasta_output_file}'
+
+    ]]></command>
+
+    <inputs>
+        <param name="fasta_input_file"
+               type="data"
+               format="fasta"
+               label="Genomic reference FASTA file"/>
+        <param name="bed_input_file"
+               type="data"
+               format="bed"
+               label="BED file containing the sequence boxes"
+               help="This file should have been created with 'find-boxes'"/>
+        
+        <param name="max_inner_dist"
+               type="integer"
+               min="0"
+               value="250"
+               label="Maximal distance between the boxes"
+               help="(default=250bp)"/>
+        <param name="bp_extension"
+               type="integer"
+               min="0"
+               value="10"
+               label="Extend extracted sequences with this number of bases"
+               help="(default: 10bp)"/>
+    </inputs>
+
+    <outputs>
+        <data name="fasta_output_file"
+              format="fasta"
+              label="${tool.name} on ${fasta_input_file.hid}: ${fasta_input_file.name}"/>
+    </outputs>
+
+    <tests>
+        <test>
+            <param name="fasta_input_file" value="ExtractBoxedSequences.test_01.in.fa" ftype="fasta"/>
+            <param name="bed_input_file" value="ExtractBoxedSequences.test_01.in.bed" ftype="bed"/>
+            <param name="max_inner_dist" value='100'/>
+            <param name="bp_extension" value='0'/>
+
+            <output name="fasta_output_file" file="ExtractBoxedSequences.test_01.out.fa"/>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+extact-boxed-sequences
+----------------------
+*Extracts boxes sequences from `bed_input_file` which has to be created with 'find-box', also part of this utility*
+
+The user can use this utility to extract sequences containing the boxes provided in the bed file by `find-boxes`.
+
+**input**
+
+Important information about the input:
+
+ - `FASTA_INPUT_FILE` can be any generic FASTA file that can be read with pysam. This means that if the sequence is split into multiple lines, they must all be at the same length.
+ - `BED_INPUT_FILE` the bed file should be provided by `find-boxes` as it properly denotes the names (box1-f, box1-r, box2-f and box2-r) which are used for extraction.
+ - `-d, --max-inner-dist INTEGER` Only sequences for which the distance in bases between the boxes is smaller than this distance, will be extracted. Boxes are excluded from this distance.
+ - `-e, --bp-extension INTEGER` Each sequence will be exteded with:
+  * The boxes
+  * An optional number of bases provided with this argument
+
+**output**
+
+Be aware that there can be overlapping sequences. For example, if you started box1=`TTTT` and box2=`CCCC` with the following sequence, you will extract 2 sequences:
+
+```>seq
+gagagaTTTTgagagaTTTTgagagagagagagagaCCCCgaga
+```
+
+Namely:
+
+```TTTTgagagaTTTTgagagagagagagagaCCCC
+```
+
+and
+
+```          TTTTgagagagagagagagaCCCC
+```
+
+This is an utility of the segmentation-fold package
+    ]]></help>
+    
+    <expand macro="citations" />
+</tool>

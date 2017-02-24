@@ -1,0 +1,14 @@
+categories:
+- RNA
+- Sequence Analysis
+description: RNA-Folding with predefined segments including K-turns
+long_description: |
+  Segmentation-fold is a application in the field of bioinformatics that predicts RNA 2D-structures. The model has an extension with respect to the classical Zuker algorithm, to allow new "structure elements" named segments and segmentloops. This makes it capable of folding a pre-defined substructure with multiple canonical or non-canonical base pairs, like K-turns and loop-E-motifs. Some of such sturcture elements are present in the corresponding energy table, although custom tables can be provided as well.
+  
+  We are currently optimizing the free energy parameters to improve accuracy.
+
+name: segmentation_fold
+owner: yhoogstrate
+homepage_url: https://github.com/yhoogstrate/segmentation-fold
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/segmentation_fold
+type: unrestricted

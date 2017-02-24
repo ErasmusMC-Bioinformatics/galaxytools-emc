@@ -1,0 +1,4 @@
+>chr1:25-36 x unknown-01 (aligned reads tests/test-data/DBNFile.test_01.in.bam: 1)
+AAAAAAAAAAA
+>chr1:45-56 x unknown-01 (aligned reads tests/test-data/DBNFile.test_01.in.bam: 2)
+AAAAAAAAAAA
