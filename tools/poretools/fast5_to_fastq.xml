@@ -25,6 +25,9 @@
             #end if
             $advanced.high_quality
             $advanced.normal_quality
+            #if $advanced.group
+                --group '$advanced.group'
+            #end if
             > '$fastx_out'
     ]]></command>
     <inputs>
@@ -71,10 +74,11 @@
             <param name="normal_quality" value="--normal-quality"/>
             <output name="fastx_out" md5="a2ca3da849d1dfa42831c4424f2fbc19" ftype="fastq"/>
         </test>
-        <!-- test with timestamp param -->
+        <!-- test with timestamp param and empty group param -->
         <test>
             <param name="fast5in" value="test.fast5"/>
             <param name="start" value="1487197016"/>
+            <param name="group" value=""/>
             <output name="fastx_out" md5="d41d8cd98f00b204e9800998ecf8427e" ftype="fastq"/>
         </test>
     </tests>
