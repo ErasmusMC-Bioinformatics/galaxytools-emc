@@ -1,25 +1,81 @@
-<tool id="poretools_fastq" name="Fast5-to-Fastq" version="@TOOL_VERSION@-g0">
-    <description>Convert minION fast5 format to fastq</description>
+<tool id="poretools_fastq" name="Fast5-to-FastX" version="@TOOL_VERSION@-g0.1">
+    <description>Convert minION fast5 format to fastq or fasta</description>
     <macros>
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements" />
     <expand macro="version_command" />
     <command detect_errors="aggressive"><![CDATA[
-        poretools fastq
-            '$fast5in'
-            > '$fastqout'
+        ln -s '$fast5in' '${fast5in.name}' &&
+
+        poretools
+            $output_format
+            '${fast5in.name}'
+            #if $advanced.min_length
+                --min-length $advanced.min_length
+            #end if
+            #if $advanced.max_length
+                --max-length $advanced.max_length
+            #end if
+            #if $advanced.start
+                --start $advanced.start
+            #end if
+            #if $advanced.end
+                --end $advanced.end
+            #end if
+            $advanced.high_quality
+            $advanced.normal_quality
+            > '$fastx_out'
     ]]></command>
     <inputs>
         <param name="fast5in" type="data" format="h5" label="your fast5 file" />
+        <param name="output_format" type="select" label="Select output format" help="">
+            <option value="fastq">Fastq</option>
+            <option value="fasta">Fasta</option>
+        </param>
+        <section name="advanced" title="Advanced settings">
+            <param argument="--min_length" type="integer" optional="true" value="" min="0" label="Minimum read length for FASTA entry to be reported"/>
+            <param argument="--max_length" type="integer" optional="true" value="" min="0" label="Minimum read length for FASTA entry to be reported"/>
+            <param argument="--high_quality" type="boolean" truevalue="--high-quality" falsevalue="" checked="false"
+                   label="High quality?" help="Only report reads with more complement events than template?"/>
+            <param argument="--normal_quality" type="boolean" truevalue="--normal-quality" falsevalue="" checked="false"
+                   label="Normal quality?" help="Only report reads with fewer complement events than template?"/>
+            <param argument="--group" type="text" value="000" label="Group" help="Base calling group serial number to extract. Default 000"/>
+            <param argument="--start" type="integer" value="" min="0" optional="true" label="START_TIME" help="Only report reads from after start timestamp"/>
+            <param argument="--end" type="integer" value="" min="0" optional="true" label="END_TIMe" help="Only report reads from before start timestamp"/>
+        </section>
     </inputs>
     <outputs>
-        <data name="fastqout" format="fastq" label="${tool.name} on ${on_string}: description"/>
+        <data name="fastx_out" format="fastq" label="${tool.name} on ${on_string}: description">
+            <change_format>
+                <when input="output_format" value="fasta" format="fasta"/>
+            </change_format>
+        </data>
     </outputs>
     <tests>
+        <!-- test conversion to fastq -->
         <test>
             <param name="fast5in" value="test.fast5"/>
-            <output name="fastqout" file="test.fastq" ftype="fastq" lines_diff="6"/>
+            <output name="fastx_out" file="test.fastq" ftype="fastq" lines_diff="6"/>
+        </test>
+        <!-- test conversion to fasta -->
+        <test>
+            <param name="fast5in" value="test.fast5"/>
+            <param name="output_format" value="fasta"/>
+            <output name="fastx_out" file="test.fasta" ftype="fasta"/>
+        </test>
+        <!-- test with additional parameters -->
+        <test>
+            <param name="fast5in" value="test.fast5"/>
+            <param name="min_length" value="230"/>
+            <param name="normal_quality" value="--normal-quality"/>
+            <output name="fastx_out" md5="a2ca3da849d1dfa42831c4424f2fbc19" ftype="fastq"/>
+        </test>
+        <!-- test with timestamp param -->
+        <test>
+            <param name="fast5in" value="test.fast5"/>
+            <param name="start" value="1487197016"/>
+            <output name="fastx_out" md5="d41d8cd98f00b204e9800998ecf8427e" ftype="fastq"/>
         </test>
     </tests>
     <help><![CDATA[
