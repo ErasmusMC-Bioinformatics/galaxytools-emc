@@ -1,0 +1,29 @@
+<tool id="poretools_fastq" name="Fast5-to-Fastq" version="@TOOL_VERSION@-g0">
+    <description>Convert minION fast5 format to fastq</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements" />
+    <expand macro="version_command" />
+    <command detect_errors="aggressive"><![CDATA[
+        poretools fastq
+            '$fast5in'
+            > '$fastqout'
+    ]]></command>
+    <inputs>
+        <param name="fast5in" type="data" format="h5" label="your fast5 file" />
+    </inputs>
+    <outputs>
+        <data name="fastqout" format="fastq" label="${tool.name} on ${on_string}: description"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="fast5in" value="test.fast5"/>
+            <output name="fastqout" file="test.fastq" ftype="fastq" lines_diff="6"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Converts Fast5 format to Fastq using poretools.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

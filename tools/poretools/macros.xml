@@ -1,0 +1,21 @@
+<macros>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="0.6.1a1">poretools</requirement>
+            <yield/>
+        </requirements>
+    </xml>
+
+    <token name="@TOOL_VERSION@">0.6.1a1</token>
+
+    <xml name="version_command">
+        <version_command>poretools -v</version_command>
+    </xml>
+
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1093/bioinformatics/btu555</citation>
+            <yield />
+        </citations>
+    </xml>
+</macros>
