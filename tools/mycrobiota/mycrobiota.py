@@ -102,23 +102,23 @@ def make_rerun_link(seq, baseurl):
 def otutable_add_blast_links(otutable, otureps):
     baseurl = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi"
 
-    # for each fasta sequence create blast search
-    with open(otureps[0], "r") as reps:
-        sequences = [line.rstrip('\n').replace('-', '') for line in reps
-                     if '>' not in line]
+    # for each otu create blast search of corresponding representative sequence
+    reps = [line for line in open(otureps[0], "r")]
+
+    seqs = [r.rstrip('\n').replace('-', '') for r in reps if '>' not in r]
+    seq_names = [r for r in reps if '>' in r]
+    otulines = [line for line in open(otutable[0], "r")]
 
     # Add RID link and rerun link to table
-    with open(otutable[0], "r") as otuf, \
-            open("otutable_with_blast.tsv", "w+") as outfile:
-        linenum = -1
-        for line in otuf:
-            if linenum == -1:
-                outfile.write(line.rstrip()+"\tBLAST\n")
-            else:
-                outfile.write(line.rstrip() + "\t" +
-                              make_rerun_link(sequences[linenum], baseurl)
-                              + "\n")
-            linenum += 1
+    with open("otutable_with_blast.tsv", "w+") as outfile:
+        outfile.write(otulines[0].rstrip() + "\tBLAST\n")
+
+        for otuline in otulines[1:]:
+            otu = otuline.split('\t')[0]
+            for i, seq in enumerate(seq_names):
+                if otu in seq:
+                    outfile.write(otuline.rstrip() + "\t" +
+                                  make_rerun_link(seqs[i], baseurl) + "\n")
 
 
 def summarylog_total(infile):
