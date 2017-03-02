@@ -7,7 +7,7 @@
     <expand macro="requirements" />
     <expand macro="version_command"/>
     
-    <command><![CDATA[
+    <command detect_errors="exit_code"><![CDATA[
         dr-disco bam-extract
             '$region1'
             '$region2'
