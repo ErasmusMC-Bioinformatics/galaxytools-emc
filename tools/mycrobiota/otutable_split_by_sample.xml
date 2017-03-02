@@ -1,0 +1,31 @@
+<tool id="mycrobiota-split-multi-otutable" name="Split multisample OTUtable" version="0.1">
+    <description>into a table persample</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <command detect_errors="aggressive"><![CDATA[
+        python '$__tool_directory__/mycrobiota.py'
+            --command split_multi_otutable
+            --otutable '$otutable'
+    ]]></command>
+    <inputs>
+        <param argument="--otutable" type="data" format="tabular" label="Supply a multisaple OTU table" help="expects sample as first part of name e.g. samplename_replicate2_rest"/>
+    </inputs>
+    <outputs>
+        <collection name="sample_otutables" type="list" label="${tool.name} on ${on_string}: per-sample otu tables">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.otutable" format="tabular"/>
+        </collection>
+    </outputs>
+    <tests>
+        <test>
+            <param name="otutable" value="multisample.otutable" ftype="tabular"/>
+            <output_collection name="sample_otutables" count="3">
+                <element name="DX01" file="DX01.otutable" ftype="tabular"/>
+            </output_collection>
+        </test>
+    </tests>
+    <help><![CDATA[
+        help text goes here
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

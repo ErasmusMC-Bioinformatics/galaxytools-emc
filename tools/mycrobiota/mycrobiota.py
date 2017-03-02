@@ -75,6 +75,9 @@ def main():
     elif args.command == 'otutable_add_blast_links':
         otutable_add_blast_links(args.otutable, args.fasta)
 
+    elif args.command == 'split_multi_otutable':
+        split_multi_otutable(args.otutable)
+
     else:
         print("unknown command. exiting")
 
@@ -409,6 +412,25 @@ def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
 
         # output corrected shared file
         write_output(outdir, "multi_otutable.tsv", writelines)
+
+
+def split_multi_otutable(otutable, with_avg=True):
+    fulltable = [line.strip().split('\t') for line in open(otutable[0], 'r') if line]
+    samples = [s.split('_')[0] for s in fulltable[0][1:-6]]
+    numcols = len(fulltable[0])
+    numreplicates = (numcols - 7) / len(set(samples))
+
+    for sample in set(samples):
+        outlines = []
+        cols = [0] + [i+1 for i, s in enumerate(samples) if sample in s] + [i for i in range(numcols-6, numcols)]
+        for i, line in enumerate(fulltable):
+            out = [line[j] for j in cols]
+            if out[1:-6] != ['0'] * numreplicates:
+                print i
+                out.insert(-6, 'mean' if i==0 else int(round(mean(map(int, out[1:-6])))))
+                outlines.append(out)
+
+        write_output('.', sample+'.otutable', outlines)
 
 
 def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir,
