@@ -1,0 +1,2 @@
+chr-A	pos-A	direction-A	chr-B	pos-B	direction-B	filter-status	intronic/exonic	score	soft+hardclips	n-split-reads	n-discordant-reads	n-edges	n-nodes-A	n-nodes-B	n-splice-junc-A	n-splice-junc-B	entropy-bp-edge	entropy-all-edges	data-structure
+chr21	39877811	-	chr21	42873374	+	n_discordant_reads=0<1,n_support=3<8	intronic	9	6	3	0	1	1	1	0	0	1.0	1.0	chr21:39877811/39877812(-)->chr21:42873374/42873375(+):(spanning_paired_1_t:3,spanning_paired_2_t:3)

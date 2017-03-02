@@ -1,0 +1,41 @@
+<tool id="dr_disco_intronic" name="Dr. Disco (intronic)" version="@TOOL_VERSION@-g0">
+    <description>Detects break-points in RNA-seq</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements"/>
+    <expand macro="version_command"/>
+    
+    <command detect_errors="exit_code"><![CDATA[
+        dr-disco
+            detect
+                --min-e-score '${min_e_score}'
+                '${table_fusion_events}'
+                '${star_discordant_alignment_fixed}'
+    ]]></command>
+    <inputs>
+        <param name="star_discordant_alignment_fixed" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
+        <param name="min_e_score" argument="--min-e-score" type="integer" value="8" min="0"
+               label="Minimal score to initiate pulling sub-graphs" help="Larger numbers boost performance but result in suboptimal results. Values of 8 and below are considered to be very safe (this corresponds to initiate merging already from clusters that consist of 2 or 3 reads)." />
+    </inputs>
+    
+    <outputs>
+        <data name="table_fusion_events" format="tabular" label="${tool.name} on ${$star_discordant_alignment_fixed.name}" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="star_discordant_alignment_fixed" value="detect.bam" />
+            <param name="min_e_score" value="8" />
+
+            <output name="table_fusion_events" file="detect.txt" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+        detects
+    ]]></help>
+    
+     <expand macro="citations"/>
+</tool>
