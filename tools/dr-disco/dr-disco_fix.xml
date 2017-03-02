@@ -1,26 +1,36 @@
 <tool id="dr_disco_fix" name="Dr. Disco (fix)" version="@TOOL_VERSION@-g0">
-    <description>Fixes and annotates chimeric alignments</description>
+    <description>Fixes chimeric alignments from STAR</description>
     <macros>
         <import>macros.xml</import>
     </macros>
-    
+
     <expand macro="requirements" />
     <expand macro="version_command" />
-    
-    <command><![CDATA[
-        dr-disco fix '${output}' '${star_discordant_alignment}'
+
+    <command detect_errors="exit_code"><![CDATA[
+        dr-disco fix '${alignment_fixed}' '${star_discordant_alignment}'
     ]]></command>
     <inputs>
         <param name="star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR" />
     </inputs>
     <outputs>
-        <data name="output" format="bam" label="${tool.name} on ${star_discordant_alignment}" />
+        <data name="alignment_fixed" format="bam" label="${tool.name} on ${star_discordant_alignment}" />
     </outputs>
+
     <tests>
+        <test>
+            <param name="star_discordant_alignment" value="fix_test-01.bam"/>
+
+            <output name="alignment_fixed" file="fix_test-01.fixed.bam" />
+        </test>
     </tests>
     
-    <help>
-    </help>
-    
+    <help><![CDATA[
+
+**What it does**
+
+Dr. Disco fix prepares chimeric alignment files produced by STAR for analysis with Dr. Disco (extract) and for visualization in genome browsers.
+
+    ]]></help>
      <expand macro="citations"/>
 </tool>
