@@ -113,7 +113,7 @@ def otutable_add_blast_links(otutable, otureps):
     otulines = [line for line in open(otutable[0], "r")]
 
     # Add RID link and rerun link to table
-    with open("otutable_with_blast.tsv", "w+") as outfile:
+    with open("otutable_with_blast.tsv", "w+") as outfile, open("filtered_otureps.fasta", "w+") as repsout:
         outfile.write(otulines[0].rstrip() + "\tBLAST\n")
 
         for otuline in otulines[1:]:
@@ -122,6 +122,11 @@ def otutable_add_blast_links(otutable, otureps):
                 if otu in seq:
                     outfile.write(otuline.rstrip() + "\t" +
                                   make_rerun_link(seqs[i], baseurl) + "\n")
+            # output otureps for these otus
+            for i, seq in enumerate(reps):
+                if otu in seq:
+                    repsout.write(reps[i])
+                    repsout.write(reps[i+1])
 
 
 def summarylog_total(infile):
@@ -283,6 +288,7 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
             print("negative control species not found in taxonomy, Exiting")
             return 1
 
+
         ''' Calculate Copies '''
         # per replicate of sample and NC, determine correction factor,
         # (number Oscillatoria seqs/known copies of it)
@@ -358,8 +364,8 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
                                               key=lambda a_entry: a_entry[0]
                                               if a_entry[0] != 'unique' else 0)
 
-        taxonomy_out = [['OTU', 'Size', 'Taxonomy']] + \
-                       [row for row in taxonomy_file if row and row[0] != otu]
+        f2.seek(0)
+        taxonomy_out = [row for row in taxonomy_file if row and row[0] != otu]
         write_output(outdir, 'taxonomy_corrected.tsv', taxonomy_out)
         write_output(outdir, 'shared_corrected.tsv', newshared3)
 
@@ -448,8 +454,7 @@ def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir,
     :return:
     """
 
-    os.link(taxonomy_file[0], 'all-samples.tsv')
-    taxonomies = ['all-samples.tsv']
+    taxonomies = []
 
     # create taxonomy file per sample
     with open(taxonomy_file[0], 'r') as tax, open(shared_file[0]) as sh:
