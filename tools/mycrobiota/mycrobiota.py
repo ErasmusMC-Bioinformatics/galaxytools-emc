@@ -437,8 +437,15 @@ def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
         writelines = [header] + [a + b for a, b in zip(transposed, taxonomies)
                                  if a[1:] != ['0'] * len(a[1:])]
 
+        # sort sample columns by name
+        l = map(list, zip(*[w[1:-6] for w in writelines]))
+        l.sort(key=lambda x: x[0])
+        l = map(list, zip(*l))
+        writelines2 = [[writelines[i][0]] + l[i] + writelines[i][-6:]
+                       for i in range(0, len(writelines))]
+
         # output corrected shared file
-        write_output(outdir, "multi_otutable.tsv", writelines)
+        write_output(outdir, "multi_otutable.tsv", writelines2)
 
 
 def split_multi_otutable(otutable, with_avg=True):
