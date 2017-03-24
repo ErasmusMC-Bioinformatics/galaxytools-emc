@@ -297,6 +297,7 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
         newshared = [myshared[0]]
         newshared2 = [myshared[0]]
         newshared3 = [myshared[0]]
+        newshared4 = [myshared[0]]
         oscil_column = myshared[0].index(otu)
 
         for row in myshared[1:]:
@@ -333,6 +334,25 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
 
                 newshared2.append(avg)
 
+        ''' Average *sequence* counts across replicates  '''
+        levels = set([row[0] for row in myshared[1:]])
+        samples = set([row[1].split(replicate_suffix)[0]
+                       for row in myshared[1:]])
+
+        for level in levels:
+            for sample in samples:
+                replicates = [row for row in myshared if row[0] == level
+                              and row[1].startswith(sample)]
+                num_otus = int(replicates[0][2]) + 3
+                total = replicates[0][2]
+                avg = [level, sample, total]
+
+                for i in range(3, num_otus):
+                    counts = map(int, column(replicates, i))
+                    avg.append(int(round(mean(counts))))
+
+                newshared4.append(avg)
+
         ''' Correct for background '''
         # for each otu, subtract 3 times the standard deviation of
         # the negative control sample
@@ -368,6 +388,7 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
         taxonomy_out = [row for row in taxonomy_file if row and row[0] != otu]
         write_output(outdir, 'taxonomy_corrected.tsv', taxonomy_out)
         write_output(outdir, 'shared_corrected.tsv', newshared3)
+        write_output(outdir, 'shared_averaged.tsv', newshared4)
 
 
 def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
@@ -477,10 +498,6 @@ def create_krona_plot_multisample(taxonomy_file, shared_file, level, outdir,
                             "OTU mismatch between taxonomy and shared file"
                         t[1] = row[j+3]
                         out_table.writerow(t + [shared_header[j+3]])
-
-    # if one one sample in the shared file, don't create "allsamples" plot
-    if len(taxonomies) == 2:
-        taxonomies = taxonomies[1:]
 
     # make krona plot
     create_krona_plot(taxonomies, outdir, with_otu)
