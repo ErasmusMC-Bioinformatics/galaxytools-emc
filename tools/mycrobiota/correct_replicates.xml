@@ -26,6 +26,7 @@
     <outputs>
         <data name="corrected_out" format="mothur.shared" from_work_dir="shared_corrected.tsv" label="${tool.name} on ${on_string}: corrected shared file"/>
         <data name="corrected_tax" format_source="taxonomy" from_work_dir="taxonomy_corrected.tsv" label="${tool.name} on ${on_string}: corrected taxonomy file"/>
+        <data name="corrected_out_avg" format="mothur.shared" from_work_dir="shared_averaged.tsv" label="${tool.name} on ${on_string}: averaged only shared file"/>
     </outputs>
     <tests>
         <test>
