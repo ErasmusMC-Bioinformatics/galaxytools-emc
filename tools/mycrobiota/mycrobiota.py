@@ -113,7 +113,8 @@ def otutable_add_blast_links(otutable, otureps):
     otulines = [line for line in open(otutable[0], "r")]
 
     # Add RID link and rerun link to table
-    with open("otutable_with_blast.tsv", "w+") as outfile, open("filtered_otureps.fasta", "w+") as repsout:
+    with open("otutable_with_blast.tsv", "w+") as outfile, \
+            open("filtered_otureps.fasta", "w+") as repsout:
         outfile.write(otulines[0].rstrip() + "\tBLAST\n")
 
         for otuline in otulines[1:]:
@@ -287,7 +288,6 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
         except StopIteration:
             print("negative control species not found in taxonomy, Exiting")
             return 1
-
 
         ''' Calculate Copies '''
         # per replicate of sample and NC, determine correction factor,
