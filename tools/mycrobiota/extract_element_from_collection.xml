@@ -3,20 +3,31 @@
     <command detect_errors="aggressive"><![CDATA[
         echo 'no element with name $elementname found in your collection' > '$output'
 
+        && mkdir elementoutputs
         #for $dataset in $input_collection:
             && echo $dataset.element_identifier
-            #if $dataset.element_identifier == $elementname:
+            #if $elementname == ''
+                && cp $dataset 'elementoutputs/$dataset.element_identifier'
+            #elif $dataset.element_identifier == $elementname:
                 && cp $dataset '$output'
             #end if
         #end for
+        && tree
+        && \$on_string = ''
     ]]></command>
     <inputs>
         <param name="input_collection" type="data_collection" collection_type="list" label="Input Collection"/>
         <!-- find a way to make a select from all elements? -->
-        <param name="elementname" type="text" value="" label="name of collection element to extract"/>
+        <param name="elementname" type="text" value="" label="name of collection element to extract" help="if left blank, all files will be extracted"/>
     </inputs>
     <outputs>
-        <data name="output" format="txt" label="${elementname}"/>
+        <data name="output" format="txt" label="${elementname}">
+            <filter>elementname != ''</filter>
+        </data>
+        <data format="auto" name="extracted">
+            <discover_datasets pattern="(?P&lt;designation&gt;.+)" directory="elementoutputs" visible="true" assign_primary_output="true"/>
+            <filter>elementname == ''</filter>
+        </data>
     </outputs>
     <tests>
         <test><!-- test with valid element -->
