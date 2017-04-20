@@ -12,7 +12,6 @@
                 && cp $dataset '$output'
             #end if
         #end for
-        && \$on_string = ''
     ]]></command>
     <inputs>
         <param name="input_collection" type="data_collection" collection_type="list" label="Input Collection"/>
