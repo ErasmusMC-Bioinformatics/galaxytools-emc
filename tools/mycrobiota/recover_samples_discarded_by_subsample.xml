@@ -14,8 +14,14 @@
         ## get group names with fewer than threshold reads and make a dash-separated list
         && samples=`python -c "print '-'.join([g[0] for g in [ l.strip().split('\t') for l in open('group.count.summary').readlines() ] if int(g[1]) < $threshold])"`
 
-        ## get.groups on in_fasta with this list of groups, output in out_fasta
-        && echo "get.groups(fasta=fasta.dat, group=$in_group, groups=\$samples)" | sed 's/ //g' | mothur
+        ## get.groups on in_fasta with this list of groups, if list not empty, otherwise create empty file
+        &&
+        if [ -z "\$samples"];
+            then
+                touch fasta.pick.dat;
+            else
+                echo "get.groups(fasta=fasta.dat, group=$in_group, groups=\$samples)" | sed 's/ //g' | mothur;
+        fi
 
         ## merge selected reads (fasta.pick.dat) with the fasta file from after sub.sample
         && echo "merge.files(input=fasta2.dat-fasta.pick.dat, output=final_fasta)" | sed 's/ //g' | mothur
@@ -28,7 +34,7 @@
         <param name="threshold" type="integer" value="" min="0" label="Subsample level - cutoff value used in the subsampling" help="any samples with fewer reads than this value would have been discarded by sub.sample, but we want to add them back in" />
     </inputs>
     <outputs>
-        <data name="out_fasta" format="fasta" from_work_dir="final_fasta" label="${tool.name} on ${on_string}: fasta of selected groups"/>
+        <data name="out_fasta" format="fasta" from_work_dir="final_fasta" label="${tool.name} on ${on_string}: fasta with recovered samples"/>
     </outputs>
     <tests>
     </tests>
