@@ -12,7 +12,6 @@
                 && cp $dataset '$output'
             #end if
         #end for
-        && tree
         && \$on_string = ''
     ]]></command>
     <inputs>
