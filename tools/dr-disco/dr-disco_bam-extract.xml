@@ -40,12 +40,15 @@
         </test>
     </tests>
     
-    <help>
-Extract reads from two chromosomal positions (and also takes mates with the same name)
+    <help><![CDATA[
+
+**What it does**
+
+Extract reads that have their mate within one of two chromosomal positions (and also takes mates that correspond to these reads)
 
 Regions are in the format:
    chr1:123-546
-    </help>
+    ]]></help>
     
      <expand macro="citations"/>
 </tool>
