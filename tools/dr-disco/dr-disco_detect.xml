@@ -34,7 +34,17 @@
     </tests>
     
     <help><![CDATA[
-        detects
+
+**What it does**
+
+Detects junctions in ('dr-disco fix' prepared) Chimeric alignments and tries to reconstruct fusion genes and genomic breakpoints using a Graph data structure.
+
+This software is in particular designed for RNA-Seq data prepared with random hexamer priming because of the presence of intronic reads.
+
+**Attributions**
+
+This work is part of Youri Hoogstrate's PhD thesis.
+
     ]]></help>
     
      <expand macro="citations"/>

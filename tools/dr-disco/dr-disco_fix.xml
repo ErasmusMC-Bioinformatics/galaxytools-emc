@@ -29,7 +29,7 @@
 
 **What it does**
 
-Dr. Disco fix prepares chimeric alignment files produced by STAR for analysis with Dr. Disco (extract) and for visualization in genome browsers.
+Dr. Disco fix prepares chimeric alignment files produced by STAR for analysis with Dr. Disco (detect) and for visualization in genome browsers.
 
     ]]></help>
      <expand macro="citations"/>
