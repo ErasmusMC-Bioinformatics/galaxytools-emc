@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="ncurses" version="6.0">
+        <repository name="package_ncurses_6_0" owner="iuc" prior_installation_required="True" />
+    </package>
+    
+    <package name="samtools_parallel_mpileup" version="0.1.19-a">
+        <install version="1.0">
+            <actions>
+                <action type="set_environment_for_install">
+                    <repository name="package_ncurses_6_0" owner="iuc">
+                        <package name="ncurses" version="6.0" />
+                    </repository>
+                </action>
+                
+                <action type="shell_command">
+                    svn checkout https://github.com/yhoogstrate/parallel-mpileup/trunk samtools-parallel-mpileup ;
+                    
+                    cd samtools-parallel-mpileup ;
+                    cd $(ls |grep samtools-) ;
+                    
+                    sed -i 's/-lcurses/-lncurses/' Makefile ;
+                    sed -i -e "s|CFLAGS=\s*-g\s*-Wall\s*-O2\s*|CFLAGS= -g -Wall -O2 -I$NCURSES_INCLUDE_PATH/ncurses/ -I$NCURSES_INCLUDE_PATH -L$NCURSES_LIB_PATH|g" Makefile ;
+                    
+                    make ;
+                    cp samtools ../samtools-parallel-mpileup
+                </action>
+                <action type="move_file">
+                    <source>samtools-parallel-mpileup/samtools-parallel-mpileup</source>
+                    <destination>$INSTALL_DIR/bin</destination>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+                    <environment_variable name="PATH" action="prepend_to">$REPOSITORY_INSTALL_DIR</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+            Downloads and installs a modified version of samtools, able to paralellize the mpileup function.
+            
+            *Because of the parallelization, the output is not sorted on genomic location!!*
+            
+            If this is required for the tool that uses the mpileup as input, sort the mpileup file with:
+            
+            sort -k1,1V -k2,2g
+        </readme>
+    </package>
+</tool_dependency>

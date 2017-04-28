@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="samtools" version="0.1.19">
+        <repository name="package_samtools_0_1_19" owner="iuc" />
+    </package>
+    
+    <package name="samtools_parallel_mpileup" version="0.1.19-a">
+        <repository name="package_samtools_parallel_mpileup_0_1_19_a" owner="yhoogstrate" />
+    </package>
+</tool_dependency>

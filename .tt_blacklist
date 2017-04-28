@@ -1,1 +1,4 @@
 tools/ega_download_streamer
+tools/samtools_parallel_mpileup
+
+tools/samtools_parallel_mpileup

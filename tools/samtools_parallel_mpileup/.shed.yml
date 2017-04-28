@@ -1,0 +1,10 @@
+categories:
+- SAM
+- Variant Analysis
+description: samtools - optimized for parallel mpileup generation
+long_description: |
+  samtools - optimized for parallel mpileup generation
+name: samtools_parallel_mpileup
+owner: yhoogstrate
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/samtools_parallel_mpileup_galaxy_wrapper
+type: unrestricted
