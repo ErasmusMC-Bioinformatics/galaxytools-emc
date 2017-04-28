@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<data_managers>
+    
+    <data_manager tool_file="data_manager/data_manager_fetch_liftover_chain.xml" id="fetch_liftover_chain">
+        <data_table name="liftOver">
+            <output>
+                <column name="dbkey" /><!-- dbkey 'from' -->
+                <column name="value" /><!-- dbkey 'to' -->
+                <column name="path" output_ref="out_file" >
+                    <move type="file">
+                        <source>${path}</source>
+                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">${dbkey}/liftOver/${value}/${path}</target>
+                    </move>
+                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/${dbkey}/liftOver/${value}/${path}</value_translation>
+                    <value_translation type="function">abspath</value_translation>
+                </column>
+            </output>
+        </data_table>
+    </data_manager>
+</data_managers>

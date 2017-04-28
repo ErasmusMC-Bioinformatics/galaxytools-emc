@@ -1,0 +1,7 @@
+<tables>
+    <!-- Locations of liftOver chain files -->
+    <table name="liftOver" comment_char="#">
+        <columns>dbkey, value, path</columns>
+        <file path="tool-data/liftOver.loc" />
+    </table>
+</tables>

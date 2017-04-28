@@ -1,0 +1,14 @@
+categories:
+- Tool Dependency Packages
+description: |
+  Nose: extends test loading and running in python
+long_description: |
+  nose extends the test loading and running features of unittest, making
+  it easier to write, find and run tests.
+  
+  http://readthedocs.org/docs/nose/
+name: package_nose_1_3_7
+owner: yhoogstrate
+homepage_url: http://pythonhosted.org/nose/
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/crossmap
+type: tool_dependency_definition

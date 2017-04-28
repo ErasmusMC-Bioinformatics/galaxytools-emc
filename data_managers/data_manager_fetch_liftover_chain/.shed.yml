@@ -1,0 +1,7 @@
+categories:
+- Data Managers
+description: Downloads LiftOver chain files
+name: data_manager_fetch_liftover_chain
+owner: yhoogstrate
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/crossmap_galaxy_wrapper
+type: unrestricted
