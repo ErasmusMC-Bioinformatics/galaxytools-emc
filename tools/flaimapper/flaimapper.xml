@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="flaimapper" name="FlaiMapper" version="2.3.4-0">
+<tool id="flaimapper" name="FlaiMapper" version="2.4.0-0">
     <description>detects small ncRNA derived fragments in small RNA-Seq data</description>
     <requirements>
-        <requirement type="package" version="2.3.4">flaimapper</requirement>
+        <requirement type="package" version="2.4.0">flaimapper</requirement>
     </requirements>
     
     <version_command>flaimapper --version 2&gt;&amp;1 | head -n 1</version_command>
@@ -42,16 +42,17 @@
             
             <when value="1">
                 <param name="fasta" type="data" format="fasta" optional="true"
-                       label="(Optional) Genome reference in FASTA format that corresponds to the reference genome or RNA database" help="By selecting this file, sequences will be provided in the corresponding column in the output file" argument="-r" />
+                       label="(Optional) Genome reference in FASTA format that corresponds to the reference genome or RNA database"
+                       help="By selecting this file, sequences will be provided in the corresponding column in the output file" argument="-r" />
             </when>
             
             <when value="2">
                 <param name="offset5p" type="integer" value="4"
-                       label="5' offset added to the exon-type GTF entry"
-                       help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to use an offset." argument="--offset5p" />
+                       label="Add 5'-offset to exon-type entry in GTF output file"
+                       help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to add an offset to allow less stringent read counting." argument="--offset5p" />
                 <param name="offset3p" type="integer" value="4"
-                       label="3' offset added to the exon-type GTF entry"
-                       help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to use an offset." argument="--offset3p" />
+                       label="Add 3'-offset to exon-type entry in GTF output file"
+                       help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to add an offset to allow less stringent read counting." argument="--offset3p" />
             </when>
         </conditional>
         
