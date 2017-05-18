@@ -310,7 +310,11 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
 
             new_row = row[0:3]
             for count in row[3:]:
-                new_row.append(float(count) / correction_factor)
+                try:
+                    newval = float(count) / correction_factor
+                except:
+                    newval = float(count)
+                new_row.append(newval)
             newshared.append(new_row)
 
         ''' Average copy counts across replicates  '''
