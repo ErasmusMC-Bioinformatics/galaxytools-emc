@@ -13,7 +13,7 @@
         && echo 'count.groups(group=group.dat)' | sed 's/ //g' | mothur
 
         ## get group names with fewer than threshold reads and make a dash-separated list
-        && samples=`python -c "print '-'.join([g[0] for g in [ l.strip().split('\t') for l in open('group.count.summary').readlines() ] if int(g[1]) < $threshold])"`
+        && samples=`python -c "print('-'.join([g[0] for g in [ l.strip().split('\t') for l in open('group.count.summary').readlines() ] if int(g[1]) < $threshold]))"`
 
         ## get.groups on in_fasta with this list of groups, if list not empty, otherwise create empty file
         &&
@@ -44,6 +44,15 @@
         <data name="out_group" format="mothur.groups" from_work_dir="final_group" label="${tool.name} on ${on_string}: group"/>
     </outputs>
     <tests>
+        <test>
+            <param name="in_fasta" value="fasta_before_subsample_small.fasta" ftype="fasta"/>
+            <param name="in_fasta_subsampled" value="fasta_after_subsample_small.fasta" ftype="fasta"/>
+            <param name="in_group" value="groups_before_subsample_small.groups" ftype="mothur.groups"/>
+            <param name="in_group_subsampled" value="groups_after_subsample_small.groups" ftype="mothur.groups"/>
+            <param name="threshold" value="3"/>
+            <output name="out_fasta" file="recovered.fasta"/>
+            <output name="out_group" file="recovered.groups"/>
+        </test>
     </tests>
     <help><![CDATA[
 **What it does**
