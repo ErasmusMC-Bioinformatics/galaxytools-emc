@@ -19,7 +19,7 @@
         <param name="elementname" type="text" value="" label="name of collection element to extract" help="if left blank, all files will be extracted"/>
     </inputs>
     <outputs>
-        <data name="output" format="txt" label="${elementname}">
+        <data name="output" format="auto" label="${elementname}">
             <filter>elementname != ''</filter>
         </data>
         <data format="auto" name="extracted">
