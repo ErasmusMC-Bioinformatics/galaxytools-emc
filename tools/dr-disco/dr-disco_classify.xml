@@ -1,0 +1,115 @@
+<tool id="dr_disco_classify" name="Dr. Disco (classify)" version="@TOOL_VERSION@-g0">
+    <description>Classifies detected break-points in RNA-seq based on corresponding statistics and blacklists</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements"/>
+    <expand macro="version_command"/>
+    
+    <command detect_errors="exit_code"><![CDATA[
+        dr-disco
+            classify
+            
+                ${only_valid}
+                
+                #if $blacklist_regions:
+                    --blacklist-regions '${blacklist_regions}'
+                #end if
+
+                #if $blacklist_junctions:
+                    --blacklist-junctions '${blacklist_junctions}'
+                #end if
+                
+                '${dr_disco_detect_output}'
+                '${dr_disco_classify_output}'
+    ]]></command>
+
+    <inputs>
+        <param name="dr_disco_detect_output" type="data" format="tabular" label="Output of Dr. Disco Detect" />
+        <param name="only_valid" argument="--only-valid" truevalue="--only-valid" falsevalue="" type="boolean" />
+        
+        <param name="blacklist_regions"   argument="--blacklist-regions"   type="data" format="bed"     optional="True" label="Blacklist Regions"   help="List of regions known to be false positives (https://github.com/yhoogstrate/dr-disco/tree/master/share/)" />
+        <param name="blacklist_junctions" argument="--blacklist-junctions" type="data" format="tabular" optional="True" label="Blacklist Junctions" help="List of junctions know to be false positives (https://github.com/yhoogstrate/dr-disco/tree/master/share/)" />
+    </inputs>
+    
+    <outputs>
+        <data name="dr_disco_classify_output" format="tabular" label="${tool.name} on ${$dr_disco_detect_output.name}" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" value="" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-01.out.dbed" ftype="tabular" />
+        </test>
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" value="--only-valid" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-02.out.dbed" />
+        </test>
+
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" />
+            <param name="blacklist_regions" value="blacklist-regions.hg38.bed" ftype="bed" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-03.out.dbed" ftype="tabular" />
+        </test>
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" />
+            <param name="blacklist_regions" value="blacklist-regions.hg38.bed" ftype="bed" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-04.out.dbed" />
+        </test>
+
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" />
+            <param name="blacklist_junctions" value="blacklist-junctions.hg38.txt" ftype="tabular" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-05.out.dbed" ftype="tabular" />
+        </test>
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" />
+            <param name="blacklist_junctions" value="blacklist-junctions.hg38.txt" ftype="tabular" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-06.out.dbed" />
+        </test>
+
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" />
+            <param name="blacklist_regions" value="blacklist-regions.hg38.bed" ftype="bed" />
+            <param name="blacklist_junctions" value="blacklist-junctions.hg38.txt" ftype="tabular" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-07.out.dbed" ftype="tabular" />
+        </test>
+        <test>
+            <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
+            <param name="only_valid" />
+            <param name="blacklist_regions" value="blacklist-regions.hg38.bed" ftype="bed" />
+            <param name="blacklist_junctions" value="blacklist-junctions.hg38.txt" ftype="tabular" />
+
+            <output name="dr_disco_classify_output" file="classify_test_16.test-08.out.dbed" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+
+**What it does**
+
+
+
+**Attributions**
+
+This work is part of Youri Hoogstrate's PhD thesis.
+
+    ]]></help>
+    
+     <expand macro="citations"/>
+</tool>

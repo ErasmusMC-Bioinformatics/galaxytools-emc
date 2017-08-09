@@ -11,8 +11,8 @@
         dr-disco bam-extract
             '$region1'
             '$region2'
-            '$output'
             '$input_alignment'
+            '$output'
     ]]></command>
     <inputs>
         <param name="input_alignment" type="data" format="bam" label="Discordant alignment file of STAR)" />

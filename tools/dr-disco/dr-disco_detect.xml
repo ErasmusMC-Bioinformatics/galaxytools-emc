@@ -1,4 +1,4 @@
-<tool id="dr_disco_intronic" name="Dr. Disco (intronic)" version="@TOOL_VERSION@-g0">
+<tool id="dr_disco_detect" name="Dr. Disco (detect)" version="@TOOL_VERSION@-g0">
     <description>Detects break-points in RNA-seq</description>
     <macros>
         <import>macros.xml</import>
@@ -11,8 +11,8 @@
         dr-disco
             detect
                 --min-e-score '${min_e_score}'
-                '${table_fusion_events}'
                 '${star_discordant_alignment_fixed}'
+                '${output_fusion_events}'
     ]]></command>
     <inputs>
         <param name="star_discordant_alignment_fixed" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
@@ -21,7 +21,7 @@
     </inputs>
     
     <outputs>
-        <data name="table_fusion_events" format="tabular" label="${tool.name} on ${$star_discordant_alignment_fixed.name}" />
+        <data name="output_fusion_events" format="tabular" label="${tool.name} on ${$star_discordant_alignment_fixed.name}" />
     </outputs>
     
     <tests>
@@ -29,7 +29,7 @@
             <param name="star_discordant_alignment_fixed" value="detect.bam" />
             <param name="min_e_score" value="8" />
 
-            <output name="table_fusion_events" file="detect.txt" />
+            <output name="output_fusion_events" file="detect.txt" />
         </test>
     </tests>
     
