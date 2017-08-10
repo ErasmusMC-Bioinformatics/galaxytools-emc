@@ -10,33 +10,33 @@
 
     <command><![CDATA[
         #import pipes
-        
+
         #set $gene_annotations = []
         #set $samples = []
         #set $links = []
-        
+
         #for $i, $d in enumerate( $datasets )
             #set $sample_name = pipes.quote(str($d['sample'].name))
-            
+
             #set $gene_annotations = $gene_annotations + [ "ga_" + str($i) + ":" + str($d['gene_annotation'].file_name) ]
-            
+
             #set $samples = $samples + [ $sample_name + ":" + str($d['format']) + ":" + str($d['sample'].file_name) ]
             #set $links = $links + [ $sample_name + ":" + str("ga_") + str($i) ]
         #end for
-        
+
         #set $gene_annotations_str = "'"+"' '".join(gene_annotations)+"'"
         #set $samples_str = "'"+"' '".join(samples)+"'"
         #set $links_str = "'"+"' '".join(links)+"'"
-        
-        fuma 
+
+        fuma
           -m
             $params.matching_method
-          
+
           $params.strand_specific_matching
           $params.acceptor_donor_order_specific_matchig
-          
+
           --long-gene-size $params.long_gene_size
-          
+
           -a
             $gene_annotations_str
           -s
@@ -49,14 +49,14 @@
           -f $params.output_format.value
         #end if
           -o '${fuma_overview}'
-        
-        
+
+
         #if $params.output_format.value == "list_boolean"
             && fuma-list-to-boolean-list -o tmp.txt '${fuma_overview}'
             && mv tmp.txt '${fuma_overview}'
         #end if
     ]]></command>
-    
+
     <inputs>
         <repeat name="datasets" title="FusionGene Datasets" min="2">
             <param name="sample" type="data" format="txt,tabular" label="Dataset (RNA-Seq fusion gene detection experiment)" />
@@ -81,7 +81,7 @@
             </param>
             <param name="gene_annotation" type="data" format="bed" label="Corresponding gene-name annotation file (BED format)" help="Make use of persistent gene annotations! Gene annotations should only be different if different reference genome builds were used" />
         </repeat>
-        
+
         <conditional name="params">
             <param name="settingsType" type="select" label="Settings to use" help="You can use the default settings or set custom values for any FuMa parameter">
                 <option value="preSet" selected="true">Use Defaults</option>
@@ -100,7 +100,7 @@
                     <option value="subset" selected="True">Subset</option>
                     <option value="egm">Exact Geneset Matching (EGM)</option>
                 </param>
-                
+
                 <param name="strand_specific_matching" type="boolean" checked="True"
                         truevalue="--strand-specific-matching"
                     falsevalue="--no-strand-specific-matching"
@@ -111,11 +111,11 @@
                     falsevalue="--no-acceptor-donor-order-specific-matching"
                     label="Consider fusion genes distinct when the donor and acceptor sites are swapped (A,B) != (B,A)"
                     help="This settings is not recommended when fusion genes detected in DNA-Seq are used" />
-                
+
                 <param name="long_gene_size" type="integer" min="0" value="200000" label="Long gene size"
                        help="Gene-name based matching is more sensitive to long genes. This is the gene size used to mark fusion genes spanning a 'long gene' as reported the output. Use 0 to disable this feature"
                        argument="--long-gene-size" />
-                
+
                 <param name="output_format" type="select" label="Output format">
                     <option value="list_boolean" selected="true">List (Boolean)</option>
                     <option value="list">List</option>
@@ -124,11 +124,11 @@
             </when>
         </conditional>
     </inputs>
-    
+
     <outputs>
         <data format="tabular" name="fuma_overview" label="${tool.name} on ${', '.join([ str(d['sample'].hid)+': '+d['sample'].name for d in $datasets ])}" />
     </outputs>
-    
+
     <tests>
         <!-- Large tests, take long
         <test>
@@ -147,15 +147,15 @@
             <param name="datasets_3|sample" value="edgren_true_positives.txt" ftype="tabular" />
             <param name="datasets_3|format" value="fusionmap" />
             <param name="datasets_3|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            
+
             <param name="settingsType" value="full" />
-            
+
             <param name="matching_method" value="subset" />
             <param name="strand_specific_matching" value=" - - strand-specific-matching" />
             <param name="acceptor_donor_order_specific_matchig" value=" - -acceptor-donor-order-specific-matching" />
             <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
-            
+
             <output name="fuma_overview" file="edgren_test_01_specifc_matching_output.txt" />
         </test>
         <test>
@@ -170,19 +170,19 @@
             <param name="datasets_0|sample" value="edgren_chimerascan.txt" ftype="tabular" />
             <param name="datasets_0|format" value="chimerascan" />
             <param name="datasets_0|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            
+
             <param name="datasets_1|sample" value="edgren_defuse.txt" ftype="tabular" />
             <param name="datasets_1|format" value="defuse" />
             <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            
+
             <param name="settingsType" value="full" />
-            
+
             <param name="matching_method" value="subset" />
             <param name="strand_specific_matching" value="False" />
             <param name="acceptor_donor_order_specific_matchig" value="False" />
             <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
-            
+
             <output name="fuma_overview" file="edgren_test_02_unspecifc_matching_output.txt" />
         </test>
         -->
@@ -194,15 +194,15 @@
             <param name="datasets_1|sample" value="edgren_true_positives.txt" ftype="tabular" />
             <param name="datasets_1|format" value="fusionmap" />
             <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            
+
             <param name="settingsType" value="full" />
-            
+
             <param name="matching_method" value="subset" />
             <param name="strand_specific_matching" value="--strand-specific-matching" />
             <param name="acceptor_donor_order_specific_matchig" value="--acceptor-donor-order-specific-matching" />
             <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
-            
+
             <output name="fuma_overview" file="edgren_test_03_specific_matching_output.txt" />
         </test>
         <test>
@@ -213,19 +213,19 @@
             <param name="datasets_1|sample" value="edgren_true_positives.txt" ftype="tabular" />
             <param name="datasets_1|format" value="fusionmap" />
             <param name="datasets_1|gene_annotation" value="refseq_genes_hg19.bed" ftype="bed" />
-            
+
             <param name="settingsType" value="full" />
-            
+
             <param name="matching_method" value="subset" />
             <param name="strand_specific_matching" value="False" /><!-- Set to false, automatically sets the false value -->
             <param name="acceptor_donor_order_specific_matchig" value="False" /><!-- Set to false, automatically sets the false value -->
             <param name="long_gene_size" value="200000" />
             <param name="output_format" value="list_boolean" />
-            
+
             <output name="fuma_overview" file="edgren_test_04_unspecific_matching_output.txt" />
         </test>
     </tests>
-    
+
     <help><![CDATA[
 ============
 Introduction
@@ -298,7 +298,7 @@ To annotate genes upon the breakpoints you must provide a BED file that contains
 UCSC genome browser provides a very simple way of obtaining BED files with one gene per line by selecting their *RefSeq Genes*-track and *knownGene*-table and putting the export format to BED. Galaxy should have a built-in UCSC table browser.
 
     ]]></help>
-    
+
     <citations>
         <citation type="doi">10.1093/bioinformatics/btv721</citation>
     </citations>
