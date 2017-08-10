@@ -1,0 +1,56 @@
+<tool id="dr_disco_integrate" name="Dr. Disco (intronic)" version="@TOOL_VERSION@-g0">
+    <description>Merges corresponding genomic breaks and exon-to-exon junctions</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    
+    <expand macro="requirements"/>
+    <expand macro="version_command"/>
+    
+    <command detect_errors="exit_code"><![CDATA[
+        dr-disco
+            integrate
+                #if $gtf:
+                    --gtf ${gtf}
+                #end if
+
+                '${dr_disco_classify_output}'
+                '${dr_disco_integrate_output}'
+    ]]></command>
+    <inputs>
+        <param name="dr_disco_classify_output" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
+        <param argument="--gtf" type="data" format="gtf" optional="True" label="GTF file (Optional: for predicting frame shifts)" help="This GTF file requires the following attributes annotated: gene_name, transcript_id and transcript_version"/>
+    </inputs>
+    
+    <outputs>
+        <data name="dr_disco_integrate_output" format="tabular" label="${tool.name} on ${dr_disco_classify_output.name}" />
+    </outputs>
+    
+    <tests>
+        <test>
+            <param name="dr_disco_classify_output" value="integrate_test_terg_s041.in.dbed" />
+            <param name="gtf" value="integrate_tmprss-erg.hg38.gtf" />
+
+            <output name="dr_disco_integrate_output" file="integrate_test_terg_s041.out.txt" />
+        </test>
+        <test>
+            <param name="dr_disco_classify_output" value="integrate_test_terg_s041.in.dbed" />
+            <param name="gtf" value="integrate_tmprss-erg.hg38.gtf" />
+
+            <output name="dr_disco_integrate_output" file="integrate_test_terg_s041.out.no-gtf.txt" />
+        </test>
+    </tests>
+    
+    <help><![CDATA[
+
+**What it does**
+
+
+**Attributions**
+
+This work is part of Youri Hoogstrate's PhD thesis.
+
+    ]]></help>
+    
+     <expand macro="citations"/>
+</tool>

@@ -34,7 +34,7 @@
     </inputs>
     
     <outputs>
-        <data name="dr_disco_classify_output" format="tabular" label="${tool.name} on ${$dr_disco_detect_output.name}" />
+        <data name="dr_disco_classify_output" format="tabular" label="${tool.name} on ${dr_disco_detect_output.name}" />
     </outputs>
     
     <tests>
