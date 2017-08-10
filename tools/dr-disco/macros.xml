@@ -1,12 +1,12 @@
 <macros>
     <xml name="requirements">
         <requirements>
-            <requirement type="package" version="0.6.0">dr-disco</requirement>
+            <requirement type="package" version="0.9.0">dr-disco</requirement>
             <yield/>
         </requirements>
     </xml>
     
-    <token name="@TOOL_VERSION@">0.6.0</token>
+    <token name="@TOOL_VERSION@">0.9.0</token>
 
     <xml name="version_command">
         <version_command>dr-disco --version | head -n 1</version_command>

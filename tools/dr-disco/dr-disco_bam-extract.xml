@@ -1,5 +1,6 @@
 <tool id="dr_disco_bam_extract" name="Dr. Disco (bam-extract)" version="@TOOL_VERSION@-g0">
     <description>Extracts reads from two targeted regions</description>
+
     <macros>
         <import>macros.xml</import>
     </macros>
@@ -11,14 +12,16 @@
         dr-disco bam-extract
             '$region1'
             '$region2'
-            '$output'
             '$input_alignment'
+            '$output'
     ]]></command>
+
     <inputs>
         <param name="input_alignment" type="data" format="bam" label="Discordant alignment file of STAR)" />
         <param name="region1" type="text" value="chr21:39737183-40035618" label="Genomic region 1" />
         <param name="region2" type="text" value="chr21:42834478-42882085" label="Genomic region 2" />
     </inputs>
+
     <outputs>
         <data name="output" format="bam" label="${tool.name} on ${input_alignment.name}" />
     </outputs>

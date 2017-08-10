@@ -8,11 +8,15 @@
     <expand macro="version_command" />
 
     <command detect_errors="exit_code"><![CDATA[
-        dr-disco fix '${alignment_fixed}' '${star_discordant_alignment}'
+        dr-disco fix
+            '${star_discordant_alignment}'
+            '${alignment_fixed}'
     ]]></command>
+
     <inputs>
         <param name="star_discordant_alignment" type="data" format="bam" label="Discordant alignment file of STAR" />
     </inputs>
+
     <outputs>
         <data name="alignment_fixed" format="bam" label="${tool.name} on ${star_discordant_alignment}" />
     </outputs>
