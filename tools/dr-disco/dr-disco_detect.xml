@@ -21,7 +21,7 @@
     </inputs>
     
     <outputs>
-        <data name="output_fusion_events" format="tabular" label="${tool.name} on ${$star_discordant_alignment_fixed.name}" />
+        <data name="output_fusion_events" format="tabular" label="${tool.name} on ${star_discordant_alignment_fixed.name}" />
     </outputs>
     
     <tests>
