@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="flaimapper" name="FlaiMapper" version="2.4.0-0">
+<tool id="flaimapper" name="FlaiMapper" version="2.5.0-0">
     <description>detects small ncRNA derived fragments in small RNA-Seq data</description>
     <requirements>
-        <requirement type="package" version="2.4.0">flaimapper</requirement>
+        <requirement type="package" version="2.5.0">flaimapper</requirement>
     </requirements>
     
     <version_command>flaimapper --version 2&gt;&amp;1 | head -n 1</version_command>
@@ -73,7 +73,8 @@
     
     <tests>
         <!-- tabular -->
-        <test><!-- Testing "ncRNAdb09 alignment"-type analysis -->
+        <!-- Testing "ncRNAdb09 alignment"-type analysis -->
+        <test>
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="fasta" value="snord81.fa" ftype="fasta" />
             <param name="output_format" value="1" />
@@ -86,7 +87,8 @@
             
             <output name="output" file="snord81.flaimapper.no-seq.txt" />
         </test>
-        <test><!-- Testing "Full genome alignment"-type analysis -->
+        <!-- Testing "Full genome alignment"-type analysis -->
+        <test>
             <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
             <param name="fasta" value="test_genomic_all_chromosomes.fa" ftype="fasta" />
             <param name="output_format" value="1" />
@@ -101,13 +103,15 @@
         </test>
         
         <!-- GTF -->
-        <test><!-- Testing "ncRNAdb09 alignment"-type analysis -->
+        <!-- Testing "ncRNAdb09 alignment"-type analysis -->
+        <test>
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="output_format" value="2" />
             
             <output name="output" file="snord81.flaimapper.gtf" />
         </test>
-        <test><!-- Testing "Full genome alignment"-type analysis -->
+        <!-- Testing "Full genome alignment"-type analysis -->
+        <test>
             <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
             <param name="output_format" value="2" />
             
