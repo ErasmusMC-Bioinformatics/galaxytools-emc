@@ -4,9 +4,9 @@
     <requirements>
         <requirement type="package" version="2.5.0">flaimapper</requirement>
     </requirements>
-    
-    <version_command>flaimapper --version 2&gt;&amp;1 | head -n 1</version_command>
-    
+
+    <version_command><![CDATA[ flaimapper --version 2>&1 | head -n 1 ]]></version_command>
+
     <command detect_errors="exit_code"><![CDATA[
         flaimapper
             -v
@@ -28,24 +28,24 @@
 
             '${alignment}'
     ]]></command>
-    
+
     <inputs>
         <param name="alignment" type="data" format="bam" multiple="false"
                label="Alignment file"
                help="Aligned small RNA-Seq reads must be single end and should not be fragmented in the library preparation" />
-        
+
         <conditional name="output_select">
             <param name="output_format" type="select" label="Output format" argument="-f">
                 <option value="1">Tabular</option>
                 <option value="2">GTF</option>
             </param>
-            
+
             <when value="1">
                 <param name="fasta" type="data" format="fasta" optional="true"
                        label="(Optional) Genome reference in FASTA format that corresponds to the reference genome or RNA database"
                        help="By selecting this file, sequences will be provided in the corresponding column in the output file" argument="-r" />
             </when>
-            
+
             <when value="2">
                 <param name="offset5p" type="integer" value="4"
                        label="Add 5'-offset to exon-type entry in GTF output file"
@@ -55,12 +55,12 @@
                        help="Exon-type entries are often used to measure expression. Because of the small size of the fragments it may be desired to add an offset to allow less stringent read counting." argument="--offset3p" />
             </when>
         </conditional>
-        
+
         <param name="parameters" type="data" format="txt,tabular" optional="true"
                label="(Optional) Custom parameters file" help="" argument="-p" />
-        
+
     </inputs>
-    
+
     <outputs>
         <data format="tabular" name="output"
               label="${tool.name} on $on_string">
@@ -70,7 +70,7 @@
             </change_format>
         </data>
     </outputs>
-    
+
     <tests>
         <!-- tabular -->
         <!-- Testing "ncRNAdb09 alignment"-type analysis -->
@@ -78,13 +78,13 @@
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="fasta" value="snord81.fa" ftype="fasta" />
             <param name="output_format" value="1" />
-            
+
             <output name="output" file="snord81.flaimapper.txt" />
         </test>
         <test>
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="output_format" value="1" />
-            
+
             <output name="output" file="snord81.flaimapper.no-seq.txt" />
         </test>
         <!-- Testing "Full genome alignment"-type analysis -->
@@ -92,50 +92,50 @@
             <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
             <param name="fasta" value="test_genomic_all_chromosomes.fa" ftype="fasta" />
             <param name="output_format" value="1" />
-            
+
             <output name="output" file="test_genomic_flaimapper_output.txt" />
         </test>
         <test>
             <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
             <param name="output_format" value="1" />
-            
+
             <output name="output" file="test_genomic_flaimapper_output.no-seq.txt" />
         </test>
-        
+
         <!-- GTF -->
         <!-- Testing "ncRNAdb09 alignment"-type analysis -->
         <test>
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="output_format" value="2" />
-            
+
             <output name="output" file="snord81.flaimapper.gtf" />
         </test>
         <!-- Testing "Full genome alignment"-type analysis -->
         <test>
             <param name="alignment" value="test_genomic_alignment.bam" ftype="bam" />
             <param name="output_format" value="2" />
-            
+
             <output name="output" file="test_genomic_flaimapper_output.gtf" />
         </test>
-        
+
         <!-- test custom parameters -->
         <test>
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="output_format" value="2" />
             <param name="offset5p" value="5" />
             <param name="offset3p" value="5" />
-            
+
             <output name="output" file="snord81.flaimapper.offsets_5_5.gtf" />
         </test>
         <test>
             <param name="alignment" value="snord81.bam" ftype="bam" />
             <param name="output_format" value="2" />
             <param name="parameters" value="filter-parameters.duck.15.txt"/>
-            
+
             <output name="output" file="snord81.flaimapper.duck-15.gtf" />
         </test>
     </tests>
-    
+
     <help><![CDATA[
 FlaiMapper wrapper for Galaxy
 =============================
@@ -175,7 +175,7 @@ More details are given in the manual at the following website:
 
 https://github.com/yhoogstrate/flaimapper
     ]]></help>
-    
+
     <citations>
         <citation type="doi">10.1093/bioinformatics/btu696</citation>
     </citations>
