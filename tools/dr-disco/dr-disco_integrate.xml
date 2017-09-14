@@ -19,7 +19,7 @@
     ]]></command>
 
     <inputs>
-        <param name="dr_disco_classify_output" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
+        <param name="dr_disco_classify_output" type="data" format="tabular" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
         <param argument="--gtf" type="data" format="gtf" optional="True" label="GTF file (Optional: for predicting frame shifts)" help="This GTF file requires the following attributes annotated: gene_name, transcript_id and transcript_version"/>
     </inputs>
     
