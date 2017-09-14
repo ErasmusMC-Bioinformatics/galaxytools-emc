@@ -5,7 +5,7 @@
             <yield/>
         </requirements>
     </xml>
-    
+
     <token name="@TOOL_VERSION@">0.10.0-g3</token>
 
     <xml name="version_command">
