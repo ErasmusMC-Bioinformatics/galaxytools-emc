@@ -1,4 +1,4 @@
-<tool id="dr_disco_fix" name="Dr. Disco (fix)" version="@TOOL_VERSION@-g0">
+<tool id="dr_disco_fix" name="Dr. Disco (fix)" version="@TOOL_VERSION@">
     <description>Fixes chimeric alignments from STAR</description>
     <macros>
         <import>macros.xml</import>
