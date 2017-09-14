@@ -11,7 +11,7 @@
         dr-disco
             integrate
                 #if $gtf:
-                    --gtf ${gtf}
+                    --gtf '${gtf}'
                 #end if
 
                 '${dr_disco_classify_output}'
