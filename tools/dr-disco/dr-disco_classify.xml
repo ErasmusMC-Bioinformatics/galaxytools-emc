@@ -1,4 +1,4 @@
-<tool id="dr_disco_classify" name="Dr. Disco (classify)" version="@TOOL_VERSION@-g0">
+<tool id="dr_disco_classify" name="Dr. Disco (classify)" version="@TOOL_VERSION@">
     <description>Classifies detected break-points in RNA-seq based on corresponding statistics and blacklists</description>
 
     <macros>

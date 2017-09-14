@@ -1,4 +1,4 @@
-<tool id="dr_disco_detect" name="Dr. Disco (detect)" version="@TOOL_VERSION@-g0">
+<tool id="dr_disco_detect" name="Dr. Disco (detect)" version="@TOOL_VERSION@">
     <description>Detects break-points in RNA-seq</description>
     <macros>
         <import>macros.xml</import>
@@ -15,7 +15,7 @@
                 '${output_fusion_events}'
     ]]></command>
     <inputs>
-        <param name="star_discordant_alignment_fixed" type="data" format="tabular" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
+        <param name="star_discordant_alignment_fixed" type="data" format="bam" label="Discordant alignment file of STAR (processed with dr-disco fix)" />
         <param name="min_e_score" argument="--min-e-score" type="integer" value="8" min="0"
                label="Minimal score to initiate pulling sub-graphs" help="Larger numbers boost performance but result in suboptimal results. Values of 8 and below are considered to be very safe (this corresponds to initiate merging already from clusters that consist of 2 or 3 reads)." />
     </inputs>

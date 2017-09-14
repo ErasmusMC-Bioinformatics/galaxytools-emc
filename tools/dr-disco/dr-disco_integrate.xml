@@ -1,9 +1,9 @@
-<tool id="dr_disco_integrate" name="Dr. Disco (integrate)" version="@TOOL_VERSION@-g0">
+<tool id="dr_disco_integrate" name="Dr. Disco (integrate)" version="@TOOL_VERSION@">
     <description>Merges corresponding genomic breaks and exon-to-exon junctions</description>
     <macros>
         <import>macros.xml</import>
     </macros>
-    
+
     <expand macro="requirements"/>
     <expand macro="version_command"/>
     
@@ -11,7 +11,7 @@
         dr-disco
             integrate
                 #if $gtf:
-                    --gtf ${gtf}
+                    --gtf '${gtf}'
                 #end if
 
                 '${dr_disco_classify_output}'
