@@ -14,7 +14,6 @@
 
     <xml name="citations">
         <citations>
-            <!--<citation type="doi"></citation>-->
             <citation type="bibtex">
                @unpublished{dr_disco,
                   author = {Youri Hoogstrate},
