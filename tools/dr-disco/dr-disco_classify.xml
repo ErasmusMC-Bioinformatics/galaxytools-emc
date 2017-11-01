@@ -22,6 +22,8 @@
                     --blacklist-junctions '${blacklist_junctions}'
                 #end if
                 
+                --min-chim-overhang '${min_chim_overhang}'
+                
                 '${dr_disco_detect_output}'
                 '${dr_disco_classify_output}'
     ]]></command>
@@ -32,6 +34,8 @@
         
         <param name="blacklist_regions"   argument="--blacklist-regions"   type="data" format="bed"     optional="True" label="Blacklist Regions"   help="List of regions known to be false positives (https://github.com/yhoogstrate/dr-disco/tree/master/share/)" />
         <param name="blacklist_junctions" argument="--blacklist-junctions" type="data" format="tabular" optional="True" label="Blacklist Junctions" help="List of junctions know to be false positives (https://github.com/yhoogstrate/dr-disco/tree/master/share/)" />
+
+        <param name="min_chim_overhang" type="integer" min="-1" value="50" label="Minimum alignment length on each side of the junction." help="May need to be set to smaller values for read lengths smaller than 75bp." argument="--min-chim-overhang" />
     </inputs>
     
     <outputs>
@@ -45,6 +49,7 @@
 
             <output name="dr_disco_classify_output" file="classify_test_16.test-01.out.dbed" ftype="tabular" />
         </test>
+
         <test>
             <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
             <param name="only_valid" value="--only-valid" />
@@ -59,6 +64,7 @@
 
             <output name="dr_disco_classify_output" file="classify_test_16.test-03.out.dbed" ftype="tabular" />
         </test>
+
         <test>
             <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
             <param name="only_valid" />
@@ -81,7 +87,6 @@
 
             <output name="dr_disco_classify_output" file="classify_test_16.test-06.out.dbed" />
         </test>
-
         <test>
             <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
             <param name="only_valid" />
@@ -98,13 +103,14 @@
 
             <output name="dr_disco_classify_output" file="classify_test_16.test-08.out.dbed" />
         </test>
+
     </tests>
     
     <help><![CDATA[
 
 **What it does**
 
-
+It filters fusion events that are likely to be true or false based on a variety of parameters provided in the input table.
 
 **Attributions**
 
