@@ -36,7 +36,9 @@
         </test>
         <test>
             <param name="dr_disco_classify_output" value="integrate_test_terg_s041.in.dbed" />
+            <!--
             <param name="gtf" value="integrate_tmprss-erg.hg38.gtf" />
+            -->
 
             <output name="dr_disco_integrate_output" file="integrate_test_terg_s041.out.no-gtf.txt" />
         </test>
