@@ -37,6 +37,10 @@
 
 Dr. Disco fix prepares chimeric alignment files produced by STAR for analysis with Dr. Disco (detect) and for visualization in genome browsers by modifying certain SAM flags and tags.
 
+**Attribution**
+
+This work is part of Youri Hoogstrate's PhD thesis.
+
     ]]></help>
      <expand macro="citations"/>
 </tool>
