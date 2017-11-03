@@ -38,9 +38,7 @@
 
 * Step 2 in dr-disco pipeline
 
-This tool detects junctions in ('dr-disco fix' prepared) Chimeric alignments and tries to reconstruct fusion genes and genomic breakpoints using a Graph data structure.
-
-This software is in particular designed for RNA-Seq data prepared with random hexamer priming because of the presence of intronic reads.
+This tool detects junctions in ('dr-disco fix' prepared) Chimeric alignments and tries to reconstruct fusion genes and genomic breakpoints using a Graph data structure. This software is in particular designed for RNA-Seq data prepared with random hexamer priming because of the presence of intronic reads.
 
 **Attributions**
 

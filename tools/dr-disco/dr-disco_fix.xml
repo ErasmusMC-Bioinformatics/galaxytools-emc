@@ -35,9 +35,7 @@
 
 * Step 1 in dr-disco pipeline
 
-Dr. Disco fix prepares chimeric alignment files produced by STAR for analysis with Dr. Disco (detect) and for visualization in genome browsers.
-
-It changes and fixes some SAM-tags and flags.
+Dr. Disco fix prepares chimeric alignment files produced by STAR for analysis with Dr. Disco (detect) and for visualization in genome browsers by modifying certain SAM flags and tags.
 
     ]]></help>
      <expand macro="citations"/>
