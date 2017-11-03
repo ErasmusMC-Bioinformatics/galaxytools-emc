@@ -76,7 +76,7 @@
         <test>
             <param name="dr_disco_detect_output" value="classify_test_16.in.dbed" ftype="tabular" />
             <param name="only_valid" />
-            <param name="blacklist_junctions" value="blacklist-junctions.hg38.txt" ftype="tabular" />
+            <param name="blacklist_junctions" value="blackl.ist-junctions.hg38.txt" ftype="tabular" />
 
             <output name="dr_disco_classify_output" file="classify_test_16.test-05.out.dbed" ftype="tabular" />
         </test>
@@ -110,7 +110,11 @@
 
 **What it does**
 
-It filters fusion events that are likely to be true or false based on a variety of parameters provided in the input table.
+* Step 3 in dr-disco pipeline
+
+This tools filters the detected junctions which are likely to be true or false based on a variety of parameters provided in the input table.
+
+This filtering is in particular based on variables derived from the shape of the alignment and the ratio of split and spanning reads.
 
 **Attributions**
 

@@ -48,6 +48,9 @@
 
 **What it does**
 
+* Step 4 in dr-disco pipeline
+
+In this step the predicted junctions are integrated with a gene annotation. The junctions are provided names like 'TMPRSS2->ERG' and frameshift are provided. Also events that belong to each other, thus the intronic and exonic junctions that belong to the same genomic event, are given the same identifier.
 
 **Attributions**
 
