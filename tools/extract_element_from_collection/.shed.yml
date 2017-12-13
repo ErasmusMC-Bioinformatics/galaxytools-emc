@@ -2,6 +2,6 @@ name: extract_element_from_collection
 owner: erasmus-medical-center
 categories:
     - Text Manipulation
-description: extract an element from a colleciton by name
+description: extract an element from a collection by name
 remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/extract_element_from_collection
 type: unrestricted
