@@ -1,7 +1,7 @@
-import os
 import argparse
 import csv
 import math
+import os
 from subprocess import call
 
 
@@ -312,7 +312,7 @@ def correct_replicates(shared, taxonomy, outdir, replicate_suffix,
             for count in row[3:]:
                 try:
                     newval = float(count) / correction_factor
-                except:
+                except ZeroDivisionError:
                     newval = float(count)
                 new_row.append(newval)
             newshared.append(new_row)
@@ -442,10 +442,10 @@ def make_multi_otutable(taxonomy_file, shared_file, level, outdir):
                                  if a[1:] != ['0'] * len(a[1:])]
 
         # sort sample columns by name
-        l = map(list, zip(*[w[1:-6] for w in writelines]))
-        l.sort(key=lambda x: x[0])
-        l = map(list, zip(*l))
-        writelines2 = [[writelines[i][0]] + l[i] + writelines[i][-6:]
+        lst = map(list, zip(*[w[1:-6] for w in writelines]))
+        lst.sort(key=lambda x: x[0])
+        lst = map(list, zip(*lst))
+        writelines2 = [[writelines[i][0]] + lst[i] + writelines[i][-6:]
                        for i in range(0, len(writelines))]
 
         # output corrected shared file
