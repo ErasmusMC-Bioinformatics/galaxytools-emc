@@ -1,0 +1,46 @@
+<tool id="mycrobiota-correct-replicates" name="Correct counts" version="0.6">
+    <description>in a mothur shared file for replicates and negative controls</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <command detect_errors="aggressive"><![CDATA[
+        python '$__tool_directory__/mycrobiota.py'
+            --command correct_replicates
+            --shared '$shared'
+            --taxonomy '$taxonomy'
+            --replicate_suffix '$replicate_suffix'
+            --negative_control '$negative_control'
+            --nc_copies '$nc_copies'
+            --copies '$copies'
+            --negative_control_species '$negative_control_species'
+    ]]></command>
+    <inputs>
+        <param argument="--shared" type="data" format="mothur.shared" label="Select shared file"/>
+        <param argument="--taxonomy" type="data" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select taxonomy file"/>
+        <param argument="--replicate_suffix" type="text" size="100" value="_replicate" label="Suffix used to indicated replicates" help="e.g. _R if files are named [sample]_R1, [sample]_R2 etc"/>
+        <param argument="--negative_control" type="text" optional="True" size="100" value="" label="sample name for your negative control (optional)" help="e.g. negative_control"/>
+        <param argument="--negative_control_species" type="text" optional="True" size="100" value="Oscillatoria" label="taxonomy of negative control" help="e.g. Oscillatoria"/>
+        <param argument="--nc_copies" type="integer" value="100" min="0" label="number of copies of control species in the negative control sample"/>
+        <param argument="--copies" type="integer" value="1000" min="0" label="number of copies of control species in the real samples"/>
+    </inputs>
+    <outputs>
+        <data name="corrected_out" format="mothur.shared" from_work_dir="shared_corrected.tsv" label="${tool.name} on ${on_string}: corrected shared file"/>
+        <data name="corrected_tax" format_source="taxonomy" from_work_dir="taxonomy_corrected.tsv" label="${tool.name} on ${on_string}: corrected taxonomy file"/>
+        <data name="corrected_out_avg" format="mothur.shared" from_work_dir="shared_averaged.tsv" label="${tool.name} on ${on_string}: averaged only shared file"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="shared" value="shared_tocorrect.tsv" ftype="mothur.shared"/>
+            <param name="taxonomy" value="otutable_tocorrect.taxonomy" ftype="mothur.cons.taxonomy"/>
+            <param name="replicate_suffix" value="_replicate"/>
+            <param name="negative_control" value="NC"/>
+            <output name="corrected_out" md5="a7bafe98a383b308b4f1f1681483091d" ftype="mothur.shared"/>
+            <output name="corrected_tax" md5="9cc44bec811b868bde9acbe5d857e4c9" ftype="mothur.cons.taxonomy"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it does**
+averages the counts over all replicates of a sample in a mothur shared file
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

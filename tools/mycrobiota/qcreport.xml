@@ -1,0 +1,89 @@
+<tool id="mycrobiota-qc-report" name="QC report" version="1">
+    <description>from count tables</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <command detect_errors="aggressive"><![CDATA[
+        python '$__tool_directory__/mycrobiota.py'
+            --command qc_report
+            #if $input.filetype == 'summarylog':
+                #for $i, $c in enumerate($input.summaryfiles):
+                    --summary_log '${c.summary}'
+                    --label '${c.label}'
+                #end for
+            #elif $input.filetype == 'counttable':
+                #for $i, $c in enumerate($input.counttables):
+                    --count_table '${c.count_table}'
+                    --label '${c.label}'
+                #end for
+            #end if
+    ]]></command>
+    <inputs>
+        <conditional name="input">
+            <param name="filetype" type="select" label="Generate QC table from" help="">
+                <option value="counttable">count tables</option>
+                <option value="summarylog">summary.seqs log outputs</option>
+            </param>
+            <when value="counttable">
+                <repeat name="counttables" title="Count Table" default="1" >
+                    <param argument="--count_table" type="data" format="mothur.count_table" label="Coumt Table" help=""/>
+                    <param argument="--label" type="text" size="100" value="" label="Enter a label for this step" help="e.g. trimmed by length"/>
+                </repeat>
+            </when>
+            <when value="summarylog">
+                <repeat name="summaryfiles" title="Summary.seqs output log" default="1" >
+                    <param argument="--summary" type="data" format="text" label="Summary File" help="logfile output of summary.seqs command"/>
+                    <param argument="--label" type="text" size="100" value="" label="Enter a label for this step" help="e.g. trimmed by length"/>
+                </repeat>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="allsamples" format="tabular" from_work_dir="all_qctable.tsv" label="${tool.name} on ${on_string}: QC table total counts"/>
+        <collection name="persample" type="list" label="${tool.name} on ${on_string}: per-sample QC tables">
+            <discover_datasets pattern=".*?persample_qctable_(?P&lt;designation&gt;.*)\.tsv" format="tabular"/>
+            <filter> input['filetype'] == 'counttable' </filter>
+        </collection>
+    </outputs>
+    <tests>
+        <test><!-- test with count tables -->
+            <param name="filetype" value="counttable"/>
+            <repeat name="counttables">
+                <param name="count_table" value="test2.count_table"/>
+                <param name="label" value="step1"/>
+            </repeat>
+            <repeat name="counttables">
+                <param name="count_table" value="test.count_table"/>
+                <param name="label" value="step2"/>
+            </repeat>
+            <output name="allsamples" md5="97725d04b9927724729f6cd902e10317" ftype="tabular"/>
+            <output_collection name="persample" count="9">
+                <element name="F3D144" md5="d86e633358e8f1518a4a8c2782a358ec"/>
+            </output_collection>
+        </test>
+        <test><!-- test with summary logfiles -->
+            <param name="filetype" value="summarylog"/>
+            <repeat name="summaryfiles">
+                <param name="summary" value="summarylog1.txt"/>
+                <param name="label" value="step1"/>
+            </repeat>
+            <repeat name="summaryfiles">
+                <param name="summary" value="summarylog2.txt"/>
+                <param name="label" value="step2"/>
+            </repeat>
+            <repeat name="summaryfiles">
+                <param name="summary" value="summarylog3.txt"/>
+                <param name="label" value="step 3"/>
+            </repeat>
+            <output name="allsamples" md5="7e092deb126c537247e63a36def1d8fb" ftype="tabular"/>
+        </test>
+    </tests>
+    <help>
+<![CDATA[
+**What it does**
+
+Given a set of count tables, make a summary table describing the differences in number of sequences.
+]]>
+    </help>
+    <expand macro="citations"/>
+</tool>

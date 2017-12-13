@@ -1,0 +1,37 @@
+<tool id="mycrobiota-make-multi-otutable" name="Make multisample OTUtable" version="0.1">
+    <description>from a shared and taxonomy file</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <command detect_errors="aggressive"><![CDATA[
+        python '$__tool_directory__/mycrobiota.py'
+            --command make_multi_otutable
+            --shared_file '$shared_file'
+            --taxonomy '$taxonomy'
+            --level $level
+    ]]></command>
+    <inputs>
+        <param argument="--taxonomy" type="data" format="mothur.ref.taxonomy,mothur.seq.taxonomy,mothur.cons.taxonomy" label="Select mothur taxonomy file" help=""/>
+        <param argument="--shared_file" type="data" optional="true" format="mothur.shared" label="Supply a mothur shared file" help=""/>
+        <param argument="--level" type="select" optional="true" label="label - pick (one) OTU Label" help="leave blank for collections, will try to determine level from element names">
+            <options>
+                <filter type="data_meta" ref="shared_file" key="labels"/>
+            </options>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="multi_otutable" format="tabular" from_work_dir="multi_otutable.tsv" label="Multisample otutable on ${on_string}"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="taxonomy" value="multisample.taxonomy"/>
+            <param name="shared_file" ftype="mothur.shared" value="example.mothur.shared"/>
+            <param name="level" value="0.03"/>
+            <output name="multi_otutable" file="shared_with_taxonomy.tsv"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        help text goes here
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

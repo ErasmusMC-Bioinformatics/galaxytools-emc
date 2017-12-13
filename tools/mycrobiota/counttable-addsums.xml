@@ -1,0 +1,28 @@
+<tool id="mycrobiota-counttable-totals" name="Counttable totals" version="0.1">
+    <description>add line with total counts to your mothur count table</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <command detect_errors="aggressive"><![CDATA[
+        python '$__tool_directory__/mycrobiota.py'
+            --command counttable_totals
+            -ct '$count_in'
+            -o '$count_out'
+    ]]></command>
+    <inputs>
+        <param name="count_in" type="data" format="mothur.count_table" label="Select count file"/>
+    </inputs>
+    <outputs>
+        <data name="count_out" format="tabular" label="Count table with totals on ${on_string}"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="count_in" value="test.count_table" ftype="mothur.count_table"/>
+            <output name="count_out" file="test-out.count_table" ftype="tabular"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Takes a Mothur count table and adds a line to the end with the total counts per sample
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

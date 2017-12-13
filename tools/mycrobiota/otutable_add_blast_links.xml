@@ -1,0 +1,31 @@
+<tool id="mycrobiota-otutable_add_blast" name="Add BLAST links" version="0.1">
+    <description>to a mothur OTU table</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <command detect_errors="aggressive"><![CDATA[
+        python '$__tool_directory__/mycrobiota.py'
+            --command otutable_add_blast_links
+            --otutable '$otutable'
+            --fasta '$fasta'
+    ]]></command>
+    <inputs>
+        <param argument="--otutable" type="data" format="tabular" label="OTU table" help=""/>
+        <param argument="--fasta" type="data" format="fasta" label="OTU representatives fasta file" help=""/>
+    </inputs>
+    <outputs>
+        <data name="otutable_with_blast" format="tabular" from_work_dir="otutable_with_blast.tsv" label="OTUtable with blast links on ${on_string}"/>
+        <data name="filtered_otureps" format="fasta" from_work_dir="filtered_otureps.fasta" label="OTUtable with blast links on ${on_string}"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="otutable" value="otutable_without_blast.tsv"/>
+            <param name="fasta" value="otureps.fasta"/>
+            <output name="otutable_with_blast" file="otutable_with_blast.tsv"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        help text goes here
+    ]]></help>
+    <expand macro="citations"/>
+</tool>
