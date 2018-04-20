@@ -134,6 +134,14 @@
 
             <output name="output" file="snord81.flaimapper.duck-15.gtf" />
         </test>
+        
+        <!-- Tests a new feature that allows multiple fragments of different size, starting at one identical positions -->
+        <test>
+            <param name="alignment" value="multilength_fragments_per_position_001.bam" ftype="bam" />
+            <param name="output_format" value="1" />
+
+            <output name="output" file="multilength_fragments_per_position_001.txt" />
+        </test>
     </tests>
 
     <help><![CDATA[
