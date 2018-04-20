@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tool id="flaimapper" name="FlaiMapper" version="2.5.0-0">
+<tool id="flaimapper" name="FlaiMapper" version="3.0.0-0">
     <description>detects small ncRNA derived fragments in small RNA-Seq data</description>
     <requirements>
-        <requirement type="package" version="2.5.0">flaimapper</requirement>
+        <requirement type="package" version="3.0.0">flaimapper</requirement>
     </requirements>
 
     <version_command><![CDATA[ flaimapper --version 2>&1 | head -n 1 ]]></version_command>
@@ -133,6 +133,14 @@
             <param name="parameters" value="filter-parameters.duck.15.txt"/>
 
             <output name="output" file="snord81.flaimapper.duck-15.gtf" />
+        </test>
+        
+        <!-- Tests a new feature that allows multiple fragments of different size, starting at one identical positions -->
+        <test>
+            <param name="alignment" value="multilength_fragments_per_position_001.bam" ftype="bam" />
+            <param name="output_format" value="1" />
+
+            <output name="output" file="multilength_fragments_per_position_001.txt" />
         </test>
     </tests>
 
