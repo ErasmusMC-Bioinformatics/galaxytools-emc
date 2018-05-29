@@ -58,9 +58,7 @@ if __name__ == "__main__":
     typesA = [get_list_of_associated_types(A, args.column) for A in args.A]
     typesB = [get_list_of_associated_types(B, args.column) for B in args.B]
     associations = [get_associations(c[0], c[1]) for c in itertools.product(typesA, typesB)]
-    print(associations)
     associations = to_matrix(associations, len(args.B))
-    print(associations)
 
     # write output table
     headerline = 'combos\t'+'\t'.join(['B'+str(i+1) for i in range(0, len(args.B))])+'\n'
