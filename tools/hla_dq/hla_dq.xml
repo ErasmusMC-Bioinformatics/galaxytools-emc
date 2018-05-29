@@ -1,0 +1,32 @@
+<tool id="hla_dq.py" name="hla_dq.py" version="1.0">
+  <description/>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python hla_dq.py --version</version_command>
+  <command interpreter="python"><![CDATA[hla_dq.py #for $i in $repeat_1:
+-A $i.A
+#end for
+#for $i in $repeat_2:
+-B $i.B
+#end for
+
+#if $column and $column is not None:
+--column $column
+#end if
+> $default]]></command>
+  <inputs>
+    <repeat name="repeat_1" title="Repeated Variable">
+      <param area="false" argument="-A" label="BLAST hits A gene" name="A" type="text"/>
+    </repeat>
+    <repeat name="repeat_2" title="Repeated Variable">
+      <param area="false" argument="-B" label="BLAST hits B gene" name="B" type="text"/>
+    </repeat>
+    <param argument="--column" label="Column number containing the BLAST annotation" name="column" optional="true" type="integer" value="5"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
