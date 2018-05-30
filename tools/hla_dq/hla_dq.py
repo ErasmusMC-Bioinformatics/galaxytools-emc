@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''
-Given HLA-A and HLA-B genes annotated with BLAST IMGT/HLA database, determine type
+Given HLA-A and HLA-B genes annotated with BLAST IMGT/HLA database
+genotypes, determine associated serotypes
 
 
 DQA1 | DQB1 | type
