@@ -42,12 +42,12 @@ def get_associations(typesA, typesB):
 
     ''' each combination of DQA1,DQB1,type '''
     associated_combinations = [
-        ['02:01', '02:02', 'DQ2.2'],
-        ['03:03', '02:02', 'DQ2.3'],
-        ['05:01', '02:01', 'DQ2.5'],
-        ['03:01', '03:02', 'DQ8'],
-        ['03:02', '03:02', 'DQ8'],
-        ['03:03', '03:02', 'DQ8']]
+        ['02:01', '02:02', ' DQ2.2 (02:01-02:02)'],
+        ['03:03', '02:02', ' DQ2.3 (03:03-02:02)'],
+        ['05:01', '02:01', ' DQ2.5 (05:01-02:01)'],
+        ['03:01', '03:02', ' DQ8 (03:01-03:02)'],
+        ['03:02', '03:02', ' DQ8 (03:02-03:02)'],
+        ['03:03', '03:02', ' DQ8 (03:03-03:02)']]
 
     return [a[2] for a in associated_combinations
             if a[0] in typesA and a[1] in typesB]
@@ -83,4 +83,4 @@ if __name__ == "__main__":
             outfile.write(
                 'A' + str(bcount) + '\t' +
                 '\t'.join([';'.join(sorted(set(l)))
-                          if l else '-' for l in line])+'\n')
+                          if l else ' -' for l in line])+'\n')
