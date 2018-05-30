@@ -1,12 +1,12 @@
-<tool id="hla_dq" name="HLA-DQ" version="1.0">
-    <description> <description
+<tool id="hla_dq" name="HLA-DQ typing" version="1.0">
+    <description> Determine possible associated types given BLAST IMGT/HLA annotation<description
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/hla_dq.py'
 #for $i in $filesA:
-    -A $i.A
+    -A '$i.A'
 #end for
 #for $i in $filesB:
-    -B $i.B
+    -B '$i.B'
 #end for
 #if $column and $column is not None:
     --column $column
