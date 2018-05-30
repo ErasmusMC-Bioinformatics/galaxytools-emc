@@ -1,5 +1,5 @@
-<tool id="hla_dq.py" name="hla_dq.py" version="1.0">
-    <description/>
+<tool id="hla_dq" name="HLA-DQ" version="1.0">
+    <description> <description
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/hla_dq.py'
 #for $i in $filesA:
