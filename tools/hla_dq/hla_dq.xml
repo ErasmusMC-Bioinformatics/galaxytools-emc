@@ -1,5 +1,5 @@
 <tool id="hla_dq" name="HLA-DQ typing" version="1.0">
-    <description> Determine possible associated types given BLAST IMGT/HLA annotation<description
+    <description> Determine possible associated types given BLAST IMGT/HLA annotation</description>
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/hla_dq.py'
 #for $i in $filesA:
