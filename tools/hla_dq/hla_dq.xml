@@ -1,7 +1,6 @@
 <tool id="hla_dq.py" name="hla_dq.py" version="1.0">
     <description/>
-    <version_command>python hla_dq.py --version</version_command>
-    <command><![CDATA[
+    <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/hla_dq.py'
 #for $i in $filesA:
     -A $i.A
@@ -69,27 +68,27 @@ python '$__tool_directory__/hla_dq.py'
 
 Given files annotated with BLAST and IMGT/HLA database for HLA-A and HLA-B gene (one or more files each), determine possible associated serotypes.
 
-+-----+------+------+
-|DQA1 | DQB1 | type |
-+=====+======+======+
-|02:01| 02:02| DQ2.2|
-|03:03| 02:02| DQ2.3|
-|05:01| 02:01| DQ2.3|
-|03:01| 03:02| DQ8  |
-|03:02| 03:02| DQ8  |
-|03:03| 03:02| DQ8  |
-+-----+------+------+
+===== ===== =====
+DQA1  DQB1  type
+===== ===== =====
+02:01 02:02 DQ2.2
+03:03 02:02 DQ2.3
+05:01 02:01 DQ2.3
+03:01 03:02 DQ8
+03:02 03:02 DQ8
+03:03 03:02 DQ8
+===== ===== =====
 
 Example result table:
 
-+--------+------+------------+
-|        |  A1  |  A2        |
-+--------+------+------------+
-|   B1   |  DQ8 |            |
-|   B2   |      |  DQ2.2;DQ8 |
-+--------+------+------------+
+==== ==== =========
+type A1   A2
+==== ==== =========
+B1   DQ8  None
+B2   None DQ2.2;DQ8
+==== ==== =========
 
-Where A1, A2 correspond to two input file given for A, each representing annotations of possible allele sequence
+Where A1, A2 correspond to two annotated input files given for gene A, each representing possible allele sequence
 
     ]]></help>
 </tool>
