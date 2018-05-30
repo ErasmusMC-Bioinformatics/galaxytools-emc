@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 Given HLA-A and HLA-B genes annotated with BLAST IMGT/HLA database, determine type
 
@@ -32,8 +33,8 @@ def get_list_of_associated_types(filename, column):
 
 
 def get_associations(typesA, typesB):
-    ''' Given list of annotations (e.g. DQA1*02:01..) from A and B, determine possible associated types '''
-    ''' each combination of thDQA1,DQB1,type '''
+    ''' Given list of genotype annotations (e.g. DQA1*02:01..) from A and B, determine possible associated serotypes '''
+    ''' each combination of DQA1,DQB1,type '''
     associated_combinations = [
         ['02:01', '02:02', 'DQ2.2'],
         ['03:03', '02:02', 'DQ2.3'],
@@ -61,13 +62,10 @@ if __name__ == "__main__":
     associations = to_matrix(associations, len(args.B))
 
     # write output table
-    headerline = 'combos\t'+'\t'.join(['B'+str(i+1) for i in range(0, len(args.B))])+'\n'
+    headerline = '\t'+'\t'.join(['B'+str(i+1) for i in range(0, len(args.B))])+'\n'
     bcount = 0
     with open('results.tsv', 'w') as outfile:
         outfile.write(headerline)
         for line in associations:
             bcount += 1
-            outfile.write('A'+str(bcount)+'\t'+'\t'.join([';'.join(set(l)) if l else '-' for l in line])+'\n')
-
-
-
+            outfile.write('A'+str(bcount)+'\t'+'\t'.join([';'.join(sorted(set(l))) if l else '-' for l in line])+'\n')
