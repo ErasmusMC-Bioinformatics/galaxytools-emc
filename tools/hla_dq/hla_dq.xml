@@ -1,0 +1,94 @@
+<tool id="hla_dq" name="HLA-DQ typing" version="1.0">
+    <description> Determine possible associated types given BLAST IMGT/HLA annotation</description>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/hla_dq.py'
+#for $i in $filesA:
+    -A '$i.A'
+#end for
+#for $i in $filesB:
+    -B '$i.B'
+#end for
+#if $column and $column is not None:
+    --column $column
+#end if
+    ]]></command>
+    <inputs>
+        <!-- use repeats cuz order matters -->
+        <repeat name="filesA" title="BLAST results A gene sequences" min="1">
+            <param argument="-A" label="BLAST IMGT/HLA hits A gene" type="data" format="tabular"/>
+        </repeat>
+        <repeat name="filesB" title="BLAST results B gene sequences" min="1">
+            <param argument="-B" label="BLAST IMGT/HLA hits B gene" type="data" format="tabular"/>
+        </repeat>
+        <param argument="--column" label="Column number containing the BLAST IMGT/HLA genotype annotation" type="integer" value="5" min="1" help="Example annotation: HLA:HLA11066 DQA1*01:05:02 768 bp"/>
+    </inputs>
+    <outputs>
+        <data name="serotype_table" format="tabular" from_work_dir="results.tsv" label="${tool.name} on ${on_string}: Serotype table"/>
+    </outputs>
+    <tests>
+        <test><!-- test with real data -->
+            <repeat name="filesA">
+                <param name="A" value="sideA1.blast.tsv"/>
+            </repeat>
+            <repeat name="filesA">
+                <param name="A" value="sideA2.blast.tsv"/>
+            </repeat>
+            <repeat name="filesB">
+                <param name="B" value="sideB1.blast.tsv"/>
+            </repeat>
+            <repeat name="filesB">
+                <param name="B" value="sideB2.blast.tsv"/>
+            </repeat>
+            <output name="serotype_table" file="test1_results.tsv"/>
+        </test>
+        <test><!-- test three files each and data leading to serotypes -->
+            <repeat name="filesA">
+                <param name="A" value="sideA1.blast.tsv"/>
+            </repeat>
+            <repeat name="filesA">
+                <param name="A" value="sideA2.blast.tsv"/>
+            </repeat>
+            <repeat name="filesA">
+                <param name="A" value="all_sideA3.blast.tsv"/>
+            </repeat>
+            <repeat name="filesB">
+                <param name="B" value="sideB1.blast.tsv"/>
+            </repeat>
+            <repeat name="filesB">
+                <param name="B" value="sideB2.blast.tsv"/>
+            </repeat>
+             <repeat name="filesB">
+                <param name="B" value="all_sideB3.blast.tsv"/>
+            </repeat>
+            <output name="serotype_table" file="test2_results.tsv"/>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+
+Given files annotated with BLAST and IMGT/HLA database for HLA-A and HLA-B gene (one or more files each), determine possible associated serotypes.
+
+===== ===== =====
+DQA1  DQB1  type
+===== ===== =====
+02:01 02:02 DQ2.2
+03:03 02:02 DQ2.3
+05:01 02:01 DQ2.3
+03:01 03:02 DQ8
+03:02 03:02 DQ8
+03:03 03:02 DQ8
+===== ===== =====
+
+Example result table:
+
+==== ==== =========
+type A1   A2
+==== ==== =========
+B1   DQ8  None
+B2   None DQ2.2;DQ8
+==== ==== =========
+
+Where A1, A2 correspond to two annotated input files given for gene A, each representing possible allele sequence
+
+    ]]></help>
+</tool>
