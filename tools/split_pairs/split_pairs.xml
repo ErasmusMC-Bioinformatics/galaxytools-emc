@@ -24,7 +24,7 @@ cp '$pair_input.reverse' '$rev'
         </test>
     </tests>
     <help><![CDATA[
-Takes as input a dataset pair, outputs the files as two regular files.
+Takes as input a dataset pair, and outputs the forward and reverse files as two regular files.
 
 This tool does not alter the datasets, it is simply a convenience tool for workflows.
     ]]></help>
