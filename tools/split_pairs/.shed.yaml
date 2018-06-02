@@ -1,0 +1,7 @@
+name: split_pairs
+owner: erasmus-medical-center
+categories:
+    - Text Manipulation
+description: split a dataset pair into two regular files
+remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/split_pairs
+type: unrestricted
