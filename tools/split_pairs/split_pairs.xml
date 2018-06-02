@@ -1,0 +1,31 @@
+<tool id="split_pairs" name="Split Dataset Pairs" version="0.1">
+    <description>into two regular datasets</description>
+    <command detect_errors="aggressive"><![CDATA[
+cp '$pair_input.forward' '$fwd' &&
+cp '$pair_input.reverse' '$rev'
+    ]]></command>
+    <inputs>
+        <param name="pair_input" type="data_collection" collection_type="paired" label="Paired dataset"/>
+    </inputs>
+    <outputs>
+        <data name="fwd" format="auto" label="${tool.name} on ${on_string}: forward file"/>
+        <data name="rev" format="auto" label="${tool.name} on ${on_string}: reverse file"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="pair_input">
+                <collection type="paired">
+                    <element name="forward" value="forward.txt" />
+                    <element name="reverse" value="reverse.txt" />
+                </collection>
+            </param>
+            <output name="fwd" file="forward.txt" />
+            <output name="rev" file="reverse.txt" />
+        </test>
+    </tests>
+    <help><![CDATA[
+Takes as input a dataset pair, and outputs the forward and reverse files as two regular files.
+
+This tool does not alter the datasets, it is simply a convenience tool for workflows.
+    ]]></help>
+</tool>
