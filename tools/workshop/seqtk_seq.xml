@@ -1,4 +1,4 @@
-<tool id="seqtk_seq" name="Convert to FASTA (seqtk) if you are lucky!" version="0.1.0">
+<tool id="seqtk_seq" name="Convert to FASTA (seqtk) if you are a real bioinformatician!" version="0.1.0">
     <requirements>
         <requirement type="package" version="1.2">seqtk</requirement>
     </requirements>
