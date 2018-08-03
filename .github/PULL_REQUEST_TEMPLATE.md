@@ -7,7 +7,7 @@ FOR CONTRIBUTOR:
 
 FOR REVIEWER:
 * [ ] .shed.yml file ok
-    - [ ] Toolshed user `iuc` has access to associated toolshed repo(s)
+    - [ ] Toolshed user `erasmus-medical-center` has access to associated toolshed repo(s)
 * [ ] Indentation is correct (4 spaces)
 * [ ] Tool version/build ok
 * [ ] `<command/>`
