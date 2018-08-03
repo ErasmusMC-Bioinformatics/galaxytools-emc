@@ -28,7 +28,7 @@ inclusion.
 
 ### Abandoned Tools
 
-* For tools of general interest, the IUC is usually willing to adopt tools that
+* For tools of general interest, the [IUC](https://github.com/galaxyproject/tools-iuc) is usually willing to adopt tools that
   you (the developer) are abandoning.
 * If there are tools that you find useful but seem to be abandoned and not
   updated, you're welcome to create an issue recommending that the IUC adopt
