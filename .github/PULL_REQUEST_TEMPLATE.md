@@ -1,5 +1,4 @@
 FOR CONTRIBUTOR:
-* [ ] - I have read the [CONTRIBUTING.md](https://github.com/galaxyproject/tools-iuc/blob/master/CONTRIBUTING.md) document and this tool is appropriate for the tools-iuc repo.
 * [ ] - License permits unrestricted use (educational + commercial)
 * [ ] - This PR adds a new tool or tool collection
 * [ ] - This PR updates an existing tool or tool collection
@@ -7,7 +6,7 @@ FOR CONTRIBUTOR:
 
 FOR REVIEWER:
 * [ ] .shed.yml file ok
-    - [ ] Toolshed user `iuc` has access to associated toolshed repo(s)
+    - [ ] Toolshed user `erasmus-medical-center` has access to associated toolshed repo(s)
 * [ ] Indentation is correct (4 spaces)
 * [ ] Tool version/build ok
 * [ ] `<command/>`
