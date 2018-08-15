@@ -6,7 +6,7 @@
     <command detect_errors="exit_code"><![CDATA[
 PlasFlow.py
 --input '$readFile'
---output '$output'
+--output 'output'
 --threshold '$threshold'
     ]]></command>
     <inputs>
