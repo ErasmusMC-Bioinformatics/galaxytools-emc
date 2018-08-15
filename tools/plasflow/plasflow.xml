@@ -2,7 +2,6 @@
     <description>Prediction of plasmid sequences in metagenomic contigs</description>
     <requirements>
         <requirement type="package" >plasflow</requirement>
-        <requirement type="package" >tensorflow=0.10.0rc0</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
 PlasFlow.py
@@ -15,25 +14,19 @@ PlasFlow.py
         <param argument="threshold" type="float" value="0.7" label="Threshold for porbability filtering"/>
     </inputs>
     <outputs>
-        <data name="5_kmer_npy" from_work_dir="*5_freqs.npy" format="auto" label="${tool.name} on ${on_string}: Kmer 5" />
-        <data name="6_kmer_npy" from_work_dir="*6_freqs.npy" format="auto" label="${tool.name} on ${on_string}: Kmer 6" />
-        <data name="7_kmer_npy" from_work_dir="*7_freqs.npy" format="auto" label="${tool.name} on ${on_string}: Kmer 7" />
-        <data name="output" format="tabular" label="${tool.name} on ${on_string}: Probability table" />
-        <data name="output_chromosomes.fasta" format="fasta" label="${tool.name} on ${on_string}: Chromosomes" />
-        <data name="output_plasmids.fasta" format="fasta" label="${tool.name} on ${on_string}: Plasmids" />
-        <data name="output_unclassified.fasta" format="fasta" label="${tool.name} on ${on_string}: Unclassified" />
+        <data name="output" from_work_dir="output" format="tabular" label="${tool.name} on ${on_string}: Probability table" />
+        <data name="output_chromosomes.fasta" from_work_dir="output_chromosomes.fasta" format="fasta" label="${tool.name} on ${on_string}: Chromosomes" />
+        <data name="output_plasmids.fasta" from_work_dir="output_plasmids.fasta" format="fasta" label="${tool.name} on ${on_string}: Plasmids" />
+        <data name="output_unclassified.fasta" from_work_dir="output_unclassified.fasta" format="fasta" label="${tool.name} on ${on_string}: Unclassified" />
     </outputs>
     <tests>
         <test>
-            <param name="readFile" value="test_PlasFlow_long.fasta"/>
+            <param name="readFile" value="test.fasta"/>
             <param name="threshold" value="0.7"/>
-            <output name="5_kmer_npy" value="test_PlasFlow_long.fasta_kmer_5_freqs.npy"/>
-            <output name="6_kmer_npy" value="test_PlasFlow_long.fasta_kmer_6_freqs.npy"/>
-            <output name="7_kmer_npy" value="test_PlasFlow_long.fasta_kmer_7_freqs.npy"/>
-            <output name="output" value="output_plasflow_long"/>
-            <output name="output_chromosomes.fasta" value="output_plasflow_long_chromosomes.fasta"/>
-	    <output name="output_plasmids.fasta" value="output_plasflow_long_plasmids.fasta"/>
-	    <output name="output_unclassified.fasta" value="output_plasflow_long_unclassified.fasta"/>
+            <output name="output" value="output"/>
+            <output name="output_chromosomes.fasta" value="output_chromosomes.fasta"/>
+	    <output name="output_plasmids.fasta" value="output_plasmids.fasta"/>
+	    <output name="output_unclassified.fasta" value="output_unclassified.fasta"/>
         </test>
     </tests>
     <help><![CDATA[
