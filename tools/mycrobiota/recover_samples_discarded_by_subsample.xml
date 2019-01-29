@@ -19,17 +19,17 @@
         &&
         if [ -z "\$samples"];
             then
-                touch fasta.pick.dat;
-                touch group.pick.dat;
+                cp fasta2.dat final_fasta;
+                cp group2.dat final_group;
             else
                 echo "get.groups(fasta=fasta.dat, group=group.dat, groups=\$samples)" | sed 's/ //g' | mothur;
+
+                ## merge selected reads (fasta.pick.dat) with the fasta file from after sub.sample
+                echo "merge.files(input=fasta2.dat-fasta.pick.dat, output=final_fasta)" | sed 's/ //g' | mothur;
+
+                ## merge group files
+                echo "merge.files(input=group2.dat-group.pick.dat, output=final_group)" | sed 's/ //g' | mothur;
         fi
-
-        ## merge selected reads (fasta.pick.dat) with the fasta file from after sub.sample
-        && echo "merge.files(input=fasta2.dat-fasta.pick.dat, output=final_fasta)" | sed 's/ //g' | mothur
-
-        ## merge group files
-        && echo "merge.files(input=group2.dat-group.pick.dat, output=final_group)" | sed 's/ //g' | mothur
 
     ]]></command>
     <inputs>
@@ -52,6 +52,15 @@
             <param name="threshold" value="3"/>
             <output name="out_fasta" file="recovered.fasta"/>
             <output name="out_group" file="recovered.groups"/>
+        </test>
+        <test><!-- test case where nothing was discarded -->
+            <param name="in_fasta" value="fasta_before_subsample_small.fasta" ftype="fasta"/>
+            <param name="in_fasta_subsampled" value="fasta_after_subsample_small.fasta" ftype="fasta"/>
+            <param name="in_group" value="groups_before_subsample_small.groups" ftype="mothur.groups"/>
+            <param name="in_group_subsampled" value="groups_after_subsample_small.groups" ftype="mothur.groups"/>
+            <param name="threshold" value="1"/>
+            <output name="out_fasta" file="fasta_after_subsample_small.fasta"/>
+            <output name="out_group" file="groups_after_subsample_small.groups"/>
         </test>
     </tests>
     <help><![CDATA[
