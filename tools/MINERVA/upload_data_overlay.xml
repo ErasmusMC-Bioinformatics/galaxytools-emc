@@ -1,10 +1,7 @@
-<tool id="minerva" name="MINERVA Upload Data Overlay" verson="14.0">
+<tool id="minerva" name="MINERVA Upload Data Overlay" version="14.0">
     <description>MINERVA API uploading overlays </description>
-    <requirements>
-        <requirement type="package" version="14.0">minerva</requirement>
-    </requirements>
     <command detect_errors="exit_code"><![CDATA[
-upload_data_overlay.py
+python '$__tool_directory__/upload_data_overlay.py'
 -f '$readFile'
 -m '$preselection.minMatch'
 -i '$preselection.minIden'
