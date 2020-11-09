@@ -12,11 +12,8 @@ import os
 import json
 import argparse
 
-def upload_overlay(login, password, overlay_file, project_id="empty"):
+def upload_overlay(login, password, overlay_file, api_url, project_id):
     session = requests.Session()
-
-    ### INPUT YOUR CREDENTIALS TO LOGIN to PD map instance
-    api_url = "https://pdmap.uni.lu/minerva/api/"
 
     # LOGIN to PD map instance with your credentials
     login_request = session.post(api_url+"/doLogin", data = {'login': login, 'password': password})
@@ -50,10 +47,14 @@ if __name__ == "__main__":
     parser.add_argument('--login', help='Login name', required=True)
     parser.add_argument('--password', help='Password', required=True)
     parser.add_argument('--overlay', help='Overlay file', required=True)
+    parser.add_argument('--api_url', help='API url', required=True)
+    parser.add_argument('--project_id', help='Project ID', required=True)
     args = parser.parse_args()
 
     login = args.login
     password = args.password
     overlay_file = args.overlay
+    api_url = args.api_url
+    project_id = args.project_id
 
-    upload_overlay(login, password, overlay_file)
+    upload_overlay(login, password, overlay_file, api_url, project_id)
