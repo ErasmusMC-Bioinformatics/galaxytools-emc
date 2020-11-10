@@ -141,4 +141,3 @@ for (map in config[config$type == "map", "resource"]) {
 
 message("Writing disease map(s) to JSON...")
 cat(toJSON(all_maps), file = opt$output_json)
-
