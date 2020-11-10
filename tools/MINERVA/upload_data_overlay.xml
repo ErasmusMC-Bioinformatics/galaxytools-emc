@@ -21,4 +21,7 @@ python '$__tool_directory__/upload_data_overlay.py'
     <help><![CDATA[
 	    MINERVA Upload Data Overlay
     ]]></help>
+    <citations>
+        <citation type="doi">10.1038/npjsba.2016.20</citation>
+    </citations>
 </tool>

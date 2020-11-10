@@ -1,0 +1,5 @@
+type,resource,value
+parameter,max_areas_per_map,5
+parameter,max_areas_per_pathway_db,5
+map,https://covid19map.elixir-luxembourg.org/minerva/api/,
+pathway_db,WikiPathways_2019_Human,

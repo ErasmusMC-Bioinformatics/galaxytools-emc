@@ -61,9 +61,9 @@ suppressWarnings(config <- read.table(config,
 ### Fetch HGNC symbols for proteins, RNAs and genes.
 get_hgncs <- function(fmodelid, all_models) {
   ### MINERVA call fetching elements with relevant parameters
-  fmodel <- fromJSON(ask_GET(paste0(mnv_base, "models/", fmodelid, "/"),
+  fmodel <- fromJSON(ask_get(paste0(mnv_base, "models/", fmodelid, "/"),
                              paste0("bioEntities/elements/?columns=id,",
-                            "name,type,references,bounds")), flatten = F)
+                             "name,type,references,bounds")), flatten = F)
 
   ### Model name used in naming gene sets
   model_name <- all_models[all_models$idObject == fmodelid, "name"]
