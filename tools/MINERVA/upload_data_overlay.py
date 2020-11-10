@@ -12,6 +12,7 @@ GALAXY: Willem de Koning 10/11/2020
 import argparse
 import json
 import os
+
 import requests
 
 
