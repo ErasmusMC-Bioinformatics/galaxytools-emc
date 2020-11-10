@@ -9,10 +9,10 @@ GALAXY: Willem de Koning 10/11/2020
 ##################################################
 """
 
-import requests
-import os
-import json
 import argparse
+import json
+import os
+import requests
 
 
 def upload_overlay(login, password, overlay_file, api_url, project_id):
@@ -44,9 +44,8 @@ def upload_overlay(login, password, overlay_file, api_url, project_id):
 
     file_id = content["id"]
     # Upload file's content to the instance
-    upload_content_request = session.post(api_url + "/files/" +
-                                          str(file_id) + ":uploadContent",
-                                          data=file_content)
+    session.post(api_url + "/files/" + str(file_id) + ":uploadContent",
+                 data=file_content)
 
     # CREATE DATA OVERLAY FROM UPLOADED FILE
     create_overlay_request = session.post(api_url + "/projects/" +
@@ -62,6 +61,7 @@ def upload_overlay(login, password, overlay_file, api_url, project_id):
                                                 "true"})
 
     print("Overlay Added: ", create_overlay_request.text)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='An example of MINERVA API' +
@@ -80,4 +80,3 @@ if __name__ == "__main__":
     project_id = args.project_id
 
     upload_overlay(login, password, overlay_file, api_url, project_id)
-
