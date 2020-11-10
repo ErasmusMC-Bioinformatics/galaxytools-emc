@@ -8,13 +8,13 @@
     <command detect_errors="exit_code"><![CDATA[
 Rscript '$__tool_directory__/dmaps_fetch.R'
 -i '${inputConfig}'
--o '{$outputJSON}'
+-o '${outputJSON}'
     ]]></command>
     <inputs>
         <param name="inputConfig" type="data" format="csv" label="A comma seperated file listing the resources to fetch" />
     </inputs>
     <outputs>
-        <data name="outputJSON" format="json" label="${tool.name} on ${on_string}: Assembly Graph" />
+        <data name="outputJSON" format="json" label="${tool.name} on ${on_string}: JSON" />
     </outputs>
     <tests>
         <test>
