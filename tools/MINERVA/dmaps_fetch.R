@@ -1,34 +1,32 @@
 #!/usr/bin/env Rscript
 ### Map and pathway enrichment analysis.
 
-library(jsonlite)
-library(httr)
-library(optparse)
+library('jsonlite')
+library('httr')
+library('optparse')
+
 
 # parse options
 option_list = list(
-  make_option(
-    c("-i", "--input_config"),
-    action = "store",
-    default = NA,
-    type = 'character',
-    help = "A comma seperated file listing the resources to fetch"
-  )
-  make_option(
-    c("-o", "--output_json"),
-    action = "store",
-    default = NA,
-    type = 'character',
-    help = "An output JSON of fetched data"
-  )
+  make_option(c("-i", "--input_config"), type="character", default=NULL, 
+              help="A comma seperated file listing the resources to fetch", metavar="character"),
+  make_option(c("-o", "--output_json"), type="character", default="dmaps_out.json", 
+              help="An output JSON of fetched data [default= %default]", metavar="character")
 )
 
-opt <- wsc_parse_args(option_list, mandatory = c('input_config', 'output_json'))
+
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
+
+if (is.null(opt$input_config)){
+  print_help(opt_parser)
+  stop("At least one argument must be supplied (input file).n", call.=FALSE)
+}
 
 # Check parameter values
 
-if ( ! file.exists(opt$input_config)){
-  stop((paste('File', opt$input_config, 'does not exist')))
+if (!file.exists(opt$input_config)){
+  stop(paste('File', opt$input_config, 'does not exist.n'), call.=FALSE)
 }
 
 ### A convenience function to fetch data from MINERVA
@@ -41,11 +39,12 @@ ask_GET <- function(furl, fask) {
   return(NULL)
 }
 
+### In case we want to pass parameters as an argument
+args = commandArgs(trailingOnly=TRUE)
+
 ### Config listing the resources, which we want to fetch
-config <- "config.txt"
-if(length(args) > 0) { config <- args[1] }
-if(!file.exists(config)) { message("No correct config given!")}
-config <- read.table(config, sep = ",", stringsAsFactors = F, header = T)
+config <- opt$input_config
+suppressWarnings(config <- read.table(config, sep = ",", stringsAsFactors = F, header = T))
 
 ### for a given model id (for all maps/submaps in the project)
 ### Fetch HGNC symbols for proteins, RNAs and genes.
@@ -107,13 +106,12 @@ for(map in config[config$type == "map","resource"]) {
   
   #Remove null entries
   model_hgncs <- model_hgncs[!sapply(model_hgncs, is.null)]
- 
+  
   all_maps <- c(all_maps, list(map_name = map, map_elements = model_hgncs))
-   
-  message(paste0("Done."))
+  
+  message("Done.")
 }
 
-message(paste0("Writing to JSON..."))
-cat(toJSON(all_maps), file = "out.json")
+message("Writing disease map(s) to JSON...")
+cat(toJSON(all_maps), file = opt$output_json)
 
-message(paste0("Done."))
