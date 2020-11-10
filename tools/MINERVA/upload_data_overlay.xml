@@ -1,4 +1,4 @@
-<tool id="minerva" name="MINERVA Upload Data Overlay" version="14.0">
+<tool id="minerva_upload_data_overlay" name="MINERVA Upload Data Overlay" version="14.0">
     <description>MINERVA API uploading overlays </description>
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/upload_data_overlay.py'
