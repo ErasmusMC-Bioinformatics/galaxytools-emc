@@ -20,7 +20,7 @@ long_description: |
 name: minerva
 owner: erasmus-medical-center
 remote_repository_url: https://github.com/ErasmusMC-Bioinformatics/galaxytools-emc/tree/master/tools/minerva
-homepage_url: https://git-r3lab.uni.lu/minerva/api-scripts/-/blob/master/Python/upload_data_overlay/3_upload_data_overlay.py
+homepage_url: https://git-r3lab.uni.lu/minerva/api-scripts/
 type: unrestricted
 auto_tool_repositories:
   name_template: "{{ tool_id }}"
