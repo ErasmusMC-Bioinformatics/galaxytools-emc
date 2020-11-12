@@ -1,5 +1,7 @@
 categories:
-  - Pathway Analysis
+- Transcriptomics
+- RNA
+- Statistics
 description: |
   WikiPathways API tools
 long_description: |

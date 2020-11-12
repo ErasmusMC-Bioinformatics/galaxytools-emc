@@ -17,7 +17,7 @@ Rscript '$__tool_directory__/wikipathways_fetch.R'
         </test>
     </tests>
     <help><![CDATA[
-WikiPathways fetch data 
+WikiPathways fetch data: Retrieving all Homo Sapiens pathways 
     ]]></help>
     <citations>
         <citation type="doi">10.1093/nar/gkx1064</citation>
