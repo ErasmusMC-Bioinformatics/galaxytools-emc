@@ -1,0 +1,32 @@
+<tool id="minerva_fetch" name="MINERVA fetch data" version="14.0">
+    <description>MINERVA API fetch data </description>
+    <requirements>
+        <requirement type="package" version="1.7.1">r-jsonlite</requirement>
+        <requirement type="package" version="1.4.2">r-httr</requirement>
+        <requirement type="package" version="1.6.6">r-optparse</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+Rscript '$__tool_directory__/dmaps_fetch.R'
+-i '${inputConfig}'
+-o '${outputJSON}'
+    ]]></command>
+    <inputs>
+        <param name="inputConfig" type="data" format="csv" label="A comma seperated file listing the resources to fetch" />
+    </inputs>
+    <outputs>
+        <data name="outputJSON" format="json" label="${tool.name} on ${on_string}: JSON" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="inputConfig" value="config.txt"/>
+	    <output name="outputJSON" ftype="json" file="dmaps_out.json"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+MINERVA API fetch data: For a given model id (for all maps/submaps in the project). 
+Fetch HGNC symbols for proteins, RNAs and genes. 
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1038/npjsba.2016.20</citation>
+    </citations>
+</tool>

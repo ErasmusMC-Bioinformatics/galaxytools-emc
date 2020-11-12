@@ -1,0 +1,27 @@
+<tool id="minerva_upload_data_overlay" name="MINERVA Upload Data Overlay" version="14.0">
+    <description>MINERVA API uploading overlays </description>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/upload_data_overlay.py'
+--login '$login'
+--password '$password'
+--overlay '$overlay'
+--api_url '$api_url'
+--project_id '$project_id' > '$log'
+    ]]></command>
+    <inputs>
+        <param name="login" type="text" label="Login name" />
+	<param name="password" type="text" label="Password" />
+	<param name="overlay" type="data" format="tabular" label="Overlay file"/>
+	<param name="api_url" type="text" label="API url" />
+	<param name="project_id" type="text" label="Project ID" />
+    </inputs>
+    <outputs>
+        <data name="log" format="txt" label="${tool.name} on ${on_string}: Log" />
+    </outputs>
+    <help><![CDATA[
+	    MINERVA Upload Data Overlay
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1038/npjsba.2016.20</citation>
+    </citations>
+</tool>
