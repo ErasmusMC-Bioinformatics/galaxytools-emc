@@ -1,0 +1,25 @@
+<tool id="wikipathways_fetch" name="WikiPathways fetch data" version="1.0">
+    <description>WikiPathways fetch data </description>
+    <requirements>
+        <requirement type="package" version="1.7.1">r-jsonlite</requirement>
+        <requirement type="package" version="1.6.6">r-optparse</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+Rscript '$__tool_directory__/wikipathways_fetch.R'
+-o '${outputJSON}'
+    ]]></command>
+    <outputs>
+        <data name="outputJSON" format="json" label="JSON of WikiPathways" />
+    </outputs>
+    <tests>
+        <test>
+	    <output name="outputJSON" ftype="json" file="wikipathways.json"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+WikiPathways fetch data: Retrieving all Homo Sapiens pathways 
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1093/nar/gkx1064</citation>
+    </citations>
+</tool>
