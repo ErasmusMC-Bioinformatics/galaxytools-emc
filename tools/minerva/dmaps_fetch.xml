@@ -23,7 +23,8 @@ Rscript '$__tool_directory__/dmaps_fetch.R'
         </test>
     </tests>
     <help><![CDATA[
-MINERVA API fetch data 
+MINERVA API fetch data: For a given model id (for all maps/submaps in the project). 
+Fetch HGNC symbols for proteins, RNAs and genes. 
     ]]></help>
     <citations>
         <citation type="doi">10.1038/npjsba.2016.20</citation>
