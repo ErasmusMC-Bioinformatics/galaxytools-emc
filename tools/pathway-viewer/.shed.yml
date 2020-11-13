@@ -2,7 +2,7 @@ name: pathway-viewer
 owner: erasmus-medical-center
 categories:
   - Sequence Analysis
-description: Tool description
+description: Visualize Pathway enrichment
 long_description: |
     Longer tool description
     newlines are okay
