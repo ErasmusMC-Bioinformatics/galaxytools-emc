@@ -1,0 +1,11 @@
+name: pathway-viewer
+owner: erasmus-medical-center
+categories:
+  - Sequence Analysis
+description: Tool description
+long_description: |
+    Longer tool description
+    newlines are okay
+remote_repository_url: https://github.com/project/repository
+homepage_url: http://www.example.org
+type: unrestricted
