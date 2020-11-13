@@ -1,0 +1,38 @@
+<tool id="pathway_viewer" name="Pathway Viewer" version="0.1" profile="16.07">
+    <description>visualize differentially expressed genes on a pathway</description>
+    <requirements>
+        <requirement type="package" version="1.98_1.2">r-rcurl</requirement>
+        <requirement type="package" version="2.10.0">bioconductor-rcy3</requirement>
+        <requirement type="package" version="1.1_2">r-rcolorbrewer</requirement>
+        <requirement type="package" version="1.10.0">bioconductor-rwikipathways</requirement>
+        <requirement type="package" version="1.6.6">r-optparse</requirement>
+    </requirements>
+    <command detect_errors="aggressive"><![CDATA[
+Rscript '$__tool_directory__/view_pathway.R'
+  --wikiPathway '$wikipathway'
+  --header $header
+  --genes '$genes'
+    ]]></command>
+    <inputs>
+        <param name="genes" type="data" format="tabular" label="List of Differentially expressed genes" />
+        <param name="wikipathway" type="text" value="WP528" label="wikiPathway ID" help="IDs must start with WP"/>
+        <param name="header" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Does the file have a header line?" />
+    </inputs>
+    <outputs>
+       <data name="pathwayview" format="html" from_work_dir="pathwayview.html" label="${tool.name} on ${on_string}: Pathway View"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="genes" value="deg.tsv" ftype="tabular"/>
+            <param name="headers" value="TRUE"/>
+            <param name="wikiPathway" value="WP528"/>
+            <output name="pathwayview" file="pathwayview.html" ftype="html"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+Pathway visualisation
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1093/nar/gkx1064</citation>
+    </citations>
+</tool>
